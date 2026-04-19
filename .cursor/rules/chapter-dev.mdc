@@ -1,0 +1,53 @@
+---
+description: 확률·수학·AI 교재 챕터 개발 전체 가이드 — 에이전트가 새 챕터를 만들 때 항상 참고
+alwaysApply: true
+---
+
+# 확률·수학·AI 교재 챕터 개발 가이드
+
+## 프로젝트 구조
+
+```
+percent_ml/
+├── index.html               ← 메인 (사이드바 통합본)
+├── chapters/chNN.html       ← 챕터별 독립 HTML
+└── docs/
+    ├── PRD.md               ← 전체 요구사항 (항상 먼저 읽기)
+    ├── DESIGN_SYSTEM.md     ← CSS 스니펫 카탈로그
+    ├── CHAPTER_TEMPLATE.md  ← 빈 HTML 템플릿
+    └── chapters/weekNN.md   ← 챕터별 콘텐츠 명세
+```
+
+## 챕터 개발 순서 (필수)
+
+1. `docs/chapters/weekNN.md` 읽기 → 콘텐츠 파악
+2. `docs/CHAPTER_TEMPLATE.md` 복사 → `chapters/chNN.html` 생성
+3. `docs/DESIGN_SYSTEM.md` 참고 → CSS/JS 스니펫 활용
+4. 7개 필수 블록 순서대로 채우기
+5. 품질 체크리스트 통과 확인
+
+## 7개 필수 블록 (순서 고정)
+
+```
+[1] HERO          — .hero > .badge + h1 + p
+[2] EASY BOX      — .easy > .et + p + ul (초등학생 비유 필수)
+[3] MAIN CONTENT  — h2.st + 설명 + 표/카드
+[4] FORMULA BOX   — .fb > .fl + 수식 + .fn (주석 필수)
+[5] INTERACTIVE   — .calc (수치 개념 챕터에서 필수)
+[6] QUIZ          — .qb > 4지선다 + .qfb
+[7] NAV BUTTONS   — .nb > .btn-s + .btn-p
+```
+
+## 절대 금지
+
+- ❌ CSS 색상 하드코딩 (`color: #6c8aff` → `color: var(--accent)`)
+- ❌ EASY BOX 생략
+- ❌ 수식에 `.fn` 주석 없음
+- ❌ 퀴즈를 주관식으로 변경
+- ❌ `PLACEHOLDER` / `FILL` 텍스트 남기기
+
+## MathJax 수식 규칙
+
+- 인라인: `\( 수식 \)`
+- 블록: `\[ 수식 \]`
+- 수식 박스마다 `.fn` 클래스로 한국어 주석 필수

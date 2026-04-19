@@ -1,0 +1,114 @@
+---
+description: 챕터 HTML 파일의 7블록 구조, JS 함수, MathJax 설정 규칙
+globs: chapters/**/*.html
+alwaysApply: false
+---
+
+# 챕터 HTML 구조 규칙
+
+## HEAD 필수 포함 요소
+
+```html
+<!-- MathJax 설정 (순서 중요: config → CDN) -->
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+```
+
+## 블록 1 — HERO
+
+```html
+<div class="hero">
+  <div class="badge">Ch.N · 카테고리 (N주차)</div>
+  <h1>챕터 제목</h1>
+  <p>한 줄 설명 — 이 챕터를 배우면 무엇이 가능해지는지</p>
+</div>
+```
+
+## 블록 2 — EASY BOX (초등학생 비유 필수)
+
+```html
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"핵심 비유를 굵게"</strong></p>
+  <ul>
+    <li>일상 예시 1</li>
+    <li>일상 예시 2</li>
+    <li>AI/ML 연결 포인트 (마지막 항목은 반드시 AI와 연결)</li>
+  </ul>
+</div>
+```
+
+## 블록 4 — FORMULA BOX (.fn 주석 필수)
+
+```html
+<div class="fb">
+  <div class="fl">수식 이름 (영문 대문자)</div>
+  \[ 수식 \]
+  <div class="fn">
+    \(기호1\): 한국어 설명<br/>
+    \(기호2\): 한국어 설명
+  </div>
+</div>
+```
+
+## 블록 6 — QUIZ (4지선다 고정)
+
+```html
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">질문</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 오답</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 정답</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 오답</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 오답</div>
+  <div class="qfb"></div>
+</div>
+```
+- 정답 위치를 매 챕터마다 다르게 (항상 b가 정답이면 안 됨)
+
+## 필수 JavaScript 함수 (변경 금지)
+
+```javascript
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답!' : '❌ 틀렸습니다. 본문을 다시 확인하세요.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+```
+
+## 인터랙티브 계산기 패턴
+
+```html
+<div class="calc">
+  <h4>🔢 계산기 제목</h4>
+  <div class="cr">
+    <span class="cl">파라미터 \(\theta\)</span>
+    <input type="range" id="param" min="0" max="10" step="0.1" value="5" oninput="updateCalc()"/>
+    <input type="number" id="param-v" value="5" readonly/>
+  </div>
+  <div class="cres" id="calc-res">결과 표시 영역</div>
+</div>
+```
+- 슬라이더 + 숫자 필드 반드시 쌍으로
+- `oninput="updateCalc()"` — 실시간 업데이트
+- 페이지 로드 시 `updateCalc()` 한 번 호출

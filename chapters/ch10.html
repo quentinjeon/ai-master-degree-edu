@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ch.10 Softmax와 다중분류</title>
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']],tags:'ams'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--surface3:#2a2f47;--accent:#6c8aff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#f59e0b;--accent5:#f87171;--text:#e2e8f0;--muted:#94a3b8;--border:#2d3148;--code:#141824;--hl:rgba(108,138,255,0.10);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<section class="hero">
+  <div class="badge">Ch.10 · ML 연결 (12주차)</div>
+  <h1>Softmax와 다중분류</h1>
+  <p>여러 클래스 중 하나를 확률로 고르는 방법. Softmax가 Categorical 분포와 어떻게 연결되는지 배웁니다.</p>
+</section>
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🎓 쉬운 설명 — 초등학생도 이해하는 비유</div>
+  <p>고양이·강아지·토끼 중 하나를 고를 때 AI는 각각의 점수를 계산한다. <strong>그 점수를 "합이 1인 확률"로 바꿔주는 것이 Softmax</strong>다 — 가장 높은 확률이 정답이 된다.</p>
+  <ul>
+    <li>점수: [3.0, 1.0, 0.5] → softmax → <strong>[0.84, 0.11, 0.05]</strong></li>
+    <li>세 값의 합은 항상 <strong>1</strong> — 확률 조건을 완벽히 만족</li>
+    <li>AI에서: 이미지 분류의 마지막 레이어는 반드시 softmax (또는 sigmoid)</li>
+  </ul>
+</div>
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1: Softmax 함수 -->
+<h2 class="st"><span class="ic">🔢</span>Softmax 함수</h2>
+<p>Softmax는 K개의 임의의 실수(logit)를 K개의 확률(합=1)로 변환하는 함수입니다. 신경망의 다중분류 출력층에서 핵심 역할을 합니다.</p>
+
+<!-- 수식 박스 1 -->
+<div class="fb">
+  <div class="fl">Softmax 함수</div>
+  \[
+    \text{softmax}(\mathbf{z})_k = \frac{e^{z_k}}{\sum_{j=1}^{K} e^{z_j}}, \quad k = 1, \ldots, K
+  \]
+  <div class="fn">
+    \(z_k\) = k번째 클래스의 점수(logit)<br/>
+    지수 함수로 양수화 후 전체 합으로 나눠서 확률로 변환<br/>
+    출력값: 모두 \((0,1)\) 사이이고 합이 1 → 유효한 확률분포
+  </div>
+</div>
+
+<h3 class="sub">Sigmoid vs Softmax 비교</h3>
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Sigmoid</th>
+      <th>Softmax</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>출력 개수</td><td>1개</td><td>K개</td></tr>
+    <tr><td>출력 범위</td><td>(0, 1)</td><td>(0, 1), 합=1</td></tr>
+    <tr><td>사용</td><td>이진분류</td><td>다중분류</td></tr>
+    <tr><td>분포</td><td>Bernoulli</td><td>Categorical</td></tr>
+    <tr><td>손실</td><td>BCE</td><td>Cross-Entropy</td></tr>
+  </tbody>
+</table>
+
+<!-- 섹션 2: 다중분류 Cross-Entropy -->
+<h2 class="st"><span class="ic">🏹</span>다중분류 Cross-Entropy Loss</h2>
+<p>Softmax 출력과 실제 정답 레이블 사이의 차이를 측정하는 손실 함수입니다. One-hot 인코딩된 정답에서 정답 클래스의 예측 확률의 음의 로그값으로 단순화됩니다.</p>
+
+<!-- 수식 박스 2 -->
+<div class="fb">
+  <div class="fl">Categorical Cross-Entropy Loss</div>
+  \[
+    \mathcal{L}_{CE} = -\frac{1}{n}\sum_{i=1}^{n}\sum_{k=1}^{K} y_{ik} \log \hat{p}_{ik}
+    = -\frac{1}{n}\sum_{i=1}^{n} \log \hat{p}_{i,\, y_i}
+  \]
+  <div class="fn">
+    \(y_{ik}\) = one-hot 인코딩 (실제 정답 클래스만 1, 나머지 0)<br/>
+    \(\hat{p}_{ik}\) = softmax 출력 (k번째 클래스의 예측 확률)<br/>
+    단순화: one-hot 구조 덕분에 정답 클래스의 예측 확률의 음의 로그값만 남음
+  </div>
+</div>
+
+<div class="callout tip">
+  <span class="ci">💡</span>
+  <div class="cb">
+    <p>예측 확률 \(\hat{p}_{i,y_i}\)가 1에 가까울수록 손실이 0에 가까워집니다. 잘못 예측할수록 \(-\log(\hat{p})\)가 커져 모델을 강하게 페널티합니다.</p>
+  </div>
+</div>
+
+<!-- 섹션 3: Naive Bayes -->
+<h2 class="st"><span class="ic">🧮</span>Naive Bayes 분류기</h2>
+<p>베이즈 정리를 직접 이용하는 분류기입니다. 모든 특성이 조건부 독립이라는 강한 가정을 사용합니다. 단순하지만 텍스트 분류 등 많은 실제 문제에서 효과적입니다.</p>
+
+<!-- 수식 박스 3 -->
+<div class="fb">
+  <div class="fl">Naive Bayes 분류 규칙</div>
+  \[
+    \hat{y} = \operatorname{argmax}_k\; P(Y=k) \prod_{j=1}^{d} P(X_j \mid Y=k)
+  \]
+  <div class="fn">
+    \(P(Y=k)\) = 클래스 k의 prior (전체 데이터에서 k 비율)<br/>
+    \(P(X_j \mid Y=k)\) = j번째 특성의 조건부 확률<br/>
+    "Naive": 각 특성이 서로 독립이라고 가정 (실제로는 아닐 수 있음)
+  </div>
+</div>
+
+<div class="callout warn">
+  <span class="ci">⚠️</span>
+  <div class="cb">
+    <p>독립 가정이 강하게 위반되는 경우 성능이 떨어질 수 있습니다. 그러나 계산 효율이 뛰어나고 데이터가 적어도 잘 동작하는 장점이 있습니다.</p>
+  </div>
+</div>
+
+<!-- [5] INTERACTIVE -->
+<div class="calc">
+  <h4>🔢 Softmax 계산기 (3-class 예시)</h4>
+
+  <div class="cr">
+    <span class="cl">클래스 1 점수 z₁</span>
+    <input type="range" id="sm-z1" min="-5" max="5" step="0.1" value="3.0" oninput="updateSM()"/>
+    <input type="number" id="sm-z1-v" min="-5" max="5" step="0.1" value="3.0" oninput="document.getElementById('sm-z1').value=this.value;updateSM()"/>
+  </div>
+  <div class="cr">
+    <span class="cl">클래스 2 점수 z₂</span>
+    <input type="range" id="sm-z2" min="-5" max="5" step="0.1" value="1.0" oninput="updateSM()"/>
+    <input type="number" id="sm-z2-v" min="-5" max="5" step="0.1" value="1.0" oninput="document.getElementById('sm-z2').value=this.value;updateSM()"/>
+  </div>
+  <div class="cr">
+    <span class="cl">클래스 3 점수 z₃</span>
+    <input type="range" id="sm-z3" min="-5" max="5" step="0.1" value="0.5" oninput="updateSM()"/>
+    <input type="number" id="sm-z3-v" min="-5" max="5" step="0.1" value="0.5" oninput="document.getElementById('sm-z3').value=this.value;updateSM()"/>
+  </div>
+
+  <div class="cres" id="sm-res"></div>
+</div>
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>❓ 퀴즈: softmax의 출력값이 항상 만족해야 하는 조건 두 가지는?</h4>
+  <div class="qo" onclick="ans(this,false)">(a) 각 값이 음수이고 합이 0</div>
+  <div class="qo" onclick="ans(this,true)">(b) 각 값이 (0,1) 사이이고 합이 1</div>
+  <div class="qo" onclick="ans(this,false)">(c) 각 값이 정수이고 합이 K</div>
+  <div class="qo" onclick="ans(this,false)">(d) 각 값이 동일하고 합이 K</div>
+  <div class="qfb"></div>
+</div>
+
+<!-- [7] NAV BUTTONS -->
+<nav class="nb">
+  <button class="btn btn-s" onclick="location.href='ch09b.html'">← Ch.9B 모델 평가지표</button>
+  <button class="btn btn-p" onclick="location.href='ch11.html'">Ch.11 정보이론 →</button>
+</nav>
+
+<script>
+function updateSM() {
+  const z1 = parseFloat(document.getElementById('sm-z1').value);
+  const z2 = parseFloat(document.getElementById('sm-z2').value);
+  const z3 = parseFloat(document.getElementById('sm-z3').value);
+  document.getElementById('sm-z1-v').value = z1.toFixed(1);
+  document.getElementById('sm-z2-v').value = z2.toFixed(1);
+  document.getElementById('sm-z3-v').value = z3.toFixed(1);
+  const exps = [Math.exp(z1), Math.exp(z2), Math.exp(z3)];
+  const sumExp = exps.reduce((a, b) => a + b, 0);
+  const probs = exps.map(e => e / sumExp);
+  const maxIdx = probs.indexOf(Math.max(...probs));
+  const labels = ['클래스 1', '클래스 2', '클래스 3'];
+  document.getElementById('sm-res').innerHTML =
+    `P(클래스1) = <strong>${probs[0].toFixed(4)}</strong> | 
+     P(클래스2) = <strong>${probs[1].toFixed(4)}</strong> | 
+     P(클래스3) = <strong>${probs[2].toFixed(4)}</strong><br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       합계 = ${(probs[0]+probs[1]+probs[2]).toFixed(4)} | 
+       예측: <strong style="color:var(--accent3)">${labels[maxIdx]}</strong>
+     </span>`;
+}
+updateSM();
+
+function ans(el,correct){
+  const s=el.parentElement.querySelectorAll('.qo');
+  s.forEach(x=>{x.classList.remove('correct','wrong');x.onclick=null;});
+  el.classList.add(correct?'correct':'wrong');
+  const fb=el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color=correct?'var(--accent3)':'var(--accent5)';
+  fb.textContent=correct?'✅ 정답! 잘 이해하고 있습니다.':'❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+function saveCheck(el){localStorage.setItem('chk_'+el.id,el.checked?'1':'0');}
+function loadChecks(){document.querySelectorAll('input[type=checkbox]').forEach(el=>{const v=localStorage.getItem('chk_'+el.id);if(v!==null)el.checked=v==='1';});}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+</script>
+</body>
+</html>

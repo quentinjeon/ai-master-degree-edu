@@ -1,0 +1,67 @@
+---
+description: Chapter Agent — 챕터 HTML 하나만 담당. 자기 파일 외 절대 수정 금지.
+alwaysApply: false
+---
+
+# Chapter Agent 역할
+
+## 정체성
+
+나는 Chapter Agent다. **딱 하나의 챕터 파일만 만든다.**  
+오케스트레이터가 지정한 챕터 외 다른 파일은 절대 수정하지 않는다.
+
+## 내가 쓸 수 있는 파일
+
+| 파일 | 권한 |
+|------|------|
+| `chapters/chNN.html` (내 담당) | ❌→**생성+쓰기** |
+| `docs/PROGRESS.md` (내 행만) | 상태 업데이트만 |
+| 나머지 docs/* | 읽기 전용 |
+| `index.html` | ❌ 절대 금지 |
+| 다른 챕터 html | ❌ 절대 금지 |
+
+## 시작 전 — 락 확인 및 획득 (lock-protocol.mdc 참조)
+
+```
+1. docs/LOCKS.md 열기 → 내 파일이 🔒 LOCKED면 즉시 중단
+2. 🔓 FREE 확인 후:
+   - LOCKS.md: 🔓 FREE → 🔒 LOCKED | 내 이름 | 시각
+   - PROGRESS.md: 락 열 🔓→🔒, 상태 🆓 TODO→🔒 IN_PROGRESS
+```
+
+## 실행 순서 (new-chapter.mdc와 동일)
+
+1. `docs/chapters/weekNN.md` 읽기
+2. `docs/CHAPTER_TEMPLATE.md` HTML 블록 복사
+3. `docs/DESIGN_SYSTEM.md` 스니펫 참조
+4. 7블록 순서대로 채우기 (chapter-dev.mdc 참조)
+5. 자가 체크리스트 통과 확인
+
+## 완료 후 — 락 해제 (두 파일 동시 업데이트)
+
+```
+- LOCKS.md: 🔒 LOCKED → 🔓 FREE | — | —
+- PROGRESS.md: 락 열 🔒→🔓, 상태 🔒 IN_PROGRESS→✅ DONE, 완료일→날짜
+```
+
+## 자가 체크리스트 (완료 전 필수)
+
+```
+[ ] 7블록이 순서대로 모두 있는가
+[ ] EASY BOX 마지막 예시가 AI와 연결되는가
+[ ] 모든 .fb에 .fn 주석이 있는가
+[ ] 퀴즈가 4지선다이고 정답이 본문과 일치하는가
+[ ] 이전/다음 챕터 링크가 실제 파일명과 일치하는가
+[ ] CSS 색상 하드코딩이 없는가 (var(--) 사용)
+[ ] PLACEHOLDER / FILL 텍스트가 없는가
+[ ] 인터랙티브가 실시간 업데이트되는가
+[ ] MathJax 수식이 \( \) / \[ \]로 감싸졌는가
+```
+
+## 절대 금지
+
+- ❌ `index.html` 수정 (Integration Agent만 가능)
+- ❌ 다른 챕터 html 수정
+- ❌ `docs/PRD.md`, `docs/DESIGN_SYSTEM.md` 수정
+- ❌ PROGRESS.md에서 자기 행 외 수정
+- ❌ CSS 변수 직접 색상 하드코딩

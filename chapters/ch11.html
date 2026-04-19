@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.11 — 정보이론: Entropy, Cross-Entropy, KL Divergence | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.11 · 정보이론 (13주차)</div>
+  <h1>정보이론: Entropy, Cross-Entropy, KL Divergence</h1>
+  <p>딥러닝 손실함수의 수학적 근거. 불확실성을 정량화하고 두 분포의 차이를 측정합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"Entropy는 '얼마나 헷갈리는지'. Cross-Entropy는 '정답과 AI 예측이 얼마나 다른지 재는 벌점'. KL Divergence는 '두 생각이 얼마나 다른지'."</strong></p>
+  <ul>
+    <li>Entropy: 동전이 앞/뒤 반반 → 제일 헷갈림 → H 최대. 항상 앞면 → 전혀 헷갈리지 않음 → H = 0</li>
+    <li>Cross-Entropy: AI가 "고양이 99%"라고 했는데 정답이 고양이 → 벌점 작음. "고양이 5%"인데 정답이 고양이 → 벌점 큼</li>
+    <li>AI에서: 딥러닝 분류 학습 = Cross-Entropy 손실 최소화 = KL(P‖Q) 최소화</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: Shannon Entropy == -->
+<h2 class="st"><span class="ic">🌀</span>엔트로피 (Entropy) — 불확실성의 척도</h2>
+<p>Shannon Entropy는 확률분포의 불확실성(정보량)을 측정합니다. 분포가 한 값에 집중될수록 엔트로피는 낮아지고, 모든 값이 균등하게 분포될수록 엔트로피는 높아집니다.</p>
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX 1
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">Shannon Entropy</div>
+  \[
+    H(P) = -\sum_{x} P(x) \log_2 P(x) \ge 0
+  \]
+  <div class="fn">
+    \(H(P)\): 분포 P의 Shannon Entropy — 불확실성의 정량적 척도<br/>
+    \(\log_2\) 사용 시 단위는 "bits" (밑이 \(e\)이면 "nats")<br/>
+    \(P(x)=0\)인 항은 0으로 정의: \(\lim_{p \to 0} p \log p = 0\)<br/>
+    균등분포일 때 최대: \(H(\text{uniform on } K) = \log_2 K\) bits<br/>
+    확실할수록 (\(P=1\)인 값이 있으면) \(H = 0\) — 불확실성이 없음
+  </div>
+</div>
+
+<table>
+  <tr>
+    <th>분포</th><th>H 값</th><th>의미</th>
+  </tr>
+  <tr>
+    <td>[1.0, 0.0]</td><td>0 bits</td><td>완전히 확실</td>
+  </tr>
+  <tr>
+    <td>[0.5, 0.5]</td><td>1 bit</td><td>최대 불확실 (동전)</td>
+  </tr>
+  <tr>
+    <td>[0.9, 0.1]</td><td>0.469 bits</td><td>어느 정도 확실</td>
+  </tr>
+  <tr>
+    <td>균등 (K 클래스)</td><td>\(\log_2 K\) bits</td><td>K가 클수록 불확실</td>
+  </tr>
+</table>
+
+
+<!-- == 섹션 2: Cross-Entropy == -->
+<h2 class="st"><span class="ic">🏹</span>교차 엔트로피 (Cross-Entropy)</h2>
+<p>정답 분포 P를 모델 분포 Q로 인코딩할 때 필요한 평균 비트 수입니다. 딥러닝 분류 학습의 손실함수로 사용되며, P에 맞는 최적 코드 대신 Q에 맞춘 코드를 사용할 때 발생하는 추가 비용을 측정합니다.</p>
+
+<div class="fb">
+  <div class="fl">Cross-Entropy</div>
+  \[
+    H(P, Q) = -\sum_{x} P(x) \log Q(x) = H(P) + D_{KL}(P \| Q)
+  \]
+  <div class="fn">
+    \(P\): 정답 분포 (one-hot label) — 실제 정답이 나타내는 확률 분포<br/>
+    \(Q\): 모델의 예측 분포 (softmax 출력) — AI가 추정하는 확률 분포<br/>
+    \(H(P)\): 정답 자체의 불확실성 — 학습으로 줄일 수 없는 고정된 양<br/>
+    \(D_{KL}(P\|Q)\): P와 Q의 차이 — 학습을 통해 줄여나가는 부분<br/>
+    P가 one-hot이면 \(H(P)=0\)이므로: \(H(P,Q) = D_{KL}(P\|Q)\)
+  </div>
+</div>
+
+
+<!-- == 섹션 3: KL Divergence == -->
+<h2 class="st"><span class="ic">↔️</span>KL 발산 (Kullback-Leibler Divergence)</h2>
+<p>KL Divergence는 두 확률분포 P와 Q 사이의 "정보 손실"을 측정합니다. P를 Q로 근사할 때 발생하는 추가 정보량을 나타내며, 항상 0 이상입니다. 단, 대칭적이지 않아 거리(metric)는 아닙니다.</p>
+
+<div class="fb">
+  <div class="fl">KL Divergence (비대칭 거리)</div>
+  \[
+    D_{KL}(P \| Q) = \sum_x P(x) \log \frac{P(x)}{Q(x)} = H(P,Q) - H(P) \ge 0
+  \]
+  <div class="fn">
+    항상 \(\ge 0\): Gibbs 부등식에 의해 보장<br/>
+    \(P = Q\)일 때만 \(D_{KL} = 0\) — 두 분포가 완전히 같을 때만 0<br/>
+    비대칭: \(D_{KL}(P\|Q) \neq D_{KL}(Q\|P)\) — 순서가 중요<br/>
+    "P를 Q로 근사할 때의 정보 손실" — Q가 P를 얼마나 잘 표현하는지의 척도
+  </div>
+</div>
+
+<table>
+  <tr>
+    <th>개념</th><th>수식</th><th>의미</th><th>AI 역할</th>
+  </tr>
+  <tr>
+    <td>Entropy \(H(P)\)</td><td>\(-\sum P \log P\)</td><td>P 자체의 불확실성</td><td>정보량 측정, 결정트리</td>
+  </tr>
+  <tr>
+    <td>Cross-Entropy \(H(P,Q)\)</td><td>\(-\sum P \log Q\)</td><td>Q로 P를 표현할 때 비용</td><td>분류 손실함수</td>
+  </tr>
+  <tr>
+    <td>KL Divergence \(D_{KL}(P\|Q)\)</td><td>\(\sum P \log(P/Q)\)</td><td>P와 Q의 차이</td><td>VAE, RLHF, 지식증류</td>
+  </tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb">
+    <p>\(H(P,Q) = H(P) + D_{KL}(P\|Q)\). 정답 레이블이 one-hot이면 \(H(P)=0\)이므로 CE = KL.<br/>
+    따라서 <strong>CE 최소화 = KL 최소화 = 두 분포를 최대한 비슷하게 만들기</strong></p>
+  </div>
+</div>
+
+
+<!-- Jensen's Inequality 섹션 추가 -->
+<h2 class="st"><span class="ic">📐</span>Jensen's Inequality — KL 비음수성의 증명 핵심</h2>
+<p>정보이론 논문에서 KL 발산이 항상 0 이상임을 증명할 때, 그리고 EM 알고리즘·VAE의 ELBO를 유도할 때 <strong>Jensen's Inequality</strong>가 반드시 등장합니다.</p>
+
+<h3 class="sub">볼록 함수(Convex Function)란?</h3>
+<p>두 점 사이의 함수 값보다 두 점을 잇는 직선이 항상 위에 있으면 <strong>볼록 함수(convex)</strong>입니다. 반대면 오목 함수(concave)입니다.</p>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>볼록 함수 (Convex) — ∪ 모양</h5>
+    <ul>
+      <li>\(f(x) = x^2\) (포물선)</li>
+      <li>\(f(x) = e^x\)</li>
+      <li>\(f(x) = -\log x\) (마이너스 로그)</li>
+    </ul>
+    <p style="font-size:.8rem;color:var(--muted);">정의: \(f(\lambda x + (1-\lambda)y) \leq \lambda f(x) + (1-\lambda)f(y)\)</p>
+  </div>
+  <div class="col-box">
+    <h5>오목 함수 (Concave) — ∩ 모양</h5>
+    <ul>
+      <li>\(f(x) = \log x\)</li>
+      <li>\(f(x) = \sqrt{x}\)</li>
+      <li>\(f(x) = -x^2\)</li>
+    </ul>
+    <p style="font-size:.8rem;color:var(--muted);">볼록 함수에 음수 부호를 붙이면 오목 함수</p>
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">JENSEN'S INEQUALITY</div>
+  \[
+    f\!\left(\mathbb{E}[X]\right) \leq \mathbb{E}\!\left[f(X)\right] \quad \text{(볼록 함수일 때)}
+  \]
+  <div class="fn">
+    \(f\): 볼록 함수 (convex function)<br/>
+    \(\mathbb{E}[X]\): 확률 변수 X의 기댓값<br/>
+    \(\mathbb{E}[f(X)]\): f(X)의 기댓값<br/>
+    직관: 볼록 함수에서는 "평균의 함수값 ≤ 함수값의 평균"<br/>
+    오목 함수(예: log)에서는 부등호 반전: \(f(\mathbb{E}[X]) \geq \mathbb{E}[f(X)]\)
+  </div>
+</div>
+
+<h3 class="sub">KL 비음수성 증명 — Jensen 적용</h3>
+<p>\(D_{KL}(P\|Q) \geq 0\)임을 Jensen's Inequality로 증명할 수 있습니다. \(\log\)는 오목 함수이므로 부등호가 반전됩니다.</p>
+
+<div class="fb">
+  <div class="fl">KL ≥ 0 PROOF VIA JENSEN</div>
+  \[
+    -D_{KL}(P\|Q) = \sum_x P(x) \log\frac{Q(x)}{P(x)}
+    \leq \log\sum_x P(x)\frac{Q(x)}{P(x)} = \log 1 = 0
+  \]
+  <div class="fn">
+    핵심 단계: \(\log\)가 오목(concave)이므로 Jensen에 의해 \(\mathbb{E}[\log Z] \leq \log \mathbb{E}[Z]\)<br/>
+    \(\sum_x P(x) \cdot \frac{Q(x)}{P(x)} = \sum_x Q(x) = 1\)이므로 우변 = \(\log 1 = 0\)<br/>
+    따라서 \(-D_{KL}(P\|Q) \leq 0 \implies D_{KL}(P\|Q) \geq 0\)<br/>
+    등호 조건: \(P = Q\)일 때만 0
+  </div>
+</div>
+
+<h3 class="sub">ELBO — VAE와 EM 알고리즘의 핵심</h3>
+<p>변분 추론(Variational Inference)에서 증거 하한(ELBO)을 유도할 때도 Jensen이 핵심입니다.</p>
+
+<div class="fb">
+  <div class="fl">ELBO DERIVATION (Evidence Lower BOund)</div>
+  \[
+    \log P(x) = \log \mathbb{E}_{z \sim q}\!\left[\frac{P(x,z)}{q(z)}\right]
+    \geq \mathbb{E}_{z \sim q}\!\left[\log\frac{P(x,z)}{q(z)}\right] = \mathcal{L} \text{ (ELBO)}
+  \]
+  <div class="fn">
+    \(P(x)\): 관측 데이터의 주변 우도 (계산 불가 — 잠재 변수 z를 적분해야 함)<br/>
+    \(q(z)\): 잠재 변수의 근사 분포 (우리가 최적화하는 분포)<br/>
+    Jensen(\(\log\)는 오목): \(\log \mathbb{E}[Y] \geq \mathbb{E}[\log Y]\) 적용<br/>
+    결과: \(\log P(x) \geq \mathcal{L}\) — ELBO를 최대화하면 진짜 로그우도를 간접적으로 최대화<br/>
+    \(\log P(x) - \mathcal{L} = D_{KL}(q(z)\|P(z \mid x)) \geq 0\) (항상 성립)
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>논문 읽기 포인트:</strong> "by Jensen's inequality", "ELBO", "variational lower bound" — 이 표현들이 보이면 Jensen's Inequality가 적용된 것입니다. VAE(Kingma & Welling 2013), EM Algorithm 논문의 핵심 단계입니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc" id="ent-calc">
+  <h4>🔢 Entropy와 KL Divergence 계산기 (2클래스)</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">정답 분포 P와 모델 분포 Q를 조절해 Entropy, Cross-Entropy, KL Divergence를 실시간으로 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">정답분포 \(P(x=1)\)</span>
+    <input type="range" id="ent-p" min="0.01" max="0.99" step="0.01" value="0.5" oninput="updateEnt()"/>
+    <input type="number" id="ent-p-v" value="0.50" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">모델분포 \(Q(x=1)\)</span>
+    <input type="range" id="ent-q" min="0.01" max="0.99" step="0.01" value="0.8" oninput="updateEnt()"/>
+    <input type="number" id="ent-q-v" value="0.80" readonly/>
+  </div>
+
+  <div class="cres" id="ent-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">Cross-Entropy \(H(P,Q)\)를 최소화하는 것은 어떤 것과 동치인가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(H(P)\)를 최소화하는 것</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(D_{KL}(P\|Q)\)를 최소화하는 것 &nbsp; (H(P)는 상수이므로)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(Q\)의 Entropy를 최소화하는 것</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; \(P\)와 \(Q\)의 합을 최소화하는 것</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch10.html'">← Ch.10 Softmax &amp; 다중분류</button>
+  <button class="btn btn-p" onclick="location.href='ch12.html'">Ch.12 딥러닝과 LLM →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답! 잘 이해하고 있습니다.' : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// ── Entropy & KL Divergence 계산기 ──
+function updateEnt() {
+  const p1 = parseFloat(document.getElementById('ent-p').value);
+  const p0 = 1 - p1;
+  const q1 = parseFloat(document.getElementById('ent-q').value);
+  const q0 = 1 - q1;
+  document.getElementById('ent-p-v').value = p1.toFixed(2);
+  document.getElementById('ent-q-v').value = q1.toFixed(2);
+  const H_P = -(p1*Math.log2(p1) + p0*Math.log2(p0));
+  const H_PQ = -(p1*Math.log2(q1) + p0*Math.log2(q0));
+  const KL = H_PQ - H_P;
+  document.getElementById('ent-res').innerHTML =
+    `H(P) = <strong>${H_P.toFixed(4)}</strong> bits &nbsp;|&nbsp; 
+     H(P,Q) = <strong>${H_PQ.toFixed(4)}</strong> bits &nbsp;|&nbsp; 
+     D_KL(P‖Q) = <strong>${KL.toFixed(4)}</strong><br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       P=[${p1.toFixed(2)},${p0.toFixed(2)}], Q=[${q1.toFixed(2)},${q0.toFixed(2)}] | 
+       H(P,Q) = H(P) + KL 확인: ${(H_P + KL).toFixed(4)}
+     </span>`;
+}
+updateEnt();
+</script>
+</body>
+</html>

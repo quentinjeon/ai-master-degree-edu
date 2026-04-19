@@ -1,0 +1,2504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>논문을 위한 확률·수학·AI 교재</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--surface3:#2a2f47;
+  --accent:#6c8aff;--accent2:#a78bfa;--accent3:#34d399;--accent4:#f59e0b;--accent5:#f87171;
+  --text:#e2e8f0;--muted:#94a3b8;--border:#2d3148;--code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;line-height:1.75;}
+
+/* ── Sidebar ── */
+#sb{width:270px;min-width:270px;background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;}
+#sb-top{padding:20px 18px 14px;border-bottom:1px solid var(--border);}
+#sb-top h2{font-size:13px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;}
+#sb-top p{font-size:11px;color:var(--muted);}
+#pb-wrap{margin-top:10px;background:var(--surface2);border-radius:99px;height:5px;overflow:hidden;}
+#pb{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .4s;}
+#pb-lbl{font-size:10px;color:var(--muted);margin-top:4px;}
+
+.ng{padding:12px 18px 3px;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;}
+
+/* 대단원 헤더 */
+.nu{display:flex;align-items:center;gap:8px;padding:14px 14px 6px;margin-top:6px;
+  border-top:1px solid var(--border);cursor:default;user-select:none;}
+.nu-badge{font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:99px;flex-shrink:0;}
+.nu-title{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.nu-arrow{margin-left:auto;font-size:11px;color:var(--muted);transition:transform .2s;cursor:pointer;}
+.nu.collapsed .nu-arrow{transform:rotate(-90deg);}
+/* 색상 — 단원별 */
+.nu-prep .nu-badge{background:rgba(108,138,255,.18);color:var(--accent);}
+.nu-prep .nu-title{color:var(--accent);}
+.nu-prep{border-top-color:rgba(108,138,255,.2);}
+.nu-math .nu-badge{background:rgba(167,139,250,.18);color:var(--accent2);}
+.nu-math .nu-title{color:var(--accent2);}
+.nu-math{border-top-color:rgba(167,139,250,.2);}
+.nu-stat .nu-badge{background:rgba(52,211,153,.18);color:var(--accent3);}
+.nu-stat .nu-title{color:var(--accent3);}
+.nu-stat{border-top-color:rgba(52,211,153,.2);}
+.nu-ai .nu-badge{background:rgba(245,158,11,.18);color:var(--accent4);}
+.nu-ai .nu-title{color:var(--accent4);}
+.nu-ai{border-top-color:rgba(245,158,11,.2);}
+/* 접기/펼치기 */
+.nu-group{overflow:hidden;transition:max-height .25s ease;}
+.nu-group.collapsed{max-height:0!important;}
+
+.ni{display:flex;align-items:center;gap:9px;padding:7px 18px;cursor:pointer;font-size:13px;color:var(--muted);
+  border-left:3px solid transparent;transition:all .18s;}
+.ni:hover{background:var(--hl);color:var(--text);}
+.ni.active{color:var(--accent);border-left-color:var(--accent);background:var(--hl);font-weight:600;}
+.ni .ck{width:15px;height:15px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .2s;}
+.ni.done .ck{background:var(--accent3);border-color:var(--accent3);color:#000;}
+
+/* 학습경로 카드 (홈) */
+.path-unit{border-radius:16px;overflow:hidden;margin-bottom:20px;border:1px solid var(--border);}
+.path-unit-header{display:flex;align-items:center;gap:14px;padding:20px 24px;position:relative;}
+.path-unit-header::before{content:'';position:absolute;inset:0;opacity:.06;pointer-events:none;}
+.pu-prep .path-unit-header{background:rgba(108,138,255,.07);border-bottom:1px solid rgba(108,138,255,.15);}
+.pu-math .path-unit-header{background:rgba(167,139,250,.07);border-bottom:1px solid rgba(167,139,250,.15);}
+.pu-stat .path-unit-header{background:rgba(52,211,153,.07);border-bottom:1px solid rgba(52,211,153,.15);}
+.pu-ai .path-unit-header{background:rgba(245,158,11,.07);border-bottom:1px solid rgba(245,158,11,.15);}
+.pu-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:22px;flex-shrink:0;}
+.pu-prep .pu-icon{background:rgba(108,138,255,.15);}
+.pu-math .pu-icon{background:rgba(167,139,250,.15);}
+.pu-stat .pu-icon{background:rgba(52,211,153,.15);}
+.pu-ai .pu-icon{background:rgba(245,158,11,.15);}
+.pu-meta{flex:1;}
+.pu-meta .pu-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+.pu-prep .pu-label{color:var(--accent);}
+.pu-math .pu-label{color:var(--accent2);}
+.pu-stat .pu-label{color:var(--accent3);}
+.pu-ai .pu-label{color:var(--accent4);}
+.pu-meta h3{font-size:1.1rem;font-weight:800;margin-bottom:2px;}
+.pu-meta p{font-size:.82rem;color:var(--muted);margin:0;}
+.pu-start-btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:12px;
+  font-weight:700;transition:all .18s;flex-shrink:0;}
+.pu-prep .pu-start-btn{background:rgba(108,138,255,.2);color:var(--accent);}
+.pu-math .pu-start-btn{background:rgba(167,139,250,.2);color:var(--accent2);}
+.pu-stat .pu-start-btn{background:rgba(52,211,153,.2);color:var(--accent3);}
+.pu-ai .pu-start-btn{background:rgba(245,158,11,.2);color:var(--accent4);}
+.pu-start-btn:hover{opacity:.8;transform:translateY(-1px);}
+.path-unit-body{background:var(--surface);padding:16px 24px;}
+.path-chapters{display:flex;flex-direction:column;gap:6px;}
+.path-ch{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:9px;
+  cursor:pointer;transition:all .18s;border:1px solid transparent;}
+.path-ch:hover{background:var(--hl);border-color:var(--border);}
+.path-ch .pc-num{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;flex-shrink:0;}
+.pu-prep .path-ch .pc-num{background:rgba(108,138,255,.15);color:var(--accent);}
+.pu-math .path-ch .pc-num{background:rgba(167,139,250,.15);color:var(--accent2);}
+.pu-stat .path-ch .pc-num{background:rgba(52,211,153,.15);color:var(--accent3);}
+.pu-ai .path-ch .pc-num{background:rgba(245,158,11,.15);color:var(--accent4);}
+.path-ch .pc-title{font-size:.9rem;font-weight:600;flex:1;}
+.path-ch .pc-sub{font-size:.78rem;color:var(--muted);}
+.path-ch .pc-arrow{font-size:12px;color:var(--muted);flex-shrink:0;}
+.path-ch:hover .pc-arrow{color:var(--text);}
+.path-connector{display:flex;justify-content:center;padding:4px 0;}
+.path-connector::before{content:'';display:block;width:2px;height:16px;
+  background:linear-gradient(var(--border),var(--border));border-radius:99px;}
+
+/* ── Main ── */
+#main{margin-left:270px;flex:1;padding:44px 56px;max-width:940px;}
+.pg{display:none;}.pg.active{display:block;}
+
+/* ── Hero ── */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;
+  padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ── Section titles ── */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;
+  border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ── Formula ── */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;}
+
+/* ── Cards ── */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ── Easy box (초등학생 버전) ── */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.easy p{font-size:.93rem;color:var(--text);margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;color:var(--text);margin-bottom:4px;line-height:1.6;}
+
+/* ── Quiz ── */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.1);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ── Nav buttons ── */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-bottom:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ── Table ── */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ── Steps ── */
+.steps{}
+.step{display:flex;gap:14px;margin-bottom:18px;}
+.sn{width:30px;height:30px;background:var(--accent);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+.sb p{margin-bottom:0;}
+
+/* ── Tags ── */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ── Calc ── */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;
+  font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ── 16주 Plan ── */
+.week-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;margin-bottom:18px;overflow:hidden;}
+.week-header{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;
+  transition:background .18s;user-select:none;}
+.week-header:hover{background:var(--hl);}
+.week-num{min-width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:15px;color:#fff;flex-shrink:0;}
+.week-meta{flex:1;}
+.week-meta h3{font-size:1rem;font-weight:700;margin-bottom:2px;}
+.week-meta p{font-size:.82rem;color:var(--muted);margin-bottom:0;}
+.week-badge{font-size:.75rem;padding:3px 9px;border-radius:99px;font-weight:600;flex-shrink:0;}
+.week-toggle{color:var(--muted);font-size:18px;transition:transform .25s;flex-shrink:0;}
+.week-body{display:none;padding:0 20px 20px;}
+.week-body.open{display:block;}
+
+/* why/where boxes inside week */
+.why-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
+.why-item{background:var(--surface3);border-radius:8px;padding:12px 14px;}
+.why-item .wt{font-size:.72rem;color:var(--accent4);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;}
+.why-item p{font-size:.83rem;color:var(--text);margin-bottom:0;}
+
+/* Day plan */
+.days-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;}
+.day-card{background:var(--surface3);border-radius:8px;padding:12px 14px;}
+.day-card h5{font-size:.78rem;color:var(--accent);font-weight:700;margin-bottom:8px;}
+
+/* Checkbox styling */
+.check-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;}
+.check-item input[type=checkbox]{
+  width:16px;height:16px;accent-color:var(--accent3);cursor:pointer;
+  flex-shrink:0;margin-top:2px;}
+.check-item label{font-size:.83rem;color:var(--text);cursor:pointer;line-height:1.5;}
+.check-item input:checked + label{color:var(--muted);text-decoration:line-through;}
+
+/* weekly review */
+.wrev{background:rgba(108,138,255,.06);border:1px solid rgba(108,138,255,.18);
+  border-radius:10px;padding:14px 18px;margin-top:14px;}
+.wrev h5{font-size:.8rem;color:var(--accent);font-weight:700;margin-bottom:10px;}
+
+/* Week color palette */
+.wc0{background:#6c8aff;}.wc1{background:#a78bfa;}.wc2{background:#34d399;}.wc3{background:#f59e0b;}
+.wc4{background:#f87171;}.wc5{background:#38bdf8;}
+.wb0{background:rgba(108,138,255,.12);color:var(--accent);}
+.wb1{background:rgba(167,139,250,.12);color:var(--accent2);}
+.wb2{background:rgba(52,211,153,.12);color:var(--accent3);}
+.wb3{background:rgba(245,158,11,.12);color:var(--accent4);}
+.wb4{background:rgba(248,113,113,.12);color:var(--accent5);}
+.wb5{background:rgba(56,189,248,.12);color:#38bdf8;}
+
+/* ── Concept Dict ── */
+.concept-dict{display:grid;gap:14px;}
+.cdict-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.cdict-header{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;}
+.cdict-header:hover{background:var(--hl);}
+.cdict-emoji{font-size:22px;flex-shrink:0;}
+.cdict-title{flex:1;}
+.cdict-title h3{font-size:.98rem;font-weight:700;margin-bottom:1px;}
+.cdict-title p{font-size:.78rem;color:var(--muted);margin-bottom:0;}
+.cdict-body{display:none;padding:0 18px 18px;border-top:1px solid var(--border);}
+.cdict-body.open{display:block;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;color:var(--text);margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ── Final goals ── */
+.goal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px;}
+.goal-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.goal-item .gi{font-size:20px;margin-bottom:8px;}
+.goal-item p{font-size:.83rem;color:var(--text);margin-bottom:0;}
+
+/* ── Summary table (concept cheatsheet) ── */
+.cheat{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0;}
+.cheat-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 15px;}
+.cheat-item .ck-term{font-size:.78rem;font-weight:700;color:var(--accent);margin-bottom:4px;}
+.cheat-item .ck-def{font-size:.82rem;color:var(--text);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════ SIDEBAR ════════════════════════ -->
+<nav id="sb">
+  <div id="sb-top">
+    <h2>📐 확률·수학·AI 교재</h2>
+    <p>논문을 읽고 쓰는 연구자 과정 — Phase 1</p>
+    <div id="pb-wrap"><div id="pb"></div></div>
+    <div id="pb-lbl">학습 진도 0%</div>
+  </div>
+
+  <div class="ng">시작</div>
+  <div class="ni active" data-pg="home"><div class="ck"></div>🏠 &nbsp;홈 &amp; 전체 로드맵</div>
+  <div class="ni" data-pg="dict"><div class="ck"></div>📖 &nbsp;개념 사전</div>
+  <div class="ni" data-pg="plan"><div class="ck"></div>📅 &nbsp;16주 공부 계획</div>
+
+  <!-- 대단원 0 — 사전 준비 -->
+  <div class="nu nu-prep" onclick="toggleUnit('u0')">
+    <span class="nu-badge">Unit 0</span>
+    <span class="nu-title">사전 준비</span>
+    <span class="nu-arrow" id="arr-u0">▼</span>
+  </div>
+  <div class="nu-group" id="u0" style="max-height:200px">
+    <div class="ni" data-ch="chapters/ch00a.html"><div class="ck"></div>Ch.0A &nbsp;로그와 지수함수</div>
+    <div class="ni" data-ch="chapters/ch00b.html"><div class="ck"></div>Ch.0B &nbsp;수열과 Σ 표기</div>
+    <div class="ni" data-ch="chapters/ch00c.html"><div class="ck"></div>Ch.0C &nbsp;경우의 수·조합</div>
+  </div>
+
+  <!-- 대단원 1 — 기초 수학 -->
+  <div class="nu nu-math" onclick="toggleUnit('u1')">
+    <span class="nu-badge">Unit 1</span>
+    <span class="nu-title">기초 수학</span>
+    <span class="nu-arrow" id="arr-u1">▼</span>
+  </div>
+  <div class="nu-group" id="u1" style="max-height:300px">
+    <div class="ni" data-ch="chapters/ch01.html"><div class="ck"></div>Ch.1 &nbsp;집합과 함수</div>
+    <div class="ni" data-ch="chapters/ch02.html"><div class="ck"></div>Ch.2 &nbsp;미분과 최적화</div>
+    <div class="ni" data-ch="chapters/ch02b.html"><div class="ck"></div>Ch.2B &nbsp;적분 기초</div>
+    <div class="ni" data-ch="chapters/ch03.html"><div class="ck"></div>Ch.3 &nbsp;선형대수 기초</div>
+    <div class="ni" data-ch="chapters/ch03b.html"><div class="ck"></div>Ch.3B &nbsp;선형회귀·최소제곱법</div>
+  </div>
+
+  <!-- 대단원 2 — 확률 & 통계 -->
+  <div class="nu nu-stat" onclick="toggleUnit('u2')">
+    <span class="nu-badge">Unit 2</span>
+    <span class="nu-title">확률 &amp; 통계</span>
+    <span class="nu-arrow" id="arr-u2">▼</span>
+  </div>
+  <div class="nu-group" id="u2" style="max-height:300px">
+    <div class="ni" data-ch="chapters/ch04.html"><div class="ck"></div>Ch.4 &nbsp;확률론·베이즈</div>
+    <div class="ni" data-ch="chapters/ch05.html"><div class="ck"></div>Ch.5 &nbsp;확률변수·분포</div>
+    <div class="ni" data-ch="chapters/ch06.html"><div class="ck"></div>Ch.6 &nbsp;기대값·분산</div>
+    <div class="ni" data-ch="chapters/ch07.html"><div class="ck"></div>Ch.7 &nbsp;표본·MLE</div>
+    <div class="ni" data-ch="chapters/ch08.html"><div class="ck"></div>Ch.8 &nbsp;MAP·Bias-Variance</div>
+  </div>
+
+  <!-- 대단원 3 — AI & ML 연결 -->
+  <div class="nu nu-ai" onclick="toggleUnit('u3')">
+    <span class="nu-badge">Unit 3</span>
+    <span class="nu-title">AI &amp; ML 연결</span>
+    <span class="nu-arrow" id="arr-u3">▼</span>
+  </div>
+  <div class="nu-group" id="u3" style="max-height:400px">
+    <div class="ni" data-ch="chapters/ch09.html"><div class="ck"></div>Ch.9 &nbsp;Logistic 회귀</div>
+    <div class="ni" data-ch="chapters/ch09b.html"><div class="ck"></div>Ch.9B &nbsp;모델 평가지표</div>
+    <div class="ni" data-ch="chapters/ch10.html"><div class="ck"></div>Ch.10 &nbsp;Softmax·다중분류</div>
+    <div class="ni" data-ch="chapters/ch11.html"><div class="ck"></div>Ch.11 &nbsp;정보이론</div>
+    <div class="ni" data-ch="chapters/ch12.html"><div class="ck"></div>Ch.12 &nbsp;딥러닝·LLM</div>
+    <div class="ni" data-ch="chapters/ch13.html"><div class="ck"></div>Ch.13 &nbsp;Calibration</div>
+    <div class="ni" data-ch="chapters/ch14.html"><div class="ck"></div>Ch.14 &nbsp;논문 읽기·쓰기</div>
+  </div>
+</nav>
+
+<!-- ════════════════════════ MAIN ════════════════════════ -->
+<main id="main">
+
+<!-- ══════════════════ 홈 ══════════════════ -->
+<section class="pg active" id="pg-home">
+  <div class="hero">
+    <div class="badge">📖 논문을 위한 기초 수학 &amp; 확률 &amp; AI</div>
+    <h1>AI 논문을 읽고 쓰기 위한<br/>수학과 확률의 모든 것</h1>
+    <p>확률은 그냥 계산이 아니라 "AI가 얼마나 자신 있는지, 얼마나 틀릴 수 있는지, 언제 믿어야 하는지"를 배우는 공부다.</p>
+  </div>
+
+  <h2 class="st"><span class="ic">⚽</span>전체를 한 번에 이해하는 비유</h2>
+  <p>AI 공부를 <strong>축구 선수가 되는 여정</strong>으로 비유해보자.</p>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0 28px;">
+    <div class="cc" style="margin:0"><div class="ct">⚽ 수학 기초</div><p style="margin:0;font-size:.85rem;">몸풀기. 기호와 수식이 무섭지 않게 되는 준비 운동</p></div>
+    <div class="cc" style="margin:0"><div class="ct">🎲 확률</div><p style="margin:0;font-size:.85rem;">비가 올 가능성, 골 넣을 가능성 — 불확실함을 숫자로 표현</p></div>
+    <div class="cc" style="margin:0"><div class="ct">📊 통계</div><p style="margin:0;font-size:.85rem;">여러 경기 결과를 모아 패턴 찾기 — 데이터에서 진실 발굴</p></div>
+    <div class="cc" style="margin:0"><div class="ct">🤖 머신러닝</div><p style="margin:0;font-size:.85rem;">과거 경기 보고 다음 경기 예측 — 패턴을 배우는 알고리즘</p></div>
+    <div class="cc" style="margin:0"><div class="ct">🧠 딥러닝</div><p style="margin:0;font-size:.85rem;">더 복잡한 패턴까지 배우는 똑똑한 예측기 — 신경망</p></div>
+    <div class="cc" style="margin:0"><div class="ct">📝 논문</div><p style="margin:0;font-size:.85rem;">내가 찾은 방법을 다른 사람에게 정확히 설명하는 글</p></div>
+  </div>
+
+  <h2 class="st"><span class="ic">🗺️</span>단계별 학습 경로 — 순서대로 따라가세요</h2>
+  <p style="margin-bottom:22px;">아래 단원을 순서대로 공부하세요. 각 챕터를 클릭하면 바로 이동합니다.</p>
+
+  <!-- ── Unit 0: 사전 준비 ── -->
+  <div class="path-unit pu-prep">
+    <div class="path-unit-header">
+      <div class="pu-icon">📐</div>
+      <div class="pu-meta">
+        <div class="pu-label">Unit 0 · 3챕터</div>
+        <h3>사전 준비</h3>
+        <p>로그, 수열, 조합 — AI 수식의 알파벳을 배웁니다</p>
+      </div>
+      <button class="pu-start-btn" onclick="goChapter('chapters/ch00a.html')">여기서 시작 →</button>
+    </div>
+    <div class="path-unit-body">
+      <div class="path-chapters">
+        <div class="path-ch" onclick="goChapter('chapters/ch00a.html')">
+          <span class="pc-num">Ch.0A</span>
+          <span class="pc-title">로그와 지수함수</span>
+          <span class="pc-sub">log, e^x, 자연로그, 손실함수 연결</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch00b.html')">
+          <span class="pc-num">Ch.0B</span>
+          <span class="pc-title">수열과 Σ 표기</span>
+          <span class="pc-sub">수열, 시그마, 평균 표현</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch00c.html')">
+          <span class="pc-num">Ch.0C</span>
+          <span class="pc-title">경우의 수·조합</span>
+          <span class="pc-sub">순열, 조합, 이항계수</span>
+          <span class="pc-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 단원 사이 화살표 -->
+  <div style="text-align:center;font-size:22px;color:var(--muted);margin:4px 0 16px;">↓</div>
+
+  <!-- ── Unit 1: 기초 수학 ── -->
+  <div class="path-unit pu-math">
+    <div class="path-unit-header">
+      <div class="pu-icon">📏</div>
+      <div class="pu-meta">
+        <div class="pu-label">Unit 1 · 5챕터</div>
+        <h3>기초 수학</h3>
+        <p>집합, 미분, 선형대수 — AI가 "학습"하는 수학적 구조</p>
+      </div>
+      <button class="pu-start-btn" onclick="goChapter('chapters/ch01.html')">여기서 시작 →</button>
+    </div>
+    <div class="path-unit-body">
+      <div class="path-chapters">
+        <div class="path-ch" onclick="goChapter('chapters/ch01.html')">
+          <span class="pc-num">Ch.1</span>
+          <span class="pc-title">집합과 함수</span>
+          <span class="pc-sub">집합 기호, f: X→Y, ∀, ∃</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch02.html')">
+          <span class="pc-num">Ch.2</span>
+          <span class="pc-title">미분과 최적화</span>
+          <span class="pc-sub">f'(x), 경사하강법, 학습률</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch02b.html')">
+          <span class="pc-num">Ch.2B</span>
+          <span class="pc-title">적분 기초</span>
+          <span class="pc-sub">정적분, PDF·기댓값 연결</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch03.html')">
+          <span class="pc-num">Ch.3</span>
+          <span class="pc-title">선형대수 기초</span>
+          <span class="pc-sub">벡터, 행렬 곱, 내적</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch03b.html')">
+          <span class="pc-num">Ch.3B</span>
+          <span class="pc-title">선형회귀·최소제곱법</span>
+          <span class="pc-sub">OLS, 정규방정식, RSS</span>
+          <span class="pc-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:22px;color:var(--muted);margin:4px 0 16px;">↓</div>
+
+  <!-- ── Unit 2: 확률 & 통계 ── -->
+  <div class="path-unit pu-stat">
+    <div class="path-unit-header">
+      <div class="pu-icon">🎲</div>
+      <div class="pu-meta">
+        <div class="pu-label">Unit 2 · 5챕터</div>
+        <h3>확률 &amp; 통계</h3>
+        <p>베이즈, 분포, MLE — AI가 "추론"하는 확률 언어</p>
+      </div>
+      <button class="pu-start-btn" onclick="goChapter('chapters/ch04.html')">여기서 시작 →</button>
+    </div>
+    <div class="path-unit-body">
+      <div class="path-chapters">
+        <div class="path-ch" onclick="goChapter('chapters/ch04.html')">
+          <span class="pc-num">Ch.4</span>
+          <span class="pc-title">확률론·베이즈</span>
+          <span class="pc-sub">P(A|B), prior/posterior</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch05.html')">
+          <span class="pc-num">Ch.5</span>
+          <span class="pc-title">확률변수·분포</span>
+          <span class="pc-sub">정규분포, 베르누이, 포아송</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch06.html')">
+          <span class="pc-num">Ch.6</span>
+          <span class="pc-title">기대값·분산</span>
+          <span class="pc-sub">E[X], Var[X], 공분산</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch07.html')">
+          <span class="pc-num">Ch.7</span>
+          <span class="pc-title">표본·MLE</span>
+          <span class="pc-sub">최대우도추정, 표본분포</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch08.html')">
+          <span class="pc-num">Ch.8</span>
+          <span class="pc-title">MAP·Bias-Variance</span>
+          <span class="pc-sub">정규화, 과적합, 트레이드오프</span>
+          <span class="pc-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:22px;color:var(--muted);margin:4px 0 16px;">↓</div>
+
+  <!-- ── Unit 3: AI & ML 연결 ── -->
+  <div class="path-unit pu-ai">
+    <div class="path-unit-header">
+      <div class="pu-icon">🤖</div>
+      <div class="pu-meta">
+        <div class="pu-label">Unit 3 · 7챕터</div>
+        <h3>AI &amp; ML 연결</h3>
+        <p>Logistic~논문읽기 — 배운 수학을 AI 연구로 연결</p>
+      </div>
+      <button class="pu-start-btn" onclick="goChapter('chapters/ch09.html')">여기서 시작 →</button>
+    </div>
+    <div class="path-unit-body">
+      <div class="path-chapters">
+        <div class="path-ch" onclick="goChapter('chapters/ch09.html')">
+          <span class="pc-num">Ch.9</span>
+          <span class="pc-title">Logistic 회귀</span>
+          <span class="pc-sub">sigmoid, cross-entropy</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch09b.html')">
+          <span class="pc-num">Ch.9B</span>
+          <span class="pc-title">모델 평가지표</span>
+          <span class="pc-sub">정밀도, 재현율, F1, AUC</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch10.html')">
+          <span class="pc-num">Ch.10</span>
+          <span class="pc-title">Softmax·다중분류</span>
+          <span class="pc-sub">softmax, multinomial</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch11.html')">
+          <span class="pc-num">Ch.11</span>
+          <span class="pc-title">정보이론</span>
+          <span class="pc-sub">entropy, KL divergence</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch12.html')">
+          <span class="pc-num">Ch.12</span>
+          <span class="pc-title">딥러닝·LLM</span>
+          <span class="pc-sub">attention, transformer</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch13.html')">
+          <span class="pc-num">Ch.13</span>
+          <span class="pc-title">Calibration</span>
+          <span class="pc-sub">ECE, temperature scaling</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch14.html')">
+          <span class="pc-num">Ch.14</span>
+          <span class="pc-title">논문 읽기·쓰기</span>
+          <span class="pc-sub">논문 구조, 기호 해독, 실전</span>
+          <span class="pc-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout tip" style="margin-top:22px;">
+    <div class="ci">💡</div>
+    <div class="cb"><p><strong>순서대로 공부하세요.</strong> 각 단원은 이전 단원을 전제로 설계되어 있습니다. Unit 0 → 1 → 2 → 3 순서로 진행하면 16주 안에 AI 논문 수식을 두려움 없이 읽을 수 있습니다.</p></div>
+  </div>
+
+  <h2 class="st"><span class="ic">🏁</span>16주 후 되어야 하는 것</h2>
+  <div class="goal-grid">
+    <div class="goal-item"><div class="gi">🔢</div><p>수식을 보고 도망가지 않기</p></div>
+    <div class="goal-item"><div class="gi">🎲</div><p>확률이 왜 AI의 언어인지 설명하기</p></div>
+    <div class="goal-item"><div class="gi">📉</div><p>loss 함수가 왜 필요한지 설명하기</p></div>
+    <div class="goal-item"><div class="gi">⚠️</div><p>AI가 자신만만하게 틀릴 수 있다는 것 이해하기</p></div>
+    <div class="goal-item"><div class="gi">📄</div><p>논문을 읽고 핵심 구조를 뽑아내기</p></div>
+    <div class="goal-item"><div class="gi">✏️</div><p>내 연구 주제를 수학적으로 표현하기</p></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" disabled>← 이전</button>
+    <button class="btn btn-p" onclick="goTo('dict')">개념 사전 보기 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ 개념 사전 ══════════════════ -->
+<section class="pg" id="pg-dict">
+  <div class="hero">
+    <div class="badge">📖 개념 사전</div>
+    <h1>초등학생도 이해하는<br/>핵심 개념 사전</h1>
+    <p>각 개념을 클릭하면 쉬운 설명, 예시, AI에서의 역할, 수식을 함께 볼 수 있습니다.</p>
+  </div>
+
+  <div class="concept-dict">
+
+    <!-- 1. 확률 -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🎲</div>
+        <div class="cdict-title">
+          <h3>확률 (Probability)</h3>
+          <p>어떤 일이 일어날 가능성을 숫자로 말하는 것</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>확률은 <strong>"어떤 일이 일어날 가능성이 얼마나 큰지 숫자로 말하는 것"</strong>이다.</p>
+          <ul>
+            <li>동전을 던졌을 때 앞면이 나올 가능성 → 50%</li>
+            <li>내일 비가 올 가능성 → 30%</li>
+            <li>시험에서 100점 맞을 가능성 → 모름, 하지만 숫자로 표현 가능</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>AI는 "정답 100%"를 항상 말하지 못한다. 대신 이렇게 생각한다:</p>
+            <ul>
+              <li>고양이일 가능성 90%</li>
+              <li>강아지일 가능성 10%</li>
+            </ul>
+            <p>즉, <strong>AI는 확률로 생각한다.</strong></p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\(0 \le P(A) \le 1\)</p>
+            <p>P(앞면) = 0.5</p>
+            <p>P(비가 옴) = 0.3</p>
+            <p>확실한 일: P = 1</p>
+            <p>불가능한 일: P = 0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 조건부확률 -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🔍</div>
+        <div class="cdict-title">
+          <h3>조건부확률 (Conditional Probability)</h3>
+          <p>어떤 사실을 이미 알고 있을 때의 확률</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>조건부확률은 <strong>"어떤 사실을 이미 알고 있을 때, 다른 일이 일어날 가능성"</strong>이다.</p>
+          <ul>
+            <li>그냥 비 올 확률: 30%</li>
+            <li>하늘이 엄청 검다는 걸 알게 됨 → 비 올 확률이 올라감: 80%</li>
+            <li><strong>새 정보가 생기면 생각이 바뀐다!</strong></li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <ul>
+              <li>그냥 문장만 보면 답변 A일 것 같음</li>
+              <li>이전 대화 내용을 알게 됨</li>
+              <li>→ 답변 확률이 달라짐</li>
+            </ul>
+            <p>LLM은 P(다음 단어 | 앞 문장들)을 계산한다.</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\( P(A \mid B) = \dfrac{P(A \cap B)}{P(B)} \)</p>
+            <p>A|B = "B가 일어났을 때 A가 일어날 확률"</p>
+            <p>표본공간이 B로 줄어들었다고 생각하면 됨</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 베이즈 정리 -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🔄</div>
+        <div class="cdict-title">
+          <h3>베이즈 정리 (Bayes' Theorem)</h3>
+          <p>새 정보를 얻고 나서 내 생각을 업데이트하는 공식</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>베이즈 정리는 <strong>"새로운 정보를 얻고 나서 내 생각을 업데이트하는 공식"</strong>이다.</p>
+          <ul>
+            <li>어떤 병은 매우 드묾 (처음 생각: prior)</li>
+            <li>검사 결과가 양성 나옴 (새 정보: likelihood)</li>
+            <li>하지만 검사기도 틀릴 수 있음!</li>
+            <li>→ 진짜 병일 가능성을 다시 계산 (업데이트된 생각: posterior)</li>
+          </ul>
+          <p><strong>"처음 생각" + "새 정보" = "업데이트된 생각"</strong></p>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <ul>
+              <li><strong>prior</strong>: 보기 전 믿음</li>
+              <li><strong>likelihood</strong>: 데이터가 나올 확률</li>
+              <li><strong>posterior</strong>: 데이터 본 후 믿음</li>
+            </ul>
+            <p>베이지안 딥러닝, 스팸 필터, 의료 AI에서 핵심으로 사용</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\( P(\theta \mid D) = \dfrac{P(D \mid \theta) \cdot P(\theta)}{P(D)} \)</p>
+            <p>posterior ∝ likelihood × prior</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 확률변수 -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🔢</div>
+        <div class="cdict-title">
+          <h3>확률변수 (Random Variable)</h3>
+          <p>랜덤하게 일어나는 일을 숫자로 바꾼 것</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>확률변수는 <strong>랜덤하게 일어나는 일을 숫자로 바꾼 것</strong>이다.</p>
+          <ul>
+            <li>동전 앞면 = 1, 뒷면 = 0 → 계산 가능!</li>
+            <li>주사위 결과 = 1, 2, 3, 4, 5, 6 → 평균, 분산 계산 가능!</li>
+            <li>원래는 "사건"인데, 계산하려고 숫자로 바꾸는 것</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>AI는 글이나 이미지도 결국 숫자로 바꿔서 계산한다.</p>
+            <p>단어 → 숫자 (token ID)</p>
+            <p>이미지 → 숫자 배열 (픽셀값)</p>
+            <p>→ 모든 것이 확률변수다</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 이산형 vs 연속형</h5>
+            <p><strong>이산형</strong>: 셀 수 있는 값</p>
+            <p>예: 주사위, 클래스 레이블</p>
+            <p><strong>연속형</strong>: 연속적인 값</p>
+            <p>예: 온도, 가격, 픽셀 강도</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 분포 -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">📊</div>
+        <div class="cdict-title">
+          <h3>확률분포 (Probability Distribution)</h3>
+          <p>어떤 값이 얼마나 자주 나오는지 보여주는 지도</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>분포는 <strong>"어떤 값이 얼마나 자주 나오는지 보여주는 지도"</strong> 같은 것이다.</p>
+          <ul>
+            <li>주사위: 1~6이 비슷하게 나옴 (균등분포)</li>
+            <li>시험 점수: 중간 점수가 많고, 너무 높거나 낮은 점수는 적음 (정규분포)</li>
+            <li>데이터에는 보통 어떤 "모양"이 있다</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <ul>
+              <li><strong>Bernoulli</strong>: 이진 분류 출력</li>
+              <li><strong>Categorical</strong>: 다중 분류 (softmax)</li>
+              <li><strong>Gaussian</strong>: 회귀 출력, 노이즈 모델링</li>
+            </ul>
+            <p>그 모양을 이해해야 AI를 잘 만들 수 있다</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 주요 분포</h5>
+            <p>\(\mathcal{N}(\mu, \sigma^2)\): 정규분포</p>
+            <p>\(\text{Bern}(p)\): 베르누이</p>
+            <p>\(\text{Bin}(n,p)\): 이항분포</p>
+            <p>\(\text{Cat}(\mathbf{p})\): 카테고리컬</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. 기대값 -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">⚖️</div>
+        <div class="cdict-title">
+          <h3>기대값 (Expected Value)</h3>
+          <p>많이 반복했을 때 평균적으로 어느 정도가 나오는지</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>기대값은 <strong>많이 많이 반복했을 때 평균적으로 어느 정도가 나오는지</strong>다.</p>
+          <ul>
+            <li>동전을 1000번 던지면 앞면은 약 500번 → 기대값 0.5</li>
+            <li>주사위를 1000번 던지면 평균 눈은 약 3.5 → 기대값 3.5</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>AI 학습도 결국 "평균적으로 얼마나 잘 맞추는지"를 본다.</p>
+            <p>Loss = \(\mathbb{E}[\mathcal{L}]\) — 기대 손실을 최소화</p>
+            <p>Gradient도 기대값으로 표현됨</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\(\mathbb{E}[X] = \sum_x x \cdot P(X=x)\)</p>
+            <p>(이산형)</p>
+            <p>\(\mathbb{E}[X] = \int x \, f(x) \, dx\)</p>
+            <p>(연속형)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. 분산 -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">📏</div>
+        <div class="cdict-title">
+          <h3>분산 (Variance)</h3>
+          <p>값들이 얼마나 흩어져 있는지</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>분산은 <strong>값들이 얼마나 흩어져 있는지</strong>를 말한다.</p>
+          <ul>
+            <li>학생 5명 키가 거의 비슷 → 분산 작음</li>
+            <li>어떤 학생은 아주 작고 어떤 학생은 아주 큼 → 분산 큼</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>AI가 어떤 문제에서는 자신 있게, 어떤 문제에서는 흔들릴 수 있다.</p>
+            <p>그 흔들림 = 분산 (불확실성)</p>
+            <p>Bias-Variance Tradeoff의 핵심 개념</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\(\text{Var}(X) = \mathbb{E}[(X - \mu)^2]\)</p>
+            <p>= \(\mathbb{E}[X^2] - (\mathbb{E}[X])^2\)</p>
+            <p>표준편차 \(\sigma = \sqrt{\text{Var}(X)}\)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Likelihood -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🔎</div>
+        <div class="cdict-title">
+          <h3>우도 (Likelihood)</h3>
+          <p>이 데이터가 나왔다면, 어떤 설명이 가장 그럴듯한가?</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>likelihood는 <strong>"이 데이터가 나왔다면, 어떤 설명이 가장 그럴듯한가?"</strong>를 보는 것이다.</p>
+          <ul>
+            <li>동전을 10번 던졌는데 9번 앞면</li>
+            <li>"이 동전은 공평하다" → 별로 그럴듯하지 않음</li>
+            <li>"이 동전은 앞면이 잘 나온다" → 더 그럴듯함!</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 Probability vs Likelihood</h5>
+            <p><strong>확률</strong>: 파라미터 고정, 데이터 변함<br/>P(데이터 | θ 고정)</p>
+            <p><strong>우도</strong>: 데이터 고정, 파라미터 변함<br/>L(θ | 데이터 고정)</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\( \mathcal{L}(\theta \mid \mathcal{D}) = P(\mathcal{D} \mid \theta) \)</p>
+            <p>데이터가 주어졌을 때 θ의 함수</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. MLE -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🎯</div>
+        <div class="cdict-title">
+          <h3>최대우도추정 (MLE)</h3>
+          <p>데이터를 가장 잘 설명하는 답을 고르는 방법</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>MLE는 <strong>"데이터를 가장 잘 설명하는 답을 고르는 방법"</strong>이다.</p>
+          <ul>
+            <li>발자국을 보고 "누가 지나갔을까?" 추리하는 것</li>
+            <li>시험 결과를 보고 "이 학생 평균 실력은?" 찾는 것</li>
+            <li>가장 그럴듯한 값을 찾는 것</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>딥러닝 훈련의 핵심!</p>
+            <p>Cross-Entropy 손실을 최소화 = 음의 로그우도 최소화 = MLE</p>
+            <p>즉, <strong>딥러닝 학습은 MLE다.</strong></p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\( \hat{\theta}_{MLE} = \argmax_\theta \sum_{i=1}^n \log p(x_i \mid \theta) \)</p>
+            <p>곱 → 합 변환(로그)으로 계산 편리</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. Entropy -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🌀</div>
+        <div class="cdict-title">
+          <h3>엔트로피 (Entropy)</h3>
+          <p>얼마나 헷갈리는지, 얼마나 불확실한지를 숫자로</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>entropy는 <strong>얼마나 헷갈리는지, 얼마나 불확실한지를 숫자로 나타낸 것</strong>이다.</p>
+          <ul>
+            <li>동전 앞/뒤가 딱 반반 → 결과가 헷갈림 → entropy 큼</li>
+            <li>항상 앞면만 나오는 동전 → 전혀 안 헷갈림 → entropy = 0</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>AI가 여러 답 중 무엇이 맞는지 헷갈릴 때 entropy가 커진다.</p>
+            <p>불확실성 측정, 정보량 계산의 기초</p>
+            <p>결정 트리 분기 기준으로도 사용</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\( H(P) = -\sum_x P(x) \log P(x) \)</p>
+            <p>균등분포일 때 최대</p>
+            <p>확실할수록 (P=1인 값) 최소 = 0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. Cross Entropy -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🏹</div>
+        <div class="cdict-title">
+          <h3>크로스 엔트로피 (Cross-Entropy)</h3>
+          <p>정답과 AI의 예상이 얼마나 다른지 재는 벌점표</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>cross entropy는 <strong>정답과 AI의 예상이 얼마나 다른지 재는 벌점표</strong>다.</p>
+          <ul>
+            <li>정답은 고양이</li>
+            <li>AI가 고양이 99% → 벌점 아주 작음</li>
+            <li>AI가 고양이 5% → 벌점 아주 큼</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>딥러닝 분류 문제에서 <strong>가장 많이 쓰는 loss</strong>다.</p>
+            <p>CE를 줄이는 방향으로 학습하면 AI가 점점 정답에 가까워진다.</p>
+            <p>CE 최소화 = MLE와 동치!</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\( H(P, Q) = -\sum_x P(x) \log Q(x) \)</p>
+            <p>P: 정답분포, Q: 모델예측분포</p>
+            <p>H(P,Q) = H(P) + D_{KL}(P||Q)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. KL Divergence -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">↔️</div>
+        <div class="cdict-title">
+          <h3>KL 발산 (KL Divergence)</h3>
+          <p>두 생각이 얼마나 다른지 재는 도구</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>KL divergence는 <strong>"두 생각이 얼마나 다른지" 재는 도구</strong>다.</p>
+          <ul>
+            <li>진짜 정답 분포와 모델이 믿는 분포가 얼마나 다른지 본다</li>
+            <li>같으면 0, 다를수록 커짐</li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>VAE, GAN, RLHF 등 생성 모델 논문에서 핵심으로 등장</p>
+            <p>두 분포의 차이를 줄이는 방향으로 학습</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>\( D_{KL}(P \| Q) = \sum_x P(x) \log \dfrac{P(x)}{Q(x)} \)</p>
+            <p>항상 ≥ 0, P=Q일 때만 0</p>
+            <p>비대칭: D(P‖Q) ≠ D(Q‖P)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13. Calibration -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">🌡️</div>
+        <div class="cdict-title">
+          <h3>캘리브레이션 (Calibration)</h3>
+          <p>AI가 말하는 자신감이 진짜 맞는지 확인하는 것</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>calibration은 <strong>AI가 말하는 자신감이 진짜 맞는지 확인하는 것</strong>이다.</p>
+          <ul>
+            <li>AI가 "나 90% 확신해"라고 100번 말했는데</li>
+            <li>진짜 90번 정도 맞으면 → calibration 좋음 ✅</li>
+            <li>60번만 맞으면 → calibration 나쁨 ❌</li>
+            <li><strong>자신만만하게 틀리는 AI가 제일 위험하다!</strong></li>
+          </ul>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>🤖 AI에서 왜 중요해?</h5>
+            <p>의료, 금융, 자율주행 등 실서비스에서 매우 중요</p>
+            <p>"90% 확신"인데 실제로 60%만 맞으면 큰 문제</p>
+            <p>논문에서 ECE(Expected Calibration Error)로 측정</p>
+          </div>
+          <div class="col-box">
+            <h5>📐 수식으로는</h5>
+            <p>잘 calibrated된 모델:</p>
+            <p>\( P(\hat{y} = y \mid \hat{p} = p) = p \)</p>
+            <p>신뢰도 p라고 할 때, 실제로 p의 비율로 맞아야 함</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14. 논문 -->
+    <div class="cdict-card">
+      <div class="cdict-header" onclick="toggleDict(this)">
+        <div class="cdict-emoji">📝</div>
+        <div class="cdict-title">
+          <h3>논문 (Research Paper)</h3>
+          <p>내 생각과 실험을 남에게 정확히 설명하는 글</p>
+        </div>
+        <span style="color:var(--muted);font-size:16px">▼</span>
+      </div>
+      <div class="cdict-body">
+        <div class="easy">
+          <div class="et">🧒 초등학생 버전</div>
+          <p>논문은 <strong>"내가 이런 문제를 이렇게 풀었고, 이렇게 확인했어요"</strong>를 남에게 정확히 설명하는 글이다.</p>
+        </div>
+        <div class="two-col">
+          <div class="col-box">
+            <h5>📄 좋은 논문의 구조</h5>
+            <ul>
+              <li>1. 무슨 문제인가?</li>
+              <li>2. 왜 기존 방법이 부족한가?</li>
+              <li>3. 내가 뭘 제안하는가?</li>
+              <li>4. 실험해보니 어떤가?</li>
+              <li>5. 어디까지 되고 어디서 약한가?</li>
+            </ul>
+          </div>
+          <div class="col-box">
+            <h5>🔑 논문에서 자주 보이는 기호</h5>
+            <p>\(\sim\): ~에서 샘플링</p>
+            <p>\(\mathbb{E}[\cdot]\): 기댓값</p>
+            <p>\(\propto\): 비례한다</p>
+            <p>\(\text{s.t.}\): 조건 제약</p>
+            <p>\(\hat{y}\): 예측값</p>
+            <p>\(\nabla\): 그레디언트</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end concept-dict -->
+
+  <!-- 압축 치트시트 -->
+  <h2 class="st"><span class="ic">⚡</span>초등학생용 1줄 요약 치트시트</h2>
+  <div class="cheat">
+    <div class="cheat-item"><div class="ck-term">🎲 확률</div><div class="ck-def">어떤 일이 일어날 가능성</div></div>
+    <div class="cheat-item"><div class="ck-term">🔍 조건부확률</div><div class="ck-def">어떤 사실을 알고 난 뒤의 가능성</div></div>
+    <div class="cheat-item"><div class="ck-term">🔄 베이즈 정리</div><div class="ck-def">새 정보를 보고 생각을 고치는 방법</div></div>
+    <div class="cheat-item"><div class="ck-term">🔢 확률변수</div><div class="ck-def">랜덤한 일을 숫자로 바꾼 것</div></div>
+    <div class="cheat-item"><div class="ck-term">📊 분포</div><div class="ck-def">어떤 값이 얼마나 자주 나오는지 보여주는 지도</div></div>
+    <div class="cheat-item"><div class="ck-term">⚖️ 기대값</div><div class="ck-def">평균적으로 어느 정도인지</div></div>
+    <div class="cheat-item"><div class="ck-term">📏 분산</div><div class="ck-def">얼마나 들쑥날쑥한지</div></div>
+    <div class="cheat-item"><div class="ck-term">🔎 Likelihood</div><div class="ck-def">이 데이터를 가장 잘 설명하는 정도</div></div>
+    <div class="cheat-item"><div class="ck-term">🎯 MLE</div><div class="ck-def">데이터에 제일 잘 맞는 설명 찾기</div></div>
+    <div class="cheat-item"><div class="ck-term">🌀 Entropy</div><div class="ck-def">얼마나 헷갈리는지</div></div>
+    <div class="cheat-item"><div class="ck-term">🏹 Cross-Entropy</div><div class="ck-def">정답과 예측이 얼마나 다른지 재는 벌점</div></div>
+    <div class="cheat-item"><div class="ck-term">↔️ KL Divergence</div><div class="ck-def">두 분포가 얼마나 다른지</div></div>
+    <div class="cheat-item"><div class="ck-term">🌡️ Calibration</div><div class="ck-def">AI의 자신감이 진짜 맞는지 확인</div></div>
+    <div class="cheat-item"><div class="ck-term">📝 논문</div><div class="ck-def">내 생각과 실험을 남에게 정확히 설명하는 글</div></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('home')">← 홈</button>
+    <button class="btn btn-p" onclick="goTo('plan')">16주 공부 계획 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ 16주 공부 계획 ══════════════════ -->
+<section class="pg" id="pg-plan">
+  <div class="hero">
+    <div class="badge">📅 16주 공부 계획</div>
+    <h1>체크하며 완성하는<br/>16주 확률·AI 수학 로드맵</h1>
+    <p>각 주차를 클릭하면 상세 계획이 펼쳐집니다. 체크박스는 자동 저장됩니다.</p>
+  </div>
+
+  <!-- Week 1 -->
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc0">1</div>
+      <div class="week-meta">
+        <h3>수식과 친해지기</h3>
+        <p>기호가 무서운 마법문자가 아니라 "짧게 적는 약속"이라는 걸 이해하기</p>
+      </div>
+      <span class="week-badge wb0">수학 기초</span>
+      <span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="why-box">
+        <div class="why-item"><div class="wt">왜 배우나?</div><p>확률식, loss 함수, 논문 수식을 읽기 위한 언어를 배운다</p></div>
+        <div class="why-item"><div class="wt">어디에 쓰나?</div><p>모든 AI 논문의 수식 — f(x), ∂L/∂w, Σ 등</p></div>
+      </div>
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>수학 기호는 어려운 마법 문자가 아니라 <strong>"짧게 적는 약속"</strong>이다. f(x)는 "x를 넣으면 뭔가 나온다"는 뜻이다.</p>
+      </div>
+      <p style="font-size:.82rem;color:var(--accent);font-weight:700;margin-bottom:10px;">📋 주간 체크리스트</p>
+      <div class="check-item"><input type="checkbox" id="w1-c1" onchange="saveCheck(this)"><label for="w1-c1">함수가 무엇인지 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w1-c2" onchange="saveCheck(this)"><label for="w1-c2">입력과 출력 개념을 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w1-c3" onchange="saveCheck(this)"><label for="w1-c3">로그가 왜 필요한지 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w1-c4" onchange="saveCheck(this)"><label for="w1-c4">미분이 변화량이라는 걸 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w1-c5" onchange="saveCheck(this)"><label for="w1-c5">벡터와 숫자의 차이를 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w1-c6" onchange="saveCheck(this)"><label for="w1-c6">시그마(Σ) 표기를 읽을 수 있다</label></div>
+      <div class="days-grid" style="margin-top:16px">
+        <div class="day-card">
+          <h5>Day 1 — 함수</h5>
+          <div class="check-item"><input type="checkbox" id="w1-d1-1" onchange="saveCheck(this)"><label for="w1-d1-1">함수 개념 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d1-2" onchange="saveCheck(this)"><label for="w1-d1-2">f(x)를 말로 설명해보기</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d1-3" onchange="saveCheck(this)"><label for="w1-d1-3">함수 예시 10개 적기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 2 — 로그</h5>
+          <div class="check-item"><input type="checkbox" id="w1-d2-1" onchange="saveCheck(this)"><label for="w1-d2-1">로그 개념 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d2-2" onchange="saveCheck(this)"><label for="w1-d2-2">곱을 합으로 바꾸는 이유 적기</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d2-3" onchange="saveCheck(this)"><label for="w1-d2-3">작은 확률에 로그 쓰는 이유</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 3 — 미분</h5>
+          <div class="check-item"><input type="checkbox" id="w1-d3-1" onchange="saveCheck(this)"><label for="w1-d3-1">미분 = 변화율 이해</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d3-2" onchange="saveCheck(this)"><label for="w1-d3-2">기울기와 변화율 차이</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d3-3" onchange="saveCheck(this)"><label for="w1-d3-3">"loss를 줄인다"를 말로 설명</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 4 — 편미분</h5>
+          <div class="check-item"><input type="checkbox" id="w1-d4-1" onchange="saveCheck(this)"><label for="w1-d4-1">편미분 개념 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d4-2" onchange="saveCheck(this)"><label for="w1-d4-2">∂L/∂w 읽기 연습</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d4-3" onchange="saveCheck(this)"><label for="w1-d4-3">딥러닝에 편미분이 필요한 이유</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 5 — 벡터·행렬</h5>
+          <div class="check-item"><input type="checkbox" id="w1-d5-1" onchange="saveCheck(this)"><label for="w1-d5-1">벡터, 행렬 개념 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d5-2" onchange="saveCheck(this)"><label for="w1-d5-2">x ∈ ℝⁿ 해석하기</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d5-3" onchange="saveCheck(this)"><label for="w1-d5-3">행렬 shape 예시 5개</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 6 — 정리</h5>
+          <div class="check-item"><input type="checkbox" id="w1-d6-1" onchange="saveCheck(this)"><label for="w1-d6-1">시그마(Σ) 표기 익히기</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d6-2" onchange="saveCheck(this)"><label for="w1-d6-2">평균과 합 차이 정리</label></div>
+          <div class="check-item"><input type="checkbox" id="w1-d6-3" onchange="saveCheck(this)"><label for="w1-d6-3">1주 요약 1장 작성</label></div>
+        </div>
+      </div>
+      <div class="wrev">
+        <h5>📌 매주 공통 복습 체크</h5>
+        <div class="check-item"><input type="checkbox" id="w1-r1" onchange="saveCheck(this)"><label for="w1-r1">이번 주 핵심 개념 3개를 말로 설명할 수 있다</label></div>
+        <div class="check-item"><input type="checkbox" id="w1-r2" onchange="saveCheck(this)"><label for="w1-r2">이 개념이 ML에서 어디 쓰이는지 안다</label></div>
+        <div class="check-item"><input type="checkbox" id="w1-r3" onchange="saveCheck(this)"><label for="w1-r3">논문에서 보면 알아볼 수 있다</label></div>
+        <div class="check-item"><input type="checkbox" id="w1-r4" onchange="saveCheck(this)"><label for="w1-r4">헷갈리는 것 5개를 적었다</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week 2 -->
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc1">2</div>
+      <div class="week-meta">
+        <h3>확률의 준비 운동</h3>
+        <p>사건과 집합으로 확률 표기를 읽는 눈 만들기</p>
+      </div>
+      <span class="week-badge wb1">수학 기초</span>
+      <span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="why-box">
+        <div class="why-item"><div class="wt">왜 배우나?</div><p>확률을 표현하려면 "사건의 모임"인 집합을 먼저 알아야 한다</p></div>
+        <div class="why-item"><div class="wt">어디에 쓰나?</div><p>P(A∩B), P(A∪B), P(Ac) — 모든 확률 수식의 기초</p></div>
+      </div>
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>확률은 "일이 일어나는 모임"을 먼저 알아야 한다. 집합은 <strong>같은 성질을 가진 것들의 묶음</strong>이다. "짝수 집합 = {2, 4, 6, ...}"처럼!</p>
+      </div>
+      <p style="font-size:.82rem;color:var(--accent);font-weight:700;margin-bottom:10px;">📋 주간 체크리스트</p>
+      <div class="check-item"><input type="checkbox" id="w2-c1" onchange="saveCheck(this)"><label for="w2-c1">집합이 무엇인지 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w2-c2" onchange="saveCheck(this)"><label for="w2-c2">사건을 집합처럼 표현할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w2-c3" onchange="saveCheck(this)"><label for="w2-c3">합집합(∪), 교집합(∩)을 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w2-c4" onchange="saveCheck(this)"><label for="w2-c4">여집합(Aᶜ)을 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w2-c5" onchange="saveCheck(this)"><label for="w2-c5">확률의 3가지 기본 공리를 안다</label></div>
+      <div class="days-grid" style="margin-top:16px">
+        <div class="day-card">
+          <h5>Day 1 — 집합</h5>
+          <div class="check-item"><input type="checkbox" id="w2-d1-1" onchange="saveCheck(this)"><label for="w2-d1-1">집합·원소·부분집합 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w2-d1-2" onchange="saveCheck(this)"><label for="w2-d1-2">사건 예시 5개를 집합으로 적기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 2 — 연산</h5>
+          <div class="check-item"><input type="checkbox" id="w2-d2-1" onchange="saveCheck(this)"><label for="w2-d2-1">합집합·교집합 연습</label></div>
+          <div class="check-item"><input type="checkbox" id="w2-d2-2" onchange="saveCheck(this)"><label for="w2-d2-2">현실 문장을 사건으로 바꾸기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 3 — 여집합</h5>
+          <div class="check-item"><input type="checkbox" id="w2-d3-1" onchange="saveCheck(this)"><label for="w2-d3-1">여집합 개념 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w2-d3-2" onchange="saveCheck(this)"><label for="w2-d3-2">"안 일어나는 경우" 해석</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 4 — 독립·배반</h5>
+          <div class="check-item"><input type="checkbox" id="w2-d4-1" onchange="saveCheck(this)"><label for="w2-d4-1">mutually exclusive 이해</label></div>
+          <div class="check-item"><input type="checkbox" id="w2-d4-2" onchange="saveCheck(this)"><label for="w2-d4-2">independent와의 차이 정리</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 5 — 확률 공리</h5>
+          <div class="check-item"><input type="checkbox" id="w2-d5-1" onchange="saveCheck(this)"><label for="w2-d5-1">확률 공리 3가지 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w2-d5-2" onchange="saveCheck(this)"><label for="w2-d5-2">동전·주사위 문제 풀기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 6 — 정리</h5>
+          <div class="check-item"><input type="checkbox" id="w2-d6-1" onchange="saveCheck(this)"><label for="w2-d6-1">사건 표기 정리표 만들기</label></div>
+          <div class="check-item"><input type="checkbox" id="w2-d6-2" onchange="saveCheck(this)"><label for="w2-d6-2">2주 요약 1장 작성</label></div>
+        </div>
+      </div>
+      <div class="wrev">
+        <h5>📌 주간 복습</h5>
+        <div class="check-item"><input type="checkbox" id="w2-r1" onchange="saveCheck(this)"><label for="w2-r1">핵심 개념 3개 말로 설명 가능</label></div>
+        <div class="check-item"><input type="checkbox" id="w2-r2" onchange="saveCheck(this)"><label for="w2-r2">ML 적용 위치 안다</label></div>
+        <div class="check-item"><input type="checkbox" id="w2-r3" onchange="saveCheck(this)"><label for="w2-r3">헷갈리는 것 적었다</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week 3 -->
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc2">3</div>
+      <div class="week-meta">
+        <h3>조건부확률</h3>
+        <p>새 정보가 생기면 확률이 바뀐다는 것을 몸으로 이해하기</p>
+      </div>
+      <span class="week-badge wb2">확률</span>
+      <span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="why-box">
+        <div class="why-item"><div class="wt">왜 배우나?</div><p>AI는 항상 "이 상황이 주어졌을 때" 확률을 계산한다. P(y|x)가 조건부확률이다</p></div>
+        <div class="why-item"><div class="wt">어디에 쓰나?</div><p>분류기, LLM의 다음 토큰 예측, 베이즈 정리의 기초</p></div>
+      </div>
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>비가 올 확률이 30%였는데, 갑자기 먹구름을 봤다. 그러면 확률이 80%로 올라간다. <strong>새 정보가 생기면 생각이 바뀐다!</strong></p>
+      </div>
+      <p style="font-size:.82rem;color:var(--accent);font-weight:700;margin-bottom:10px;">📋 주간 체크리스트</p>
+      <div class="check-item"><input type="checkbox" id="w3-c1" onchange="saveCheck(this)"><label for="w3-c1">P(A|B)를 말로 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w3-c2" onchange="saveCheck(this)"><label for="w3-c2">조건이 바뀌면 확률도 바뀐다는 걸 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w3-c3" onchange="saveCheck(this)"><label for="w3-c3">독립성 A⊥B를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w3-c4" onchange="saveCheck(this)"><label for="w3-c4">조건부 독립성을 구분할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w3-c5" onchange="saveCheck(this)"><label for="w3-c5">전체확률법칙을 안다</label></div>
+      <div class="days-grid" style="margin-top:16px">
+        <div class="day-card">
+          <h5>Day 1 — 정의</h5>
+          <div class="check-item"><input type="checkbox" id="w3-d1-1" onchange="saveCheck(this)"><label for="w3-d1-1">조건부확률 정의 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w3-d1-2" onchange="saveCheck(this)"><label for="w3-d1-2">쉬운 예시 3개 만들기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 2 — 연습</h5>
+          <div class="check-item"><input type="checkbox" id="w3-d2-1" onchange="saveCheck(this)"><label for="w3-d2-1">카드/주사위 예제 풀기</label></div>
+          <div class="check-item"><input type="checkbox" id="w3-d2-2" onchange="saveCheck(this)"><label for="w3-d2-2">표본공간이 왜 바뀌는지 적기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 3 — 독립성</h5>
+          <div class="check-item"><input type="checkbox" id="w3-d3-1" onchange="saveCheck(this)"><label for="w3-d3-1">독립 조건 P(A∩B)=P(A)P(B)</label></div>
+          <div class="check-item"><input type="checkbox" id="w3-d3-2" onchange="saveCheck(this)"><label for="w3-d3-2">독립/비독립 예시 각 3개</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 4 — 조건부 독립</h5>
+          <div class="check-item"><input type="checkbox" id="w3-d4-1" onchange="saveCheck(this)"><label for="w3-d4-1">조건부 독립성 개념 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w3-d4-2" onchange="saveCheck(this)"><label for="w3-d4-2">독립과 다른 이유 적기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 5 — 전체확률법칙</h5>
+          <div class="check-item"><input type="checkbox" id="w3-d5-1" onchange="saveCheck(this)"><label for="w3-d5-1">전체확률법칙 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w3-d5-2" onchange="saveCheck(this)"><label for="w3-d5-2">경우 나눠 계산하기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 6 — 정리</h5>
+          <div class="check-item"><input type="checkbox" id="w3-d6-1" onchange="saveCheck(this)"><label for="w3-d6-1">조건부확률 문제 10개 풀기</label></div>
+          <div class="check-item"><input type="checkbox" id="w3-d6-2" onchange="saveCheck(this)"><label for="w3-d6-2">요약표 작성</label></div>
+        </div>
+      </div>
+      <div class="wrev">
+        <h5>📌 주간 복습</h5>
+        <div class="check-item"><input type="checkbox" id="w3-r1" onchange="saveCheck(this)"><label for="w3-r1">P(y|x)를 직접 설명할 수 있다</label></div>
+        <div class="check-item"><input type="checkbox" id="w3-r2" onchange="saveCheck(this)"><label for="w3-r2">독립과 조건부독립 차이 말할 수 있다</label></div>
+        <div class="check-item"><input type="checkbox" id="w3-r3" onchange="saveCheck(this)"><label for="w3-r3">헷갈리는 것 적었다</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week 4 -->
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc3">4</div>
+      <div class="week-meta">
+        <h3>베이즈 정리</h3>
+        <p>새 정보를 보고 생각을 업데이트하는 법</p>
+      </div>
+      <span class="week-badge wb3">확률</span>
+      <span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="why-box">
+        <div class="why-item"><div class="wt">왜 배우나?</div><p>AI의 "학습"은 결국 새 데이터를 보고 믿음을 업데이트하는 것 = 베이즈 정리</p></div>
+        <div class="why-item"><div class="wt">어디에 쓰나?</div><p>스팸 필터, 의료 AI, 베이지안 딥러닝, RLHF</p></div>
+      </div>
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>처음에는 "이럴 것 같아"라고 생각했는데, 새 단서를 얻고 "아, 생각보다 이럴 수도 있겠네"로 바뀌는 것. <strong>prior + 새 정보 → posterior</strong></p>
+      </div>
+      <p style="font-size:.82rem;color:var(--accent);font-weight:700;margin-bottom:10px;">📋 주간 체크리스트</p>
+      <div class="check-item"><input type="checkbox" id="w4-c1" onchange="saveCheck(this)"><label for="w4-c1">prior(사전확률)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w4-c2" onchange="saveCheck(this)"><label for="w4-c2">likelihood(우도)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w4-c3" onchange="saveCheck(this)"><label for="w4-c3">posterior(사후확률)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w4-c4" onchange="saveCheck(this)"><label for="w4-c4">base rate fallacy를 이해한다</label></div>
+      <div class="check-item"><input type="checkbox" id="w4-c5" onchange="saveCheck(this)"><label for="w4-c5">분류 문제와 베이즈를 연결할 수 있다</label></div>
+      <div class="days-grid" style="margin-top:16px">
+        <div class="day-card">
+          <h5>Day 1 — 공식</h5>
+          <div class="check-item"><input type="checkbox" id="w4-d1-1" onchange="saveCheck(this)"><label for="w4-d1-1">베이즈 정리 공식 읽기</label></div>
+          <div class="check-item"><input type="checkbox" id="w4-d1-2" onchange="saveCheck(this)"><label for="w4-d1-2">prior/likelihood/posterior 뜻 정리</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 2 — 병 검사</h5>
+          <div class="check-item"><input type="checkbox" id="w4-d2-1" onchange="saveCheck(this)"><label for="w4-d2-1">병 검사 예제 풀기</label></div>
+          <div class="check-item"><input type="checkbox" id="w4-d2-2" onchange="saveCheck(this)"><label for="w4-d2-2">양성이어도 병 아닐 수 있는 이유</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 3 — 스팸 필터</h5>
+          <div class="check-item"><input type="checkbox" id="w4-d3-1" onchange="saveCheck(this)"><label for="w4-d3-1">스팸 필터 예제 보기</label></div>
+          <div class="check-item"><input type="checkbox" id="w4-d3-2" onchange="saveCheck(this)"><label for="w4-d3-2">분류와 연결해 설명하기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 4 — Evidence</h5>
+          <div class="check-item"><input type="checkbox" id="w4-d4-1" onchange="saveCheck(this)"><label for="w4-d4-1">evidence의 역할 정리</label></div>
+          <div class="check-item"><input type="checkbox" id="w4-d4-2" onchange="saveCheck(this)"><label for="w4-d4-2">prior 크고/작을 때 비교</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 5 — 확률나무</h5>
+          <div class="check-item"><input type="checkbox" id="w4-d5-1" onchange="saveCheck(this)"><label for="w4-d5-1">확률나무로 예제 3개 풀기</label></div>
+          <div class="check-item"><input type="checkbox" id="w4-d5-2" onchange="saveCheck(this)"><label for="w4-d5-2">손으로 직접 계산하기</label></div>
+        </div>
+        <div class="day-card">
+          <h5>Day 6 — 정리</h5>
+          <div class="check-item"><input type="checkbox" id="w4-d6-1" onchange="saveCheck(this)"><label for="w4-d6-1">베이즈 1페이지 설명문 작성</label></div>
+          <div class="check-item"><input type="checkbox" id="w4-d6-2" onchange="saveCheck(this)"><label for="w4-d6-2">AI와 연결 포인트 정리</label></div>
+        </div>
+      </div>
+      <div class="wrev">
+        <h5>📌 주간 복습</h5>
+        <div class="check-item"><input type="checkbox" id="w4-r1" onchange="saveCheck(this)"><label for="w4-r1">베이즈 정리를 말로만 설명할 수 있다</label></div>
+        <div class="check-item"><input type="checkbox" id="w4-r2" onchange="saveCheck(this)"><label for="w4-r2">prior/posterior 차이가 명확하다</label></div>
+        <div class="check-item"><input type="checkbox" id="w4-r3" onchange="saveCheck(this)"><label for="w4-r3">헷갈리는 것 적었다</label></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Week 5~16 (simplified) -->
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc4">5</div>
+      <div class="week-meta"><h3>확률변수 (Random Variable)</h3><p>랜덤한 일을 숫자로 다루기 — 이산형 vs 연속형, PMF, PDF, CDF</p></div>
+      <span class="week-badge wb4">확률</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>동전이 앞면이면 1, 뒷면이면 0이라고 정하면 <strong>계산이 쉬워진다.</strong> 그게 확률변수다. AI는 글이나 이미지도 결국 숫자로 바꿔서 계산한다.</p>
+      </div>
+      <p style="font-size:.82rem;color:var(--accent);font-weight:700;margin-bottom:10px;">📋 주간 체크리스트</p>
+      <div class="check-item"><input type="checkbox" id="w5-c1" onchange="saveCheck(this)"><label for="w5-c1">사건과 확률변수 차이를 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w5-c2" onchange="saveCheck(this)"><label for="w5-c2">이산형/연속형 차이를 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w5-c3" onchange="saveCheck(this)"><label for="w5-c3">PMF/PDF/CDF를 구분할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w5-c4" onchange="saveCheck(this)"><label for="w5-c4">joint/marginal/conditional 분포를 구분할 수 있다</label></div>
+      <div class="days-grid" style="margin-top:14px">
+        <div class="day-card"><h5>Day 1</h5><div class="check-item"><input type="checkbox" id="w5-d1" onchange="saveCheck(this)"><label for="w5-d1">확률변수 정의 읽기</label></div><div class="check-item"><input type="checkbox" id="w5-d1b" onchange="saveCheck(this)"><label for="w5-d1b">사건과 숫자 표현의 차이 적기</label></div></div>
+        <div class="day-card"><h5>Day 2</h5><div class="check-item"><input type="checkbox" id="w5-d2" onchange="saveCheck(this)"><label for="w5-d2">이산형/연속형 읽기</label></div><div class="check-item"><input type="checkbox" id="w5-d2b" onchange="saveCheck(this)"><label for="w5-d2b">예시 5개 분류하기</label></div></div>
+        <div class="day-card"><h5>Day 3</h5><div class="check-item"><input type="checkbox" id="w5-d3" onchange="saveCheck(this)"><label for="w5-d3">PMF/PDF 읽기</label></div><div class="check-item"><input type="checkbox" id="w5-d3b" onchange="saveCheck(this)"><label for="w5-d3b">둘 차이 설명문 적기</label></div></div>
+        <div class="day-card"><h5>Day 4</h5><div class="check-item"><input type="checkbox" id="w5-d4" onchange="saveCheck(this)"><label for="w5-d4">CDF 읽기</label></div><div class="check-item"><input type="checkbox" id="w5-d4b" onchange="saveCheck(this)"><label for="w5-d4b">누적확률 직관 정리</label></div></div>
+        <div class="day-card"><h5>Day 5</h5><div class="check-item"><input type="checkbox" id="w5-d5" onchange="saveCheck(this)"><label for="w5-d5">joint/marginal/conditional 읽기</label></div><div class="check-item"><input type="checkbox" id="w5-d5b" onchange="saveCheck(this)"><label for="w5-d5b">관계 표 만들기</label></div></div>
+        <div class="day-card"><h5>Day 6</h5><div class="check-item"><input type="checkbox" id="w5-d6" onchange="saveCheck(this)"><label for="w5-d6">PMF/PDF/CDF 비교표 작성</label></div><div class="check-item"><input type="checkbox" id="w5-d6b" onchange="saveCheck(this)"><label for="w5-d6b">5주 요약 작성</label></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc5">6</div>
+      <div class="week-meta"><h3>자주 나오는 확률분포</h3><p>AI에서 쓰는 분포 종류 익히기 — Bernoulli, Binomial, Gaussian, Categorical</p></div>
+      <span class="week-badge wb5">확률분포</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>분포는 "어떤 결과가 얼마나 자주 나오는지" 그린 지도다. 주사위는 6면이 고르게, 시험 점수는 중간이 많고 양 끝이 적은 "종 모양"을 그린다.</p>
+      </div>
+      <p style="font-size:.82rem;color:var(--accent);font-weight:700;margin-bottom:10px;">📋 주간 체크리스트</p>
+      <div class="check-item"><input type="checkbox" id="w6-c1" onchange="saveCheck(this)"><label for="w6-c1">Bernoulli 분포를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w6-c2" onchange="saveCheck(this)"><label for="w6-c2">Binomial 분포를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w6-c3" onchange="saveCheck(this)"><label for="w6-c3">Categorical 분포를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w6-c4" onchange="saveCheck(this)"><label for="w6-c4">Gaussian 분포를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w6-c5" onchange="saveCheck(this)"><label for="w6-c5">각각 AI에서 어디에 쓰이는지 안다</label></div>
+      <div class="days-grid" style="margin-top:14px">
+        <div class="day-card"><h5>Day 1 — Bernoulli</h5><div class="check-item"><input type="checkbox" id="w6-d1" onchange="saveCheck(this)"><label for="w6-d1">정의 읽기</label></div><div class="check-item"><input type="checkbox" id="w6-d1b" onchange="saveCheck(this)"><label for="w6-d1b">성공/실패 예시 3개</label></div></div>
+        <div class="day-card"><h5>Day 2 — Binomial</h5><div class="check-item"><input type="checkbox" id="w6-d2" onchange="saveCheck(this)"><label for="w6-d2">정의 읽기</label></div><div class="check-item"><input type="checkbox" id="w6-d2b" onchange="saveCheck(this)"><label for="w6-d2b">Bernoulli와 차이 정리</label></div></div>
+        <div class="day-card"><h5>Day 3 — Categorical</h5><div class="check-item"><input type="checkbox" id="w6-d3" onchange="saveCheck(this)"><label for="w6-d3">정의 읽기</label></div><div class="check-item"><input type="checkbox" id="w6-d3b" onchange="saveCheck(this)"><label for="w6-d3b">다중 클래스와 연결</label></div></div>
+        <div class="day-card"><h5>Day 4 — Gaussian</h5><div class="check-item"><input type="checkbox" id="w6-d4" onchange="saveCheck(this)"><label for="w6-d4">정의 읽기</label></div><div class="check-item"><input type="checkbox" id="w6-d4b" onchange="saveCheck(this)"><label for="w6-d4b">μ, σ² 의미 정리</label></div></div>
+        <div class="day-card"><h5>Day 5</h5><div class="check-item"><input type="checkbox" id="w6-d5" onchange="saveCheck(this)"><label for="w6-d5">Gaussian이 자주 쓰이는 이유</label></div><div class="check-item"><input type="checkbox" id="w6-d5b" onchange="saveCheck(this)"><label for="w6-d5b">중심극한정리 개요</label></div></div>
+        <div class="day-card"><h5>Day 6</h5><div class="check-item"><input type="checkbox" id="w6-d6" onchange="saveCheck(this)"><label for="w6-d6">분포별 용도표 만들기</label></div><div class="check-item"><input type="checkbox" id="w6-d6b" onchange="saveCheck(this)"><label for="w6-d6b">6주 요약 작성</label></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc0">7</div>
+      <div class="week-meta"><h3>기대값과 분산</h3><p>평균과 흔들림 이해 — E[X], Var(X), 공분산, 상관관계</p></div>
+      <span class="week-badge wb0">통계</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>기대값은 "보통 어느 정도인가", 분산은 "얼마나 들쑥날쑥한가"다. AI 학습도 결국 "평균적으로 얼마나 잘 맞추는지"를 본다.</p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w7-c1" onchange="saveCheck(this)"><label for="w7-c1">기대값 E[X]를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w7-c2" onchange="saveCheck(this)"><label for="w7-c2">분산 Var(X)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w7-c3" onchange="saveCheck(this)"><label for="w7-c3">표준편차를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w7-c4" onchange="saveCheck(this)"><label for="w7-c4">공분산을 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w7-c5" onchange="saveCheck(this)"><label for="w7-c5">상관관계와 공분산 차이를 안다</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc1">8</div>
+      <div class="week-meta"><h3>표본과 통계량</h3><p>일부를 보고 전체를 짐작하기 — 모집단, 표본, 표본평균, 표본분산</p></div>
+      <span class="week-badge wb1">통계</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>반 친구 3명 키만 재봐도 대충 반 전체 분위기를 짐작할 수 있다. 그런데 완전히 정확하지는 않다. <strong>표본으로 모집단을 추정한다.</strong></p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w8-c1" onchange="saveCheck(this)"><label for="w8-c1">모집단과 표본 차이를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w8-c2" onchange="saveCheck(this)"><label for="w8-c2">표본평균을 계산할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w8-c3" onchange="saveCheck(this)"><label for="w8-c3">표본분산을 계산할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w8-c4" onchange="saveCheck(this)"><label for="w8-c4">샘플링 노이즈 개념을 이해한다</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc2">9</div>
+      <div class="week-meta"><h3>Likelihood와 MLE</h3><p>데이터에 가장 잘 맞는 설명 찾기 — 발자국 보고 누가 지나갔는지 추리</p></div>
+      <span class="week-badge wb2">추정</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>발자국을 보고 "누가 지나갔을까?" 추리하는 것과 비슷하다. 가장 그럴듯한 설명을 찾는 것이 MLE다. <strong>딥러닝 학습 = MLE</strong></p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w9-c1" onchange="saveCheck(this)"><label for="w9-c1">parameter / estimator / estimate를 구분할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w9-c2" onchange="saveCheck(this)"><label for="w9-c2">likelihood를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w9-c3" onchange="saveCheck(this)"><label for="w9-c3">probability와 likelihood의 차이를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w9-c4" onchange="saveCheck(this)"><label for="w9-c4">MLE를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w9-c5" onchange="saveCheck(this)"><label for="w9-c5">log-likelihood가 왜 필요한지 설명할 수 있다</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc3">10</div>
+      <div class="week-meta"><h3>MAP / Bias-Variance / 가설검정</h3><p>좋은 추정이 무엇인지 이해 — 너무 단순도, 너무 복잡도 안 된다</p></div>
+      <span class="week-badge wb3">추정</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>너무 단순한 생각도 틀리고, 너무 복잡한 생각도 틀릴 수 있다. <strong>딱 적당한 복잡도의 모델</strong>이 가장 좋다.</p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w10-c1" onchange="saveCheck(this)"><label for="w10-c1">MAP(최대사후확률추정)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w10-c2" onchange="saveCheck(this)"><label for="w10-c2">MLE와 MAP의 차이를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w10-c3" onchange="saveCheck(this)"><label for="w10-c3">bias(편향)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w10-c4" onchange="saveCheck(this)"><label for="w10-c4">variance(분산)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w10-c5" onchange="saveCheck(this)"><label for="w10-c5">bias-variance tradeoff를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w10-c6" onchange="saveCheck(this)"><label for="w10-c6">p-value를 과장 없이 설명할 수 있다</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc4">11</div>
+      <div class="week-meta"><h3>ML 연결 1 — 확률로 배우는 AI</h3><p>AI가 확률로 배우는 구조 이해 — logistic regression, sigmoid, BCE</p></div>
+      <span class="week-badge wb4">ML</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>AI는 "이 답이 맞을 가능성이 얼마나 큰가?"를 배우는 기계다. P(y=1|x)처럼 확률로 답을 낸다.</p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w11-c1" onchange="saveCheck(this)"><label for="w11-c1">지도학습 구조(P(y|x))를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w11-c2" onchange="saveCheck(this)"><label for="w11-c2">regression과 classification의 차이를 안다</label></div>
+      <div class="check-item"><input type="checkbox" id="w11-c3" onchange="saveCheck(this)"><label for="w11-c3">logistic regression을 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w11-c4" onchange="saveCheck(this)"><label for="w11-c4">sigmoid 함수를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w11-c5" onchange="saveCheck(this)"><label for="w11-c5">binary cross-entropy loss를 설명할 수 있다</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc5">12</div>
+      <div class="week-meta"><h3>ML 연결 2 — 여러 답 중 고르기</h3><p>softmax, 다중분류, naive Bayes, regularization</p></div>
+      <span class="week-badge wb5">ML</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>고양이·강아지·토끼 중 하나를 골라야 할 때, AI는 각각의 가능성을 계산해서 <strong>가장 큰 것을 고른다.</strong></p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w12-c1" onchange="saveCheck(this)"><label for="w12-c1">softmax를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w12-c2" onchange="saveCheck(this)"><label for="w12-c2">다중 분류 구조를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w12-c3" onchange="saveCheck(this)"><label for="w12-c3">naive Bayes를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w12-c4" onchange="saveCheck(this)"><label for="w12-c4">regularization의 필요성을 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w12-c5" onchange="saveCheck(this)"><label for="w12-c5">sigmoid와 softmax의 차이를 안다</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc0">13</div>
+      <div class="week-meta"><h3>정보이론</h3><p>틀린 정도를 재는 법 — entropy, cross-entropy, KL divergence</p></div>
+      <span class="week-badge wb0">정보이론</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>AI가 정답에서 얼마나 멀리 벗어났는지 벌점을 주는 방법을 배운다. 많이 틀릴수록 벌점이 커진다.</p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w13-c1" onchange="saveCheck(this)"><label for="w13-c1">entropy H(P)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w13-c2" onchange="saveCheck(this)"><label for="w13-c2">cross-entropy H(P,Q)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w13-c3" onchange="saveCheck(this)"><label for="w13-c3">KL divergence를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w13-c4" onchange="saveCheck(this)"><label for="w13-c4">세 개의 관계를 설명할 수 있다 (H(P,Q) = H(P) + KL)</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc1">14</div>
+      <div class="week-meta"><h3>딥러닝과 LLM</h3><p>언어모델이 다음 단어를 확률로 고른다는 것 이해하기</p></div>
+      <span class="week-badge wb1">딥러닝</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>문장을 읽고 "다음에 무슨 단어가 나올까?" 맞히는 게임을 엄청 많이 해서 똑똑해진 것이 LLM이다. P(다음 단어 | 앞 문장들)</p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w14-c1" onchange="saveCheck(this)"><label for="w14-c1">NLL(음의 로그우도)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w14-c2" onchange="saveCheck(this)"><label for="w14-c2">next-token prediction을 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w14-c3" onchange="saveCheck(this)"><label for="w14-c3">sequence probability를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w14-c4" onchange="saveCheck(this)"><label for="w14-c4">autoregressive factorization을 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w14-c5" onchange="saveCheck(this)"><label for="w14-c5">temperature/top-k/top-p를 설명할 수 있다</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc2">15</div>
+      <div class="week-meta"><h3>불확실성, Calibration, 의사결정</h3><p>AI를 언제 믿고 언제 멈출지 이해하기</p></div>
+      <span class="week-badge wb2">응용</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>친구가 "나 진짜 확실해"라고 했는데 자꾸 틀리면 못 믿게 된다. AI도 똑같다. <strong>자신만만하게 틀리는 AI가 제일 위험하다!</strong></p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w15-c1" onchange="saveCheck(this)"><label for="w15-c1">uncertainty(불확실성)의 종류를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w15-c2" onchange="saveCheck(this)"><label for="w15-c2">confidence와 correctness의 차이를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w15-c3" onchange="saveCheck(this)"><label for="w15-c3">calibration을 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w15-c4" onchange="saveCheck(this)"><label for="w15-c4">threshold decision을 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w15-c5" onchange="saveCheck(this)"><label for="w15-c5">human handoff 필요성을 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w15-c6" onchange="saveCheck(this)"><label for="w15-c6">risk와 utility 개념을 설명할 수 있다</label></div>
+    </div>
+  </div>
+
+  <div class="week-card">
+    <div class="week-header" onclick="toggleWeek(this)">
+      <div class="week-num wc3">16</div>
+      <div class="week-meta"><h3>논문 읽기와 쓰기 🎓</h3><p>배운 걸 연구 언어로 정리 — 논문 구조, 수식 읽기, 연구문제 초안</p></div>
+      <span class="week-badge wb3">논문</span><span class="week-toggle">▼</span>
+    </div>
+    <div class="week-body">
+      <div class="easy" style="margin-bottom:14px">
+        <div class="et">🧒 초등학생 설명</div>
+        <p>내가 만든 방법을 다른 사람도 이해할 수 있게, 순서대로 정확히 설명하는 것이다. 좋은 논문 = 좋은 요리 레시피처럼 따라하면 같은 결과가 나온다.</p>
+      </div>
+      <div class="check-item"><input type="checkbox" id="w16-c1" onchange="saveCheck(this)"><label for="w16-c1">논문 기본 구조(서론/관련연구/방법론/실험/결론)를 설명할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w16-c2" onchange="saveCheck(this)"><label for="w16-c2">논문에서 문제 정의를 찾을 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w16-c3" onchange="saveCheck(this)"><label for="w16-c3">논문에서 loss function을 찾을 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w16-c4" onchange="saveCheck(this)"><label for="w16-c4">논문에서 평가 지표를 찾을 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w16-c5" onchange="saveCheck(this)"><label for="w16-c5">논문 1편을 1페이지로 요약할 수 있다</label></div>
+      <div class="check-item"><input type="checkbox" id="w16-c6" onchange="saveCheck(this)"><label for="w16-c6">내 연구문제 초안을 작성했다</label></div>
+      <div class="days-grid" style="margin-top:14px">
+        <div class="day-card"><h5>Day 1</h5><div class="check-item"><input type="checkbox" id="w16-d1" onchange="saveCheck(this)"><label for="w16-d1">논문 구조 정리</label></div></div>
+        <div class="day-card"><h5>Day 2</h5><div class="check-item"><input type="checkbox" id="w16-d2" onchange="saveCheck(this)"><label for="w16-d2">수식 읽는 법 연습</label></div></div>
+        <div class="day-card"><h5>Day 3</h5><div class="check-item"><input type="checkbox" id="w16-d3" onchange="saveCheck(this)"><label for="w16-d3">논문 1편 요약</label></div></div>
+        <div class="day-card"><h5>Day 4</h5><div class="check-item"><input type="checkbox" id="w16-d4" onchange="saveCheck(this)"><label for="w16-d4">논문 2편 요약</label></div></div>
+        <div class="day-card"><h5>Day 5</h5><div class="check-item"><input type="checkbox" id="w16-d5" onchange="saveCheck(this)"><label for="w16-d5">내 연구문제 적기</label></div></div>
+        <div class="day-card"><h5>Day 6</h5><div class="check-item"><input type="checkbox" id="w16-d6" onchange="saveCheck(this)"><label for="w16-d6">1페이지 연구 제안서 초안 작성</label></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout tip" style="margin-top:28px">
+    <div class="ci">🎉</div>
+    <div class="cb"><p><strong>16주 완주를 목표로 꾸준히!</strong> 체크박스를 누르면 자동으로 저장됩니다. 매주 일요일에는 그 주 공통 복습 체크를 꼭 완료하세요.</p></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('dict')">← 개념 사전</button>
+    <button class="btn btn-p" onclick="goTo('c1')">Ch.1 집합과 함수 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ Ch.1 집합과 함수 ══════════════════ -->
+<section class="pg" id="pg-c1">
+  <div class="hero">
+    <div class="badge">Ch.1 · 기초 수학 (1~2주차)</div>
+    <h1>집합과 함수</h1>
+    <p>수학적 글쓰기의 기본 언어를 배웁니다. 논문에서 등장하는 수학 기호를 읽을 수 있게 됩니다.</p>
+  </div>
+
+  <div class="easy">
+    <div class="et">🧒 초등학생 한 줄 설명</div>
+    <p>집합은 "같은 특징을 가진 것들의 묶음"이고, 함수는 "뭔가를 넣으면 뭔가 나오는 기계"다. 수학 기호는 어려운 마법이 아니라 <strong>짧게 쓰는 약속</strong>이다.</p>
+  </div>
+
+  <h2 class="st"><span class="ic">∈</span>집합 (Set)</h2>
+  <p>집합은 뚜렷이 구별되는 원소들의 모임입니다. AI 논문에서 데이터셋, 파라미터 공간, 클래스 레이블 등을 집합으로 표현합니다.</p>
+
+  <div class="fb">
+    <div class="fl">AI 논문에서의 집합 표기</div>
+    \[ \mathcal{D} = \{(\mathbf{x}_1, y_1), (\mathbf{x}_2, y_2), \ldots, (\mathbf{x}_n, y_n)\} \]
+    <div class="fn">훈련 데이터셋 \(\mathcal{D}\)는 입력-출력 쌍의 집합. \(\mathcal{X} = \mathbb{R}^d\): d차원 입력 공간</div>
+  </div>
+
+  <h3 class="sub">핵심 기호 표</h3>
+  <table>
+    <tr><th>기호</th><th>읽는 법</th><th>의미</th><th>예시</th></tr>
+    <tr><td>\(x \in A\)</td><td>x는 A에 속한다</td><td>x는 집합 A의 원소</td><td>\(3 \in \{1,2,3\}\)</td></tr>
+    <tr><td>\(A \subseteq B\)</td><td>A는 B에 포함된다</td><td>A는 B의 부분집합</td><td>\(\{1,2\} \subseteq \{1,2,3\}\)</td></tr>
+    <tr><td>\(A \cup B\)</td><td>A 합집합 B</td><td>A 또는 B에 속하는 원소</td><td>\(\{1,2\} \cup \{2,3\} = \{1,2,3\}\)</td></tr>
+    <tr><td>\(A \cap B\)</td><td>A 교집합 B</td><td>A이면서 B인 원소</td><td>\(\{1,2\} \cap \{2,3\} = \{2\}\)</td></tr>
+    <tr><td>\(\forall x\)</td><td>모든 x에 대해</td><td>for all x</td><td>\(\forall x \in \mathbb{R},\ x^2 \ge 0\)</td></tr>
+    <tr><td>\(\exists x\)</td><td>어떤 x가 있어서</td><td>there exists x</td><td>\(\exists x : f(x) = 0\)</td></tr>
+    <tr><td>\(\mathbb{R}^d\)</td><td>d차원 실수 공간</td><td>d개 실수의 벡터 공간</td><td>\(\mathbf{x} \in \mathbb{R}^{768}\) (BERT)</td></tr>
+  </table>
+
+  <h2 class="st"><span class="ic">f</span>함수 (Function)</h2>
+  <p>함수 \(f: X \to Y\)는 정의역 \(X\)의 각 원소를 공역 \(Y\)의 정확히 하나의 원소에 대응시키는 규칙입니다.</p>
+
+  <div class="cc">
+    <div class="ct">🔑 핵심 개념 — 머신러닝 모델은 함수다</div>
+    <p>모든 AI 모델은 수학적으로 함수다:</p>
+    \[ f_\theta : \mathcal{X} \to \mathcal{Y} \]
+    <p style="margin-top:8px;">파라미터 \(\theta\)를 가진 모델이 입력 \(\mathbf{x} \in \mathcal{X}\)에서 출력 \(\hat{y} \in \mathcal{Y}\)으로 매핑한다.</p>
+  </div>
+
+  <div class="fb">
+    <div class="fl">딥러닝의 함수 합성</div>
+    \[ f(\mathbf{x}) = f_L \circ f_{L-1} \circ \cdots \circ f_1(\mathbf{x}) \]
+    <div class="fn">L개 레이어를 가진 신경망은 L개 함수의 합성이다. \(\circ\)는 합성 연산자.</div>
+  </div>
+
+  <div class="callout tip">
+    <div class="ci">✅</div>
+    <div class="cb"><p><strong>논문에서 자주 보이는 표현:</strong> \(\argmin_\theta \mathcal{L}(\theta)\) — "손실함수 \(\mathcal{L}\)을 최소화하는 파라미터 \(\theta\)를 찾아라"</p></div>
+  </div>
+
+  <div class="qb">
+    <h4>🧠 확인 문제</h4>
+    <p style="margin-bottom:12px;">\(\mathbb{R}^2\)의 원소는?</p>
+    <div class="qo" onclick="ans(this,false)">(a) &nbsp; \(3\) (스칼라)</div>
+    <div class="qo" onclick="ans(this,true)">(b) &nbsp; \((2.5,\ -1.3)\) (2개의 실수 쌍)</div>
+    <div class="qo" onclick="ans(this,false)">(c) &nbsp; \(\{1,2,3\}\) (집합)</div>
+    <div class="qo" onclick="ans(this,false)">(d) &nbsp; \(\begin{bmatrix}1\\2\\3\end{bmatrix}\) (3차원)</div>
+    <div class="qfb"></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('plan')">← 16주 계획</button>
+    <button class="btn btn-p" onclick="goTo('c2')">Ch.2 미분과 최적화 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ Ch.2 미분과 최적화 ══════════════════ -->
+<section class="pg" id="pg-c2">
+  <div class="hero">
+    <div class="badge">Ch.2 · 기초 수학 (1~2주차)</div>
+    <h1>미분과 최적화</h1>
+    <p>AI 학습의 엔진인 경사하강법(Gradient Descent)을 이해하기 위한 핵심 개념입니다.</p>
+  </div>
+
+  <div class="easy">
+    <div class="et">🧒 초등학생 한 줄 설명</div>
+    <p>미분은 "조금 변할 때 얼마나 달라지는지"다. 경사하강법은 "산에서 제일 빠른 길로 내려오는 것"처럼 AI가 실수를 줄여나가는 방법이다.</p>
+  </div>
+
+  <h2 class="st"><span class="ic">∂</span>미분 (Derivative)</h2>
+  <p>미분은 함수의 <strong>순간 변화율</strong>입니다. "입력이 조금 변할 때 출력이 얼마나 변하는가?"</p>
+
+  <div class="fb">
+    <div class="fl">미분의 정의</div>
+    \[ f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h} \]
+  </div>
+
+  <h3 class="sub">기본 미분 공식</h3>
+  <table>
+    <tr><th>함수 \(f(x)\)</th><th>미분 \(f'(x)\)</th><th>AI 활용</th></tr>
+    <tr><td>\(x^n\)</td><td>\(nx^{n-1}\)</td><td>다항식 층</td></tr>
+    <tr><td>\(e^x\)</td><td>\(e^x\)</td><td>Softmax 분모</td></tr>
+    <tr><td>\(\ln x\)</td><td>\(\dfrac{1}{x}\)</td><td>Log-likelihood, CE loss</td></tr>
+    <tr><td>\(\sigma(x) = \dfrac{1}{1+e^{-x}}\)</td><td>\(\sigma(x)(1-\sigma(x))\)</td><td>시그모이드 역전파</td></tr>
+    <tr><td>\(\text{ReLU}(x) = \max(0,x)\)</td><td>\(\mathbf{1}[x>0]\)</td><td>딥러닝 활성화 함수</td></tr>
+  </table>
+
+  <h2 class="st"><span class="ic">∇</span>그레디언트 (Gradient)</h2>
+  <p>여러 파라미터가 있을 때 각각에 대한 편미분을 벡터로 모은 것이 그레디언트입니다.</p>
+
+  <div class="fb">
+    <div class="fl">그레디언트 벡터</div>
+    \[ \nabla_\theta \mathcal{L} = \left( \frac{\partial \mathcal{L}}{\partial \theta_1}, \frac{\partial \mathcal{L}}{\partial \theta_2}, \ldots, \frac{\partial \mathcal{L}}{\partial \theta_n} \right)^\top \]
+    <div class="fn">\(\nabla_\theta \mathcal{L}\)은 손실함수가 가장 빠르게 <em>증가</em>하는 방향. 반대 방향이 하강 방향.</div>
+  </div>
+
+  <h2 class="st"><span class="ic">⬇</span>경사하강법 (Gradient Descent)</h2>
+
+  <div class="fb">
+    <div class="fl">파라미터 업데이트 규칙</div>
+    \[ \theta_{t+1} = \theta_t - \eta \cdot \nabla_\theta \mathcal{L}(\theta_t) \]
+    <div class="fn">\(\eta\) (학습률): 너무 크면 발산, 너무 작으면 느리게 수렴. 보통 0.001~0.1 사용.</div>
+  </div>
+
+  <!-- GD Simulator -->
+  <div class="calc">
+    <h4>🔢 경사하강법 시뮬레이터 — \(f(x)=x^2\)</h4>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">간단한 함수 \(f(x) = x^2\)에서 경사하강법을 체험. \(f'(x) = 2x\)이므로 \(x_{t+1} = x_t - \eta \cdot 2x_t\)</p>
+    <div class="cr"><span class="cl">시작점 \(x_0\)</span><input type="range" id="gd-x0" min="-5" max="5" step=".1" value="4" oninput="updateGD()"/><input type="number" id="gd-x0v" value="4" readonly/></div>
+    <div class="cr"><span class="cl">학습률 \(\eta\)</span><input type="range" id="gd-lr" min=".01" max=".99" step=".01" value=".3" oninput="updateGD()"/><input type="number" id="gd-lrv" value="0.3" readonly/></div>
+    <div class="cr"><span class="cl">반복 횟수</span><input type="range" id="gd-it" min="1" max="20" step="1" value="5" oninput="updateGD()"/><input type="number" id="gd-itv" value="5" readonly/></div>
+    <div class="cres" id="gd-res">결과가 여기에 표시됩니다.</div>
+  </div>
+
+  <div class="callout warn">
+    <div class="ci">⚠️</div>
+    <div class="cb"><p><strong>연쇄 법칙 (Chain Rule):</strong> 역전파(Backpropagation)의 핵심.<br/>\(\dfrac{\partial \mathcal{L}}{\partial x} = \dfrac{\partial \mathcal{L}}{\partial z} \cdot \dfrac{\partial z}{\partial x}\) — 합성 함수를 거꾸로 미분하며 그레디언트 전달</p></div>
+  </div>
+
+  <div class="qb">
+    <h4>🧠 확인 문제</h4>
+    <p style="margin-bottom:12px;">\(f(x) = x^3 + 2x\)의 도함수 \(f'(x)\)는?</p>
+    <div class="qo" onclick="ans(this,false)">(a) &nbsp; \(3x + 2\)</div>
+    <div class="qo" onclick="ans(this,true)">(b) &nbsp; \(3x^2 + 2\)</div>
+    <div class="qo" onclick="ans(this,false)">(c) &nbsp; \(x^2 + 2x\)</div>
+    <div class="qo" onclick="ans(this,false)">(d) &nbsp; \(3x^3 + 2\)</div>
+    <div class="qfb"></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('c1')">← Ch.1 집합과 함수</button>
+    <button class="btn btn-p" onclick="goTo('c3')">Ch.3 선형대수 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ Ch.3 선형대수 ══════════════════ -->
+<section class="pg" id="pg-c3">
+  <div class="hero">
+    <div class="badge">Ch.3 · 기초 수학 (3주차)</div>
+    <h1>선형대수 기초</h1>
+    <p>딥러닝에서 데이터와 모델 파라미터는 벡터와 행렬로 표현됩니다.</p>
+  </div>
+
+  <div class="easy">
+    <div class="et">🧒 초등학생 한 줄 설명</div>
+    <p>벡터는 "여러 숫자를 순서대로 묶은 것"이고, 행렬은 "숫자를 격자 모양으로 배열한 것"이다. 딥러닝의 모든 계산은 이것으로 이루어진다.</p>
+  </div>
+
+  <h2 class="st"><span class="ic">→</span>벡터 (Vector)</h2>
+  <div class="fb">
+    <div class="fl">열벡터 표기</div>
+    \[ \mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_d \end{bmatrix} \in \mathbb{R}^d \]
+    <div class="fn">d개의 특성을 가진 하나의 데이터 샘플. 굵은 소문자로 표기.</div>
+  </div>
+
+  <h3 class="sub">내적 (Dot Product)</h3>
+  <div class="fb">
+    <div class="fl">내적 — Attention의 핵심</div>
+    \[ \mathbf{a} \cdot \mathbf{b} = \mathbf{a}^\top \mathbf{b} = \sum_{i=1}^{d} a_i b_i = \|\mathbf{a}\|\|\mathbf{b}\|\cos\theta \]
+    <div class="fn">두 벡터가 비슷한 방향이면 내적이 크다 (cos θ ≈ 1). Transformer Attention에서 Q·Kᵀ 연산의 기초.</div>
+  </div>
+
+  <h2 class="st"><span class="ic">⊞</span>행렬 (Matrix)</h2>
+  <div class="fb">
+    <div class="fl">선형 레이어 = 행렬 곱</div>
+    \[ \mathbf{h} = \sigma(\mathbf{W}\mathbf{x} + \mathbf{b}) \]
+    <div class="fn">\(\mathbf{W} \in \mathbb{R}^{d_{out} \times d_{in}}\): 가중치 행렬, \(\mathbf{b}\): 편향 벡터, \(\sigma\): 활성화 함수</div>
+  </div>
+
+  <table>
+    <tr><th>연산</th><th>표기</th><th>AI 역할</th></tr>
+    <tr><td>전치 행렬</td><td>\(\mathbf{A}^\top\)</td><td>차원 변환, Attention QKᵀ</td></tr>
+    <tr><td>행렬 곱</td><td>\(\mathbf{A}\mathbf{B}\)</td><td>레이어 순전파 (forward pass)</td></tr>
+    <tr><td>역행렬</td><td>\(\mathbf{A}^{-1}\)</td><td>최소제곱법 해석적 풀이</td></tr>
+    <tr><td>노름 (L2)</td><td>\(\|\mathbf{x}\|_2\)</td><td>정규화, 거리 계산, L2 정규화</td></tr>
+    <tr><td>고유값 분해</td><td>\(\mathbf{A}=\mathbf{Q}\mathbf{\Lambda}\mathbf{Q}^\top\)</td><td>PCA, 주성분 분석</td></tr>
+    <tr><td>SVD</td><td>\(\mathbf{A}=\mathbf{U}\mathbf{\Sigma}\mathbf{V}^\top\)</td><td>LoRA, 차원 축소</td></tr>
+  </table>
+
+  <div class="cc">
+    <div class="ct">🔑 논문에서 자주 보이는 표현</div>
+    <p>\(\mathbf{X} \in \mathbb{R}^{n \times d}\) — n개 샘플, d개 특성의 데이터 행렬</p>
+    <p style="margin-top:5px;">\(\mathbf{W} \in \mathbb{R}^{d_{out} \times d_{in}}\) — 선형 레이어의 가중치 행렬</p>
+    <p style="margin-top:5px;">\(\text{Attention}(Q,K,V) = \text{softmax}\!\left(\dfrac{QK^\top}{\sqrt{d_k}}\right) V\) — Transformer의 핵심 연산</p>
+  </div>
+
+  <div class="qb">
+    <h4>🧠 확인 문제</h4>
+    <p style="margin-bottom:12px;">\(\mathbf{A} \in \mathbb{R}^{3 \times 4}\), \(\mathbf{B} \in \mathbb{R}^{4 \times 2}\)일 때, \(\mathbf{A}\mathbf{B}\)의 크기는?</p>
+    <div class="qo" onclick="ans(this,false)">(a) &nbsp; \(4 \times 4\)</div>
+    <div class="qo" onclick="ans(this,false)">(b) &nbsp; \(3 \times 4\)</div>
+    <div class="qo" onclick="ans(this,true)">(c) &nbsp; \(3 \times 2\)</div>
+    <div class="qo" onclick="ans(this,false)">(d) &nbsp; \(4 \times 2\)</div>
+    <div class="qfb"></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('c2')">← Ch.2 미분</button>
+    <button class="btn btn-p" onclick="goTo('c4')">Ch.4 확률론 기초 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ Ch.4 확률론 ══════════════════ -->
+<section class="pg" id="pg-c4">
+  <div class="hero">
+    <div class="badge">Ch.4 · 확률 &amp; 통계 (3~4주차)</div>
+    <h1>확률론 기초</h1>
+    <p>불확실성을 수학적으로 표현하는 언어. AI 모델의 예측은 본질적으로 확률입니다.</p>
+  </div>
+
+  <div class="easy">
+    <div class="et">🧒 초등학생 한 줄 설명</div>
+    <p>확률은 "어떤 일이 일어날 가능성을 0부터 1 사이의 숫자로 나타낸 것"이다. 1이면 무조건 일어나고, 0이면 절대 안 일어난다.</p>
+  </div>
+
+  <h2 class="st"><span class="ic">🎲</span>확률의 3가지 공리</h2>
+  <div class="fb">
+    <div class="fl">Kolmogorov 공리 (모든 확률의 기초)</div>
+    \[ \text{1. } P(A) \ge 0 \qquad \text{2. } P(\Omega) = 1 \qquad \text{3. } P(A \cup B) = P(A) + P(B) \text{ (A,B 배반 시)} \]
+  </div>
+
+  <h2 class="st"><span class="ic">|</span>조건부확률</h2>
+  <div class="easy">
+    <div class="et">🧒 초등학생 버전</div>
+    <p>비가 올 확률이 30%였는데, 갑자기 먹구름을 봤다. 그러면 비 올 확률이 80%로 올라간다. <strong>새 정보가 생기면 확률이 바뀐다!</strong></p>
+  </div>
+  <div class="fb">
+    <div class="fl">조건부확률 공식</div>
+    \[ P(A \mid B) = \frac{P(A \cap B)}{P(B)}, \quad P(B) > 0 \]
+    <div class="fn">B가 일어났음을 알게 됐을 때, A가 일어날 확률. 표본공간이 Ω에서 B로 줄어든다.</div>
+  </div>
+
+  <h2 class="st"><span class="ic">🔄</span>베이즈 정리</h2>
+  <div class="easy">
+    <div class="et">🧒 초등학생 버전</div>
+    <p>"처음 생각(prior)" + "새 정보(likelihood)" = "업데이트된 생각(posterior)"</p>
+    <ul><li>어떤 병은 매우 드묾 → prior 낮음</li><li>검사 결과 양성 → 새 정보</li><li>하지만 검사기도 틀릴 수 있음! → posterior 계산 필요</li></ul>
+  </div>
+  <div class="fb">
+    <div class="fl">베이즈 정리</div>
+    \[ \underbrace{P(\theta \mid \mathcal{D})}_{\text{posterior}} = \frac{\overbrace{P(\mathcal{D} \mid \theta)}^{\text{likelihood}} \cdot \overbrace{P(\theta)}^{\text{prior}}}{\underbrace{P(\mathcal{D})}_{\text{evidence}}} \]
+    <div class="fn">evidence P(D)는 모든 가능한 θ에 대해 적분한 값 — 정규화 상수 역할. posterior ∝ likelihood × prior</div>
+  </div>
+
+  <table>
+    <tr><th>용어</th><th>의미</th><th>비유</th><th>AI 예시</th></tr>
+    <tr><td>Prior \(P(\theta)\)</td><td>데이터 보기 전 믿음</td><td>병원 가기 전 내 생각</td><td>파라미터 초기 분포</td></tr>
+    <tr><td>Likelihood \(P(D|\theta)\)</td><td>θ일 때 D가 나올 확률</td><td>이 동전으로 9번 앞면 나올 가능성</td><td>데이터 생성 확률</td></tr>
+    <tr><td>Posterior \(P(\theta|D)\)</td><td>D를 보고 업데이트된 믿음</td><td>검사 결과 본 후 내 생각</td><td>학습 후 파라미터 분포</td></tr>
+    <tr><td>Evidence \(P(D)\)</td><td>정규화 상수</td><td>기준점</td><td>보통 계산 생략, ∝ 사용</td></tr>
+  </table>
+
+  <div class="qb">
+    <h4>🧠 확인 문제</h4>
+    <p style="margin-bottom:12px;">베이즈 정리에서 "데이터를 보기 전의 믿음"을 나타내는 것은?</p>
+    <div class="qo" onclick="ans(this,false)">(a) &nbsp; posterior</div>
+    <div class="qo" onclick="ans(this,true)">(b) &nbsp; prior</div>
+    <div class="qo" onclick="ans(this,false)">(c) &nbsp; likelihood</div>
+    <div class="qo" onclick="ans(this,false)">(d) &nbsp; evidence</div>
+    <div class="qfb"></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('c3')">← Ch.3 선형대수</button>
+    <button class="btn btn-p" onclick="goTo('c5')">Ch.5 확률분포 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ Ch.5 확률분포 ══════════════════ -->
+<section class="pg" id="pg-c5">
+  <div class="hero">
+    <div class="badge">Ch.5 · 확률 &amp; 통계 (5~7주차)</div>
+    <h1>확률변수와 확률분포</h1>
+    <p>데이터가 어떻게 퍼져 있는지 수학적으로 모델링합니다.</p>
+  </div>
+
+  <div class="easy">
+    <div class="et">🧒 초등학생 한 줄 설명</div>
+    <p>분포는 "어떤 값이 얼마나 자주 나오는지 보여주는 지도"다. 정규분포는 중간 값이 제일 많고 양 끝으로 갈수록 드문 "종 모양"이다.</p>
+  </div>
+
+  <h2 class="st"><span class="ic">🔔</span>정규분포 (Gaussian)</h2>
+  <div class="fb">
+    <div class="fl">정규분포 확률밀도함수 (PDF)</div>
+    \[ \mathcal{N}(x \mid \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right) \]
+    <div class="fn">\(\mu\): 평균 (분포의 중심), \(\sigma^2\): 분산 (퍼짐 정도), \(\sigma\): 표준편차</div>
+  </div>
+
+  <!-- Normal Dist Calculator -->
+  <div class="calc">
+    <h4>🔢 정규분포 계산기</h4>
+    <div class="cr"><span class="cl">평균 \(\mu\)</span><input type="range" id="nd-mu" min="-3" max="3" step=".1" value="0" oninput="updateND()"/><input type="number" id="nd-muv" value="0" readonly/></div>
+    <div class="cr"><span class="cl">표준편차 \(\sigma\)</span><input type="range" id="nd-sg" min=".1" max="3" step=".1" value="1" oninput="updateND()"/><input type="number" id="nd-sgv" value="1" readonly/></div>
+    <div class="cr"><span class="cl">관측값 \(x\)</span><input type="range" id="nd-x" min="-5" max="5" step=".1" value="1" oninput="updateND()"/><input type="number" id="nd-xv" value="1" readonly/></div>
+    <div class="cres" id="nd-res">계산 중...</div>
+  </div>
+
+  <h2 class="st"><span class="ic">📈</span>주요 분포 정리</h2>
+  <table>
+    <tr><th>분포</th><th>파라미터</th><th>평균</th><th>AI 활용</th></tr>
+    <tr><td>\(\text{Bern}(p)\)</td><td>\(p \in [0,1]\)</td><td>\(p\)</td><td>이진 분류 출력 (sigmoid)</td></tr>
+    <tr><td>\(\text{Bin}(n,p)\)</td><td>\(n, p\)</td><td>\(np\)</td><td>n번 중 성공 횟수</td></tr>
+    <tr><td>\(\text{Cat}(\mathbf{p})\)</td><td>\(\mathbf{p} \in \Delta^K\)</td><td>—</td><td>다중 분류 (softmax)</td></tr>
+    <tr><td>\(\mathcal{N}(\mu,\sigma^2)\)</td><td>\(\mu, \sigma^2\)</td><td>\(\mu\)</td><td>회귀, 가중치 초기화, VAE</td></tr>
+    <tr><td>\(\text{Exp}(\lambda)\)</td><td>\(\lambda > 0\)</td><td>\(1/\lambda\)</td><td>이벤트 간격</td></tr>
+  </table>
+
+  <h3 class="sub">기대값과 분산</h3>
+  <div class="fb">
+    <div class="fl">핵심 통계량</div>
+    \[ \mathbb{E}[X] = \int x \, f(x) \, dx \qquad \text{Var}(X) = \mathbb{E}[(X-\mathbb{E}[X])^2] = \mathbb{E}[X^2] - (\mathbb{E}[X])^2 \]
+  </div>
+
+  <div class="qb">
+    <h4>🧠 확인 문제</h4>
+    <p style="margin-bottom:12px;">\(\mathcal{N}(5, 4)\)의 평균과 표준편차는?</p>
+    <div class="qo" onclick="ans(this,false)">(a) &nbsp; 평균 5, 표준편차 4</div>
+    <div class="qo" onclick="ans(this,true)">(b) &nbsp; 평균 5, 표준편차 2 (분산=4이므로 σ=√4=2)</div>
+    <div class="qo" onclick="ans(this,false)">(c) &nbsp; 평균 4, 표준편차 5</div>
+    <div class="qo" onclick="ans(this,false)">(d) &nbsp; 평균 5, 표준편차 16</div>
+    <div class="qfb"></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('c4')">← Ch.4 확률론</button>
+    <button class="btn btn-p" onclick="goTo('c6')">Ch.6 통계적 추론 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ Ch.6 통계적 추론 ══════════════════ -->
+<section class="pg" id="pg-c6">
+  <div class="hero">
+    <div class="badge">Ch.6 · 확률 &amp; 통계 (8~10주차)</div>
+    <h1>통계적 추론</h1>
+    <p>논문의 실험 결과를 해석하는 데 필수적인 MLE, 가설 검정, p-value, 신뢰구간을 배웁니다.</p>
+  </div>
+
+  <div class="easy">
+    <div class="et">🧒 초등학생 한 줄 설명</div>
+    <p>통계적 추론은 "일부 데이터를 보고 전체에 대해 결론을 내리는 것"이다. p-value는 "이게 그냥 우연일 가능성"이다. 낮을수록 우연이 아니다!</p>
+  </div>
+
+  <h2 class="st"><span class="ic">🎯</span>최대우도추정 (MLE)</h2>
+  <div class="easy">
+    <div class="et">🧒 초등학생 버전</div>
+    <p>발자국을 보고 "누가 지나갔을까?" 추리하는 것. 가장 그럴듯한 설명(파라미터)을 찾는다.</p>
+  </div>
+  <div class="fb">
+    <div class="fl">MLE 목적함수</div>
+    \[ \hat{\theta}_{MLE} = \argmax_\theta \prod_{i=1}^{n} p(x_i \mid \theta) = \argmax_\theta \sum_{i=1}^{n} \log p(x_i \mid \theta) \]
+    <div class="fn">곱 → 합(로그 변환)으로 수치 안정성 확보. 딥러닝의 Cross-Entropy 최소화 = 음의 로그우도(NLL) 최소화 = MLE</div>
+  </div>
+
+  <h2 class="st"><span class="ic">🔬</span>가설 검정</h2>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div class="sb"><p><strong>귀무가설 \(H_0\)</strong>: "두 방법 사이에 차이가 없다" — 기존 주장</p></div></div>
+    <div class="step"><div class="sn">2</div><div class="sb"><p><strong>대립가설 \(H_1\)</strong>: "새로운 방법이 더 좋다" — 내가 주장하고 싶은 것</p></div></div>
+    <div class="step"><div class="sn">3</div><div class="sb"><p><strong>검정 통계량</strong> 계산: 데이터로부터 t-통계량, z-통계량 등 계산</p></div></div>
+    <div class="step"><div class="sn">4</div><div class="sb"><p><strong>p-value 계산</strong>: \(p < \alpha = 0.05\)이면 귀무가설 기각 → "통계적으로 유의함"</p></div></div>
+  </div>
+
+  <div class="cc">
+    <div class="ct">🔑 p-value의 정확한 의미</div>
+    <p>p-value는 <strong>"귀무가설이 사실이라고 가정했을 때, 현재 관측된 데이터(또는 더 극단적인 결과)가 나올 확률"</strong>이다.</p>
+    <p style="margin-top:6px;">p = 0.03 → H₀이 사실이면 이런 데이터가 나올 확률이 3%. → 이 데이터는 H₀와 맞지 않는다 → H₀ 기각</p>
+  </div>
+
+  <div class="callout warn">
+    <div class="ci">⚠️</div>
+    <div class="cb"><p><strong>흔한 오해:</strong> p-value는 "가설이 옳을 확률"이 아닙니다! 또한 p &lt; 0.05가 실용적 중요성을 보장하지 않습니다. 표본이 충분히 크면 의미 없는 차이도 유의해집니다.</p></div>
+  </div>
+
+  <h2 class="st"><span class="ic">📏</span>신뢰구간 (Confidence Interval)</h2>
+  <div class="fb">
+    <div class="fl">95% 신뢰구간</div>
+    \[ \bar{x} \pm 1.96 \cdot \frac{s}{\sqrt{n}} \]
+    <div class="fn">"동일한 방법으로 100번 실험하면, 95번은 이 구간이 참 모평균을 포함한다"는 의미.</div>
+  </div>
+
+  <!-- CI Calculator -->
+  <div class="calc">
+    <h4>🔢 신뢰구간 계산기</h4>
+    <div class="cr"><span class="cl">표본평균 \(\bar{x}\)</span><input type="range" id="ci-m" min="0" max="100" step="1" value="50" oninput="updateCI()"/><input type="number" id="ci-mv" value="50" readonly/></div>
+    <div class="cr"><span class="cl">표준편차 \(s\)</span><input type="range" id="ci-s" min="1" max="30" step=".5" value="10" oninput="updateCI()"/><input type="number" id="ci-sv" value="10" readonly/></div>
+    <div class="cr"><span class="cl">표본 크기 \(n\)</span><input type="range" id="ci-n" min="5" max="500" step="5" value="30" oninput="updateCI()"/><input type="number" id="ci-nv" value="30" readonly/></div>
+    <div class="cres" id="ci-res">계산 중...</div>
+  </div>
+
+  <div class="qb">
+    <h4>🧠 확인 문제</h4>
+    <p style="margin-bottom:12px;">p-value = 0.03, 유의수준 α = 0.05일 때 올바른 결론은?</p>
+    <div class="qo" onclick="ans(this,true)">(a) &nbsp; 귀무가설을 기각한다 (p < α이므로)</div>
+    <div class="qo" onclick="ans(this,false)">(b) &nbsp; 귀무가설을 채택한다</div>
+    <div class="qo" onclick="ans(this,false)">(c) &nbsp; 검정을 다시 해야 한다</div>
+    <div class="qo" onclick="ans(this,false)">(d) &nbsp; 아무 결론도 낼 수 없다</div>
+    <div class="qfb"></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('c5')">← Ch.5 확률분포</button>
+    <button class="btn btn-p" onclick="goTo('c7')">Ch.7 AI·ML 연결고리 →</button>
+  </div>
+</section>
+
+<!-- ══════════════════ Ch.7 AI·ML 연결 ══════════════════ -->
+<section class="pg" id="pg-c7">
+  <div class="hero">
+    <div class="badge">Ch.7 · AI / ML (11~16주차)</div>
+    <h1>AI · ML과의 연결고리</h1>
+    <p>지금까지 배운 수학과 통계가 어떻게 실제 AI 알고리즘과 논문에 연결되는지 정리합니다.</p>
+  </div>
+
+  <div class="easy">
+    <div class="et">🧒 초등학생 한 줄 설명</div>
+    <p>AI 학습은 "틀린 정도(loss)를 줄이는 방향으로 파라미터를 조금씩 바꾸는 것"이다. 이것이 수학적으로는 MLE + 경사하강법이다.</p>
+  </div>
+
+  <h2 class="st"><span class="ic">🧩</span>머신러닝의 통합 공식</h2>
+  <div class="fb">
+    <div class="fl">머신러닝의 핵심 목적함수</div>
+    \[ \hat{\theta} = \argmin_\theta \underbrace{\frac{1}{n}\sum_{i=1}^{n} \mathcal{L}(f_\theta(\mathbf{x}_i), y_i)}_{\text{경험적 위험 (훈련 손실)}} + \underbrace{\lambda \Omega(\theta)}_{\text{정규화항}} \]
+    <div class="fn">• \(\mathcal{L}\): 손실함수 (미분 필요) &nbsp;|&nbsp; • \(f_\theta\): 모델 (선형대수) &nbsp;|&nbsp; • \(\Omega\): 정규화 (과적합 방지) &nbsp;|&nbsp; • \(\lambda\): 하이퍼파라미터</div>
+  </div>
+
+  <h2 class="st"><span class="ic">🔗</span>개념 연결 지도</h2>
+  <table>
+    <tr><th>수학 개념</th><th>AI/ML에서의 역할</th><th>논문 키워드</th></tr>
+    <tr><td>집합론·함수</td><td>가설 공간, 모델 정의</td><td>hypothesis class, mapping</td></tr>
+    <tr><td>미분·연쇄 법칙</td><td>역전파, 그레디언트 계산</td><td>backpropagation, gradient</td></tr>
+    <tr><td>선형대수</td><td>데이터 표현, 레이어 연산</td><td>embedding, attention, weight matrix</td></tr>
+    <tr><td>조건부확률</td><td>P(y|x) — 모델의 예측</td><td>conditional distribution, likelihood</td></tr>
+    <tr><td>베이즈 정리</td><td>모델 불확실성, 베이지안 학습</td><td>posterior, prior, ELBO</td></tr>
+    <tr><td>확률분포</td><td>출력 분포 모델링</td><td>softmax, Gaussian, categorical</td></tr>
+    <tr><td>MLE</td><td>모델 학습 목표</td><td>maximum likelihood, cross-entropy</td></tr>
+    <tr><td>가설 검정·p-value</td><td>실험 결과 유의성</td><td>statistical significance, ablation</td></tr>
+  </table>
+
+  <h2 class="st"><span class="ic">📊</span>정보이론 — Entropy, CE, KL</h2>
+  <div class="fb">
+    <div class="fl">세 가지 관계</div>
+    \[ H(P) = -\sum_x P(x)\log P(x) \qquad H(P,Q) = -\sum_x P(x)\log Q(x) \qquad D_{KL}(P\|Q) = H(P,Q) - H(P) \]
+    <div class="fn">H(P): 정답의 불확실성 &nbsp;|&nbsp; H(P,Q): 정답 분포 P를 Q로 코딩할 때 평균 길이 &nbsp;|&nbsp; KL: 두 분포의 차이</div>
+  </div>
+
+  <table>
+    <tr><th>개념</th><th>초등학생 설명</th><th>수식</th><th>AI 역할</th></tr>
+    <tr><td>Entropy</td><td>얼마나 헷갈리는지</td><td>\(H(P)\)</td><td>불확실성 측정, 결정트리</td></tr>
+    <tr><td>Cross-Entropy</td><td>AI 예측이 정답과 얼마나 다른지 벌점</td><td>\(H(P,Q)\)</td><td>분류 손실함수 (CE loss)</td></tr>
+    <tr><td>KL Divergence</td><td>두 생각이 얼마나 다른지</td><td>\(D_{KL}(P\|Q)\)</td><td>VAE, RLHF, 지식 증류</td></tr>
+  </table>
+
+  <h2 class="st"><span class="ic">🌡️</span>Calibration — AI를 언제 믿을까?</h2>
+  <div class="easy">
+    <div class="et">🧒 초등학생 버전</div>
+    <p>친구가 "나 90% 확신해"라고 100번 말했는데 90번 맞으면 믿을 수 있다. 60번만 맞으면 과신이다. <strong>자신만만하게 틀리는 AI가 제일 위험하다!</strong></p>
+  </div>
+
+  <div class="cc">
+    <div class="ct">🔑 논문 읽기 치트 시트</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <p><span class="tag tb">\(\sim\)</span> ~에서 샘플링 (\(x \sim \mathcal{N}(0,1)\))</p>
+      <p><span class="tag tg">\(\mathbb{E}[\cdot]\)</span> 기댓값 연산자</p>
+      <p><span class="tag tp">\(\propto\)</span> 비례한다 (정규화 상수 생략)</p>
+      <p><span class="tag ty">\(\text{s.t.}\)</span> subject to — 조건/제약</p>
+      <p><span class="tag tb">\(\hat{y}\)</span> 예측값 (hat = 추정량)</p>
+      <p><span class="tag tg">\(\nabla\)</span> 그레디언트 벡터</p>
+      <p><span class="tag tp">\(\|\cdot\|_p\)</span> p-노름 (L1: p=1, L2: p=2)</p>
+      <p><span class="tag ty">\(\argmin\)</span> 최소값을 만드는 입력 찾기</p>
+    </div>
+  </div>
+
+  <div class="qb">
+    <h4>🧠 최종 확인 문제</h4>
+    <p style="margin-bottom:12px;">딥러닝에서 Cross-Entropy 손실을 최소화하는 것은 어떤 원리와 동치인가?</p>
+    <div class="qo" onclick="ans(this,false)">(a) &nbsp; 베이즈 추정 (MAP)</div>
+    <div class="qo" onclick="ans(this,true)">(b) &nbsp; 최대우도추정 (MLE) — 음의 로그우도 최소화</div>
+    <div class="qo" onclick="ans(this,false)">(c) &nbsp; 최소분산 불편추정 (UMVUE)</div>
+    <div class="qo" onclick="ans(this,false)">(d) &nbsp; 모멘트 추정법 (MOM)</div>
+    <div class="qfb"></div>
+  </div>
+
+  <div class="callout tip" style="margin-top:28px">
+    <div class="ci">🎓</div>
+    <div class="cb"><p><strong>다음 추천 교재:</strong> Bishop "Pattern Recognition and Machine Learning" Ch.1~3 | Murphy "Probabilistic Machine Learning" | 3Blue1Brown "Neural Networks" 유튜브 시리즈</p></div>
+  </div>
+
+  <div class="callout info">
+    <div class="ci">🎉</div>
+    <div class="cb"><p><strong>교재 완주를 축하합니다!</strong> 이제 AI/ML 논문에서 등장하는 핵심 수학 개념들을 이해할 수 있는 토대가 마련되었습니다. 16주 계획표로 돌아가서 남은 체크박스를 채워나가세요!</p></div>
+  </div>
+
+  <div class="nb">
+    <button class="btn btn-s" onclick="goTo('c6')">← Ch.6 통계적 추론</button>
+    <button class="btn btn-p" onclick="goTo('home')">🏠 처음으로</button>
+  </div>
+</section>
+
+<!-- ══════════════════ 챕터 iframe 뷰 ══════════════════ -->
+<section class="pg" id="pg-chapter" style="margin:-44px -56px;padding:0;height:100vh;overflow:hidden;position:relative;">
+  <div id="frame-loading" style="display:none;position:absolute;inset:0;background:var(--bg);z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:14px;">
+    <div style="width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;"></div>
+    <p style="color:var(--muted);font-size:.88rem;margin:0;">챕터 로딩 중...</p>
+  </div>
+  <iframe id="chapter-frame" src="" style="width:100%;height:100%;border:none;display:block;"></iframe>
+</section>
+
+</main>
+
+<!-- ════════════════════════ SCRIPTS ════════════════════════ -->
+<script>
+// ── Navigation ──
+let cur = 'home';
+const visitedSet = new Set();
+const TOTAL = 23; // 홈·사전·계획 3 + 챕터 20
+
+// 챕터 파일명 → 사이드바 요소 맵
+const chapterMap = {};
+document.querySelectorAll('.ni[data-ch]').forEach(n => {
+  const filename = n.dataset.ch.split('/').pop();
+  chapterMap[filename] = n;
+});
+
+function updateProgress() {
+  const pct = Math.min(100, Math.round((visitedSet.size / TOTAL) * 100));
+  document.getElementById('pb').style.width = pct + '%';
+  document.getElementById('pb-lbl').textContent = '학습 진도 ' + pct + '%';
+}
+
+function setActiveSidebarByFile(filename) {
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  const el = chapterMap[filename];
+  if (el) {
+    el.classList.add('active');
+    el.classList.add('done');
+    visitedSet.add(filename);
+    updateProgress();
+    // 해당 챕터가 속한 대단원 그룹이 닫혀 있으면 자동으로 열기
+    const group = el.closest('.nu-group');
+    if (group && group.classList.contains('collapsed')) {
+      const gid = group.id;
+      group.classList.remove('collapsed');
+      const arrow = document.getElementById('arr-' + gid);
+      if (arrow) arrow.textContent = '▼';
+    }
+    // 사이드바에서 보이도록 스크롤
+    el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+function showLoading() {
+  const overlay = document.getElementById('frame-loading');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+function hideLoading() {
+  const overlay = document.getElementById('frame-loading');
+  if (overlay) overlay.style.display = 'none';
+}
+
+// 대단원 접기/펼치기
+function toggleUnit(id) {
+  const group = document.getElementById(id);
+  const arrow = document.getElementById('arr-' + id);
+  if (!group) return;
+  const isOpen = !group.classList.contains('collapsed');
+  if (isOpen) {
+    group.classList.add('collapsed');
+    if (arrow) arrow.textContent = '▶';
+  } else {
+    group.classList.remove('collapsed');
+    if (arrow) arrow.textContent = '▼';
+  }
+}
+
+// 홈 학습경로 카드에서 챕터로 이동
+function goChapter(url) {
+  loadChapter(url);
+}
+
+function goTo(id) {
+  visitedSet.add(cur);
+  document.querySelector(`[data-pg="${cur}"]`)?.classList.add('done');
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  document.getElementById('pg-' + id).classList.add('active');
+  document.querySelector(`[data-pg="${id}"]`)?.classList.add('active');
+  cur = id;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (window.MathJax) MathJax.typesetPromise();
+}
+
+function loadChapter(url) {
+  visitedSet.add(cur);
+  // 내부 섹션 숨기고 iframe 섹션 표시
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+  document.getElementById('pg-chapter').classList.add('active');
+  // 로딩 표시
+  showLoading();
+  const frame = document.getElementById('chapter-frame');
+  frame.src = url;
+  cur = 'chapter';
+  // 사이드바 활성화 (파일명 기준)
+  const filename = url.split('/').pop();
+  setActiveSidebarByFile(filename);
+}
+
+// iframe 로드 완료 시 사이드바 싱크
+const frame = document.getElementById('chapter-frame');
+frame.addEventListener('load', () => {
+  hideLoading();
+  try {
+    const loadedPath = frame.contentWindow.location.pathname;
+    const filename = loadedPath.split('/').pop();
+    if (filename && filename.endsWith('.html') && filename !== 'index.html') {
+      setActiveSidebarByFile(filename);
+      cur = 'chapter';
+    }
+  } catch(e) {
+    // cross-origin 오류 무시
+  }
+});
+
+// 챕터 iframe → 부모 메시지 수신 (prev/next 이동 시 사이드바 싱크)
+window.addEventListener('message', (e) => {
+  if (e.data?.type === 'chapterLoaded') {
+    hideLoading();
+    setActiveSidebarByFile(e.data.filename);
+    cur = 'chapter';
+  }
+});
+
+// 사이드바 클릭 이벤트
+document.querySelectorAll('.ni').forEach(n => {
+  n.addEventListener('click', () => {
+    if (n.dataset.ch) {
+      loadChapter(n.dataset.ch);
+    } else if (n.dataset.pg) {
+      goTo(n.dataset.pg);
+    }
+  });
+});
+
+// ── Toggle dict card ──
+function toggleDict(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('span:last-child');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.textContent = isOpen ? '▼' : '▲';
+  if (!isOpen && window.MathJax) MathJax.typesetPromise([body]);
+}
+
+// ── Toggle week card ──
+function toggleWeek(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.week-toggle');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+// ── Checkbox persistence ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Quiz ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 잘 이해하고 있습니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+
+// ── GD Simulator ──
+function updateGD() {
+  const x0 = parseFloat(document.getElementById('gd-x0').value);
+  const lr = parseFloat(document.getElementById('gd-lr').value);
+  const it = parseInt(document.getElementById('gd-it').value);
+  document.getElementById('gd-x0v').value = x0.toFixed(1);
+  document.getElementById('gd-lrv').value = lr.toFixed(2);
+  document.getElementById('gd-itv').value = it;
+  let x = x0, steps = [x0.toFixed(3)];
+  for (let i = 0; i < it; i++) { x -= lr * 2 * x; steps.push(x.toFixed(3)); }
+  document.getElementById('gd-res').innerHTML =
+    `시작 x₀=${x0} → ${it}번 후 x=<strong>${x.toFixed(5)}</strong>, f(x)=<strong>${(x*x).toFixed(7)}</strong><br/>
+    <span style="font-size:.78rem;color:var(--muted)">경로: ${steps.slice(0, Math.min(6,steps.length)).join(' → ')}${steps.length>6?' → …':''}</span>`;
+}
+updateGD();
+
+// ── Normal Distribution ──
+function ndPDF(x, mu, sg) {
+  return (1 / (sg * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mu) / sg) ** 2);
+}
+function updateND() {
+  const mu = parseFloat(document.getElementById('nd-mu').value);
+  const sg = parseFloat(document.getElementById('nd-sg').value);
+  const x  = parseFloat(document.getElementById('nd-x').value);
+  document.getElementById('nd-muv').value = mu.toFixed(1);
+  document.getElementById('nd-sgv').value = sg.toFixed(1);
+  document.getElementById('nd-xv').value  = x.toFixed(1);
+  const pdf = ndPDF(x, mu, sg);
+  const z = (x - mu) / sg;
+  document.getElementById('nd-res').innerHTML =
+    `f(${x.toFixed(1)}) = <strong>${pdf.toFixed(5)}</strong> &nbsp;|&nbsp; z-score = <strong>${z.toFixed(3)}</strong><br/>
+    <span style="font-size:.78rem;color:var(--muted)">μ=${mu.toFixed(1)}, σ=${sg.toFixed(1)}, σ²=${(sg*sg).toFixed(2)}</span>`;
+}
+updateND();
+
+// ── CI Calculator ──
+function updateCI() {
+  const m = parseFloat(document.getElementById('ci-m').value);
+  const s = parseFloat(document.getElementById('ci-s').value);
+  const n = parseInt(document.getElementById('ci-n').value);
+  document.getElementById('ci-mv').value = m;
+  document.getElementById('ci-sv').value = s;
+  document.getElementById('ci-nv').value = n;
+  const se = s / Math.sqrt(n);
+  const lo = (m - 1.96 * se).toFixed(3);
+  const hi = (m + 1.96 * se).toFixed(3);
+  document.getElementById('ci-res').innerHTML =
+    `95% 신뢰구간: [<strong>${lo}</strong>, <strong>${hi}</strong>]<br/>
+    <span style="font-size:.78rem;color:var(--muted)">표준오차 SE=${se.toFixed(3)}, 오차한계 ±${(1.96*se).toFixed(3)}</span>`;
+}
+updateCI();
+</script>
+</body>
+</html>

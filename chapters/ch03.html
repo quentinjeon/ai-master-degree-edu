@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.3 — 선형대수 기초 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.3 · 기초 수학 (3주차)</div>
+  <h1>선형대수 기초</h1>
+  <p>딥러닝에서 데이터와 모델 파라미터는 벡터와 행렬로 표현됩니다. 그 언어를 익힙니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"벡터는 '여러 숫자를 순서대로 묶은 것'이고, 행렬은 '숫자를 격자 모양으로 배열한 것'이다. 딥러닝의 모든 계산은 이것으로 이루어진다."</strong></p>
+  <ul>
+    <li>벡터: 키, 몸무게, 나이를 [170, 65, 25]처럼 묶으면 한 사람을 숫자로 표현 가능</li>
+    <li>행렬: 반 학생 30명의 정보를 30×3 표로 만들면 → 데이터 행렬</li>
+    <li>AI: 입력 이미지 (224×224×3) → 행렬/텐서. 가중치 \(W \in \mathbb{R}^{d_\text{out} \times d_\text{in}}\) → 행렬</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 벡터 == -->
+<h2 class="st"><span class="ic">→</span>벡터 (Vector)</h2>
+<p>벡터는 크기와 방향을 가진 수의 배열입니다. 하나의 데이터 샘플은 보통 벡터로 표현됩니다.</p>
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX — 열벡터 표기
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">열벡터 표기</div>
+  \[
+    \mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_d \end{bmatrix} \in \mathbb{R}^d
+  \]
+  <div class="fn">
+    \(d\): 특성(feature) 차원 — 데이터의 속성 개수<br/>
+    \(x_i\): \(i\)번째 특성값 — 해당 속성의 수치<br/>
+    \(\mathbb{R}^d\): \(d\)차원 실수 공간 — 벡터가 속하는 공간
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX — 내적 (Dot Product)
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">내적 (Dot Product) — Attention의 핵심</div>
+  \[
+    \mathbf{a} \cdot \mathbf{b} = \mathbf{a}^\top \mathbf{b} = \sum_{i=1}^{d} a_i b_i = \|\mathbf{a}\|\|\mathbf{b}\|\cos\theta
+  \]
+  <div class="fn">
+    \(\cos\theta \approx 1\): 두 벡터가 비슷한 방향 → 높은 유사도<br/>
+    \(\cos\theta \approx 0\): 두 벡터가 수직 → 무관한 방향<br/>
+    Transformer Attention에서 \(Q \cdot K^\top\) 연산의 기초가 되는 핵심 연산
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>내적과 유사도:</strong> 두 벡터의 내적값이 클수록 방향이 비슷하다는 뜻입니다. Transformer의 Attention 메커니즘은 Query와 Key 벡터의 내적으로 각 토큰 간의 관련도를 계산합니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: 행렬 == -->
+<h2 class="st"><span class="ic">⊞</span>행렬 (Matrix)</h2>
+<p>행렬은 2차원 배열입니다. 뉴럴 네트워크의 가중치 레이어는 행렬로 표현됩니다.</p>
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX — 선형 레이어
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">선형 레이어 = 행렬 곱 + 활성화</div>
+  \[
+    \mathbf{h} = \sigma(\mathbf{W}\mathbf{x} + \mathbf{b})
+  \]
+  <div class="fn">
+    \(W \in \mathbb{R}^{d_\text{out} \times d_\text{in}}\): 가중치 행렬 — 학습 가능한 파라미터<br/>
+    \(\mathbf{b}\): 편향(bias) 벡터 — 각 뉴런의 오프셋<br/>
+    \(\sigma\): 활성화 함수 — ReLU, sigmoid 등 비선형 변환
+  </div>
+</div>
+
+<h3 class="sub">행렬 연산 요약</h3>
+<table>
+  <tr><th>연산</th><th>표기</th><th>AI 역할</th></tr>
+  <tr><td>전치</td><td>\(A^\top\)</td><td>차원 변환, Attention \(QK^\top\)</td></tr>
+  <tr><td>행렬 곱</td><td>\(AB\)</td><td>레이어 순전파 (forward pass)</td></tr>
+  <tr><td>역행렬</td><td>\(A^{-1}\)</td><td>최소제곱법 해석적 풀이</td></tr>
+  <tr><td>L2 노름</td><td>\(\|\mathbf{x}\|_2 = \sqrt{\sum x_i^2}\)</td><td>정규화, 거리 계산</td></tr>
+  <tr><td>고유값 분해</td><td>\(A = Q\Lambda Q^\top\)</td><td>PCA, 주성분 분석</td></tr>
+  <tr><td>SVD</td><td>\(A = U\Sigma V^\top\)</td><td>LoRA, 차원 축소</td></tr>
+</table>
+
+<div class="cc">
+  <div class="ct">🔑 논문에서 자주 보이는 표현</div>
+  <p>\(X \in \mathbb{R}^{n \times d}\) — \(n\)개 샘플, \(d\)개 특성의 데이터 행렬</p>
+  <p>\(W \in \mathbb{R}^{d_\text{out} \times d_\text{in}}\) — 선형 레이어의 가중치 행렬</p>
+  <p>\(\text{Attention}(Q,K,V) = \text{softmax}\!\left(\dfrac{QK^\top}{\sqrt{d_k}}\right)V\) — Transformer의 핵심 연산</p>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>행렬 곱 순서 주의:</strong> \(AB \neq BA\) — 행렬 곱은 교환 법칙이 성립하지 않습니다. 또한 \(A(m \times k)\)와 \(B(k \times n)\)를 곱할 때 \(A\)의 열 수와 \(B\)의 행 수가 같아야 합니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  행렬 미분 (Matrix Calculus) — AI 논문 필수 개념
+════════════════════════════════════════ -->
+<h2 class="st"><span class="ic">∂</span>행렬 미분 — 논문에서 가장 자주 보이는 수식</h2>
+<p>딥러닝 논문은 <strong>"손실 함수를 가중치 행렬로 미분"</strong>하는 과정으로 가득합니다. 스칼라를 벡터로 미분하거나, 벡터를 벡터로 미분하는 규칙을 알아야 역전파(backpropagation)를 이해할 수 있습니다.</p>
+
+<h3 class="sub">스칼라를 벡터로 미분 (Gradient)</h3>
+<p>스칼라 함수 \(f(\mathbf{w})\)를 벡터 \(\mathbf{w} \in \mathbb{R}^n\)으로 미분하면 <strong>그레이디언트</strong> 벡터가 됩니다.</p>
+
+<div class="fb">
+  <div class="fl">GRADIENT — 스칼라 → 벡터 미분</div>
+  \[ \frac{\partial f}{\partial \mathbf{w}} = \nabla_{\mathbf{w}} f = \begin{bmatrix} \frac{\partial f}{\partial w_1} \\ \frac{\partial f}{\partial w_2} \\ \vdots \\ \frac{\partial f}{\partial w_n} \end{bmatrix} \in \mathbb{R}^n \]
+  <div class="fn">
+    \(f\): 스칼라 값 (예: 손실 함수 \(L\))<br/>
+    \(\mathbf{w} \in \mathbb{R}^n\): 파라미터 벡터<br/>
+    \(\nabla_{\mathbf{w}} f\): 각 파라미터 방향으로의 기울기 — 이 방향의 반대로 이동하면 손실이 줄어듦 (경사하강법)<br/>
+    결과: 입력 벡터와 같은 크기 \(n\)의 벡터
+  </div>
+</div>
+
+<h3 class="sub">핵심 행렬 미분 공식 (논문에서 반드시 등장)</h3>
+<table>
+  <tr><th>함수 \(f\)</th><th>미분 대상</th><th>결과 \(\frac{\partial f}{\partial \mathbf{w}}\)</th><th>등장 위치</th></tr>
+  <tr><td>\(\mathbf{a}^T \mathbf{w}\)</td><td>\(\mathbf{w}\)</td><td>\(\mathbf{a}\)</td><td>선형 모델 출력</td></tr>
+  <tr><td>\(\mathbf{w}^T A \mathbf{w}\)</td><td>\(\mathbf{w}\)</td><td>\((A + A^T)\mathbf{w}\)</td><td>이차 형식 (QDA 등)</td></tr>
+  <tr><td>\(\|\mathbf{X}\mathbf{w} - \mathbf{y}\|^2\)</td><td>\(\mathbf{w}\)</td><td>\(2\mathbf{X}^T(\mathbf{X}\mathbf{w} - \mathbf{y})\)</td><td>선형 회귀 MSE</td></tr>
+  <tr><td>\(\|\mathbf{w}\|^2\)</td><td>\(\mathbf{w}\)</td><td>\(2\mathbf{w}\)</td><td>L2 정규화 (Ridge)</td></tr>
+</table>
+
+<div class="fb">
+  <div class="fl">MATRIX CALCULUS — MSE GRADIENT (선형 회귀 핵심)</div>
+  \[ L(\mathbf{w}) = \|\mathbf{X}\mathbf{w} - \mathbf{y}\|^2 \implies \frac{\partial L}{\partial \mathbf{w}} = 2\mathbf{X}^T(\mathbf{X}\mathbf{w} - \mathbf{y}) \]
+  <div class="fn">
+    \(\mathbf{X} \in \mathbb{R}^{m \times n}\): 데이터 행렬 (m개 샘플, n개 특성)<br/>
+    \(\mathbf{w} \in \mathbb{R}^n\): 가중치 벡터<br/>
+    \(\mathbf{y} \in \mathbb{R}^m\): 실제 레이블 벡터<br/>
+    \(\mathbf{X}^T(\mathbf{X}\mathbf{w} - \mathbf{y})\): 예측 오차를 입력 특성 방향으로 누적 — 역전파의 핵심 원리<br/>
+    기울기 = 0으로 놓으면: \(\mathbf{w}^* = (\mathbf{X}^T \mathbf{X})^{-1} \mathbf{X}^T \mathbf{y}\) (해석적 해)
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>Chain Rule (연쇄 법칙):</strong> 딥러닝의 역전파는 행렬 미분의 연쇄 법칙입니다. \(\frac{\partial L}{\partial \mathbf{W}_1} = \frac{\partial L}{\partial \mathbf{z}} \cdot \frac{\partial \mathbf{z}}{\partial \mathbf{W}_1}\) — 각 층의 그레이디언트를 뒤에서 앞으로 곱해나갑니다.</p></div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>분자 레이아웃 vs 분모 레이아웃:</strong> 논문마다 \(\frac{\partial f}{\partial \mathbf{w}}\)를 열 벡터로 쓸지 행 벡터로 쓸지 다를 수 있습니다. 논문의 표기 규칙을 먼저 확인하세요.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록 — 행렬 곱 Shape 계산기
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 행렬 곱 Shape 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">A(m×k)와 B(k×n)를 곱하면 결과 행렬의 크기는 얼마일까요?</p>
+
+  <div class="cr">
+    <span class="cl">A의 행 (m)</span>
+    <input type="range" id="mat-m" min="1" max="10" step="1" value="3" oninput="updateMat()"/>
+    <input type="number" id="mat-m-v" value="3" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">A의 열 = B의 행 (k)</span>
+    <input type="range" id="mat-k" min="1" max="10" step="1" value="4" oninput="updateMat()"/>
+    <input type="number" id="mat-k-v" value="4" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">B의 열 (n)</span>
+    <input type="range" id="mat-n" min="1" max="10" step="1" value="2" oninput="updateMat()"/>
+    <input type="number" id="mat-n-v" value="2" readonly/>
+  </div>
+
+  <div class="cres" id="mat-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">\(A \in \mathbb{R}^{3 \times 4}\), \(B \in \mathbb{R}^{4 \times 2}\)일 때, \(AB\)의 크기는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 4 × 4</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; 3 × 4</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; 3 × 2</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 4 × 2</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch02b.html'">← Ch.2B 적분 기초</button>
+  <button class="btn btn-p" onclick="location.href='ch03b.html'">Ch.3B 선형회귀·최소제곱법 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답! 잘 이해하고 있습니다.' : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+function updateMat() {
+  const m = parseInt(document.getElementById('mat-m').value);
+  const k = parseInt(document.getElementById('mat-k').value);
+  const n = parseInt(document.getElementById('mat-n').value);
+  document.getElementById('mat-m-v').value = m;
+  document.getElementById('mat-k-v').value = k;
+  document.getElementById('mat-n-v').value = n;
+  document.getElementById('mat-res').innerHTML =
+    `A (${m}×${k}) × B (${k}×${n}) = AB (<strong>${m}×${n}</strong>)<br/>
+    <span style="font-size:.78rem;color:var(--muted)">연산 횟수: ${m}×${k}×${n} = ${m*k*n}번의 곱셈</span>`;
+}
+updateMat();
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+---
+description: 락 프로토콜 — 모든 에이전트가 파일 작업 전후 반드시 따라야 하는 잠금 규칙
+alwaysApply: true
+---
+
+# 락 프로토콜 (Lock Protocol)
+
+**모든 에이전트는 파일을 쓰기 전에 이 규칙을 반드시 따른다.**
+
+## 작업 시작 전 — 반드시 확인
+
+```
+1. docs/LOCKS.md 열기
+2. 내가 작업할 파일의 락 상태 확인
+   🔒 LOCKED → 즉시 중단. 다른 FREE 파일 선택하거나 Orchestrator에 보고
+   🔓 FREE   → 다음 단계 진행
+3. docs/PROGRESS.md에서 상태 확인
+   🔒 IN_PROGRESS → 즉시 중단 (위와 동일)
+   🆓 TODO        → 진행 가능
+```
+
+## 작업 시작 시 — 락 걸기 (두 파일 모두 업데이트)
+
+**Step A: LOCKS.md 업데이트**
+```
+🔓 FREE | — | —
+→ 🔒 LOCKED | [내 에이전트 이름] | [현재 시각]
+```
+
+**Step B: PROGRESS.md 업데이트**
+```
+락 열: 🔓 → 🔒
+상태: 🆓 TODO → 🔒 IN_PROGRESS
+담당 에이전트: — → [내 이름]
+```
+
+## 작업 완료 시 — 락 해제 (두 파일 모두 업데이트)
+
+**Step A: LOCKS.md 업데이트**
+```
+🔒 LOCKED | [내 이름] | [시각]
+→ 🔓 FREE | — | —
+```
+
+**Step B: PROGRESS.md 업데이트**
+```
+락 열: 🔒 → 🔓
+상태: 🔒 IN_PROGRESS → ✅ DONE
+완료일: — → [날짜]
+```
+
+## 락 체크 요약 (의사코드)
+
+```
+before_work(file):
+  locks = read("docs/LOCKS.md")
+  progress = read("docs/PROGRESS.md")
+
+  if locks[file] == "🔒 LOCKED":
+    STOP → 충돌 방지: 이미 작업 중
+  if progress[file].status == "🔒 IN_PROGRESS":
+    STOP → 충돌 방지: 이미 작업 중
+
+  # 락 걸기 (두 파일 동시 업데이트)
+  update LOCKS.md: file → "🔒 LOCKED | 내 이름 | 시각"
+  update PROGRESS.md: file → "🔒 IN_PROGRESS | 내 이름"
+  proceed()
+
+after_work(file):
+  # 락 해제 (두 파일 동시 업데이트)
+  update LOCKS.md: file → "🔓 FREE | — | —"
+  update PROGRESS.md: file → "✅ DONE | 날짜"
+```
+
+## 스테일 락 처리 (Orchestrator 전용)
+
+```
+4시간 이상 🔒 LOCKED 상태가 변하지 않는 파일 발견 시:
+→ LOCKS.md에서 해당 행을 🔓 FREE로 초기화
+→ PROGRESS.md에서 해당 행을 🆓 TODO로 되돌리기
+→ 새 에이전트에게 재할당
+```
+
+## 절대 금지
+
+- ❌ LOCKS.md 확인 없이 파일 쓰기 시작
+- ❌ 락 걸기 없이 작업 진행
+- ❌ 작업 완료 후 락 해제 생략
+- ❌ 다른 에이전트의 락 임의 해제

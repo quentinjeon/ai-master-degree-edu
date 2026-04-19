@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.3B — 선형회귀와 최소제곱법 | 확률·수학·AI 교재</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.3B · 기초 수학 브릿지 (4주차)</div>
+  <h1>선형회귀와 최소제곱법</h1>
+  <p>고등학교 "회귀직선"이 바로 머신러닝의 첫 번째 모델입니다. 손실함수를 최소화하는 것이 학습임을 수식으로 이해합니다.</p>
+</div>
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 쉽게 이해하기</div>
+  <p><strong>흩어진 점들에 가장 잘 맞는 직선을 긋는 것이 선형회귀다.</strong> 오차가 가장 작은 직선을 찾는다.</p>
+  <ul>
+    <li><strong>키로 몸무게 예측</strong>: 키가 클수록 몸무게가 늘어나는 경향 → 점들을 직선으로 표현하면 키(x)만 알아도 몸무게(y)를 예측할 수 있다.</li>
+    <li><strong>잔차(오차)</strong>: 실제값과 직선(예측값)의 차이. 이 오차들의 제곱합이 가장 작은 직선이 정답이다.</li>
+    <li><strong>AI 연결</strong>: 선형회귀 \(\hat{y} = \mathbf{w}^\top\mathbf{x} + b\)는 모든 딥러닝 레이어의 기본 단위다. 뉴럴 네트워크 = 선형회귀를 여러 층으로 쌓고 활성화 함수로 비선형성 추가.</li>
+  </ul>
+</div>
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1: 선형회귀 모델 -->
+<h2 class="st"><span class="ic">📈</span> 선형회귀 모델</h2>
+<p>선형회귀는 입력 \(x\)와 출력 \(y\) 사이에 선형 관계를 가정하는 가장 단순한 예측 모델입니다. 고등학교에서 배운 "회귀직선 \(y = ax + b\)"이 바로 이것입니다.</p>
+
+<div class="fb">
+  <div class="fl">단순 선형회귀 모델</div>
+  \[
+    \hat{y} = wx + b
+  \]
+  <div class="fn">
+    \(\hat{y}\): 예측값 (hat = 추정량을 의미)<br/>
+    \(w\): 가중치(weight) = 기울기. 고교 교과서의 \(a\)에 해당<br/>
+    \(b\): 편향(bias) = y절편. 고교 교과서의 \(b\)에 해당<br/>
+    <strong>목표</strong>: 주어진 데이터에서 최적의 \(w\)와 \(b\)를 찾는다
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>고등학교 표기</h5>
+    <p>\(y = ax + b\)</p>
+    <ul>
+      <li>\(a\): 기울기 (상관계수·공분산으로 계산)</li>
+      <li>\(b\): y절편</li>
+      <li>최소제곱법으로 a, b 결정</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>머신러닝 표기</h5>
+    <p>\(\hat{y} = w^\top x + b\)</p>
+    <ul>
+      <li>\(w\): 가중치 벡터 (다차원 입력)</li>
+      <li>\(b\): 편향 스칼라</li>
+      <li>손실함수 최소화로 w, b 결정</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 섹션 2: MSE 손실함수 -->
+<h2 class="st"><span class="ic">📉</span> MSE 손실함수 — "얼마나 틀렸는가"</h2>
+<p>좋은 직선이란 예측값과 실제값의 차이(잔차)가 작은 직선입니다. 이 차이를 수학적으로 표현한 것이 MSE(평균제곱오차) 손실함수입니다.</p>
+
+<div class="fb">
+  <div class="fl">Mean Squared Error (MSE)</div>
+  \[
+    \mathcal{L}(w, b) = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2 = \frac{1}{n}\sum_{i=1}^{n}(y_i - wx_i - b)^2
+  \]
+  <div class="fn">
+    \(y_i\): i번째 실제값, \(\hat{y}_i = wx_i + b\): i번째 예측값<br/>
+    \(y_i - \hat{y}_i\): 잔차(residual). 부호 상관없이 크면 나쁨 → 제곱으로 항상 양수<br/>
+    \(\frac{1}{n}\): n개 샘플 평균 (데이터 수에 상관없이 비교 가능하게)<br/>
+    <strong>목표</strong>: \(\mathcal{L}(w,b)\)을 최소화하는 \(w^*\), \(b^*\)를 찾아라
+  </div>
+</div>
+
+<div class="callout tip">
+  <span class="ci">✅</span>
+  <div class="cb">
+    <p><strong>왜 제곱인가?</strong> 잔차 \((y_i - \hat{y}_i)\)의 합은 양수·음수가 상쇄되어 0이 될 수 있습니다. 절댓값 대신 제곱을 쓰면 미분이 가능해져서 경사하강법을 적용할 수 있습니다.</p>
+  </div>
+</div>
+
+<!-- 섹션 3: 최소제곱법 해석적 해 -->
+<h2 class="st"><span class="ic">🔢</span> 최소제곱법 — 해석적 해</h2>
+<p>MSE를 \(w\)와 \(b\)로 편미분하여 0으로 놓으면 최적해를 수식으로 직접 구할 수 있습니다. 이것이 고등학교에서 배운 "최소제곱법 공식"의 수학적 유도입니다.</p>
+
+<div class="fb">
+  <div class="fl">단순 선형회귀의 최소제곱 해</div>
+  \[
+    w^* = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{n}(x_i - \bar{x})^2} = \frac{\text{Cov}(X,Y)}{\text{Var}(X)} \qquad b^* = \bar{y} - w^*\bar{x}
+  \]
+  <div class="fn">
+    \(\bar{x}, \bar{y}\): 입력·출력의 표본평균<br/>
+    분자 \(\sum(x_i-\bar{x})(y_i-\bar{y})\): 공분산의 분자 — x와 y가 함께 변하는 정도<br/>
+    분모 \(\sum(x_i-\bar{x})^2\): 분산의 분자 — x의 퍼짐 정도<br/>
+    \(w^* = \text{Cov}(X,Y)/\text{Var}(X)\): 상관계수 × 표준편차 비율과 같음 (고교 공식과 동일!)
+  </div>
+</div>
+
+<h3 class="sub">행렬 표기 — 다변량으로 확장</h3>
+<p>입력이 여러 개인 다중 선형회귀는 행렬로 간결하게 표현됩니다. Ch.3(선형대수)의 내용이 여기서 활용됩니다.</p>
+
+<div class="fb">
+  <div class="fl">다중 선형회귀의 최소제곱 해 (OLS)</div>
+  \[
+    \hat{\mathbf{w}} = (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{y}
+  \]
+  <div class="fn">
+    \(\mathbf{X} \in \mathbb{R}^{n \times d}\): 데이터 행렬 (n개 샘플, d개 특성)<br/>
+    \(\mathbf{y} \in \mathbb{R}^n\): 정답 벡터<br/>
+    \((\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\): 의사역행렬(pseudo-inverse). \(n \gg d\)이면 계산 가능<br/>
+    <strong>주의</strong>: \((\mathbf{X}^\top\mathbf{X})\)가 역행렬이 없으면 정규화(Ridge) 필요: \((\mathbf{X}^\top\mathbf{X} + \lambda I)^{-1}\)
+  </div>
+</div>
+
+<!-- 섹션 4: ML로의 확장 -->
+<h2 class="st"><span class="ic">🧠</span> 선형회귀 → 딥러닝으로의 확장</h2>
+<p>선형회귀를 이해하면 딥러닝으로 가는 길이 열립니다. 차이는 비선형성(활성화 함수)과 층(depth) 뿐입니다.</p>
+
+<table>
+  <thead>
+    <tr><th>개념</th><th>선형회귀</th><th>딥러닝 (레이어 1개)</th><th>딥러닝 (다층)</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>모델</td>
+      <td>\(\hat{y} = \mathbf{w}^\top\mathbf{x} + b\)</td>
+      <td>\(\hat{y} = \sigma(\mathbf{w}^\top\mathbf{x} + b)\)</td>
+      <td>\(f_L \circ \cdots \circ f_1(\mathbf{x})\)</td>
+    </tr>
+    <tr>
+      <td>손실함수</td>
+      <td>MSE</td>
+      <td>BCE (이진분류)</td>
+      <td>CE (다중분류)</td>
+    </tr>
+    <tr>
+      <td>최적화</td>
+      <td>해석적 해 (OLS)</td>
+      <td>경사하강법</td>
+      <td>역전파 + 경사하강법</td>
+    </tr>
+    <tr>
+      <td>비선형성</td>
+      <td>없음</td>
+      <td>sigmoid, ReLU</td>
+      <td>복합 활성화 함수</td>
+    </tr>
+    <tr>
+      <td>표현 능력</td>
+      <td>선형 패턴만</td>
+      <td>비선형 패턴 가능</td>
+      <td>매우 복잡한 패턴</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="cc">
+  <div class="ct">🔑 선형회귀 = MSE 최소화 = MLE (정규분포 가정)</div>
+  <p>노이즈가 정규분포를 따른다고 가정하면: \(y = \mathbf{w}^\top\mathbf{x} + b + \epsilon,\; \epsilon \sim \mathcal{N}(0, \sigma^2)\)</p>
+  \[
+    \hat{\mathbf{w}}_{MLE} = \arg\min_\mathbf{w} \sum_{i=1}^n (y_i - \hat{y}_i)^2 = \hat{\mathbf{w}}_{OLS}
+  \]
+  <p style="font-size:.85rem;color:var(--muted);margin-top:8px;">MSE 최소화 ↔ 정규 노이즈 가정 하의 MLE. 선형회귀와 최대우도추정이 같은 답을 준다는 수학적 연결!</p>
+</div>
+
+<!-- [5] INTERACTIVE -->
+<div class="calc">
+  <h4>🔢 선형회귀 MSE 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">고정된 5개 데이터 포인트에서 기울기 \(w\)와 절편 \(b\)를 조절해 MSE가 최소가 되는 직선을 찾아보세요.</p>
+
+  <div class="cr">
+    <span class="cl">기울기 \(w\)</span>
+    <input type="range" id="lr-w" min="-2" max="4" step="0.1" value="1" oninput="updateLR()"/>
+    <input type="number" id="lr-w-v" value="1.0" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">절편 \(b\)</span>
+    <input type="range" id="lr-b" min="-5" max="5" step="0.1" value="0" oninput="updateLR()"/>
+    <input type="number" id="lr-b-v" value="0.0" readonly/>
+  </div>
+
+  <div class="cres" id="lr-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">단순 선형회귀에서 최적 기울기 \(w^*\)를 구하는 공식은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(w^* = \bar{y} / \bar{x}\) (평균의 비율)</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; \(w^* = \text{Var}(X) / \text{Cov}(X, Y)\) (분자·분모 반대)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(w^* = \text{Cov}(X, Y) / \text{Var}(Y)\) (분모가 Y의 분산)</div>
+  <div class="qo" onclick="ans(this, true)">(d) &nbsp; \(w^* = \text{Cov}(X, Y) / \text{Var}(X)\) — x와 y가 함께 변하는 정도를 x의 퍼짐으로 정규화</div>
+  <div class="qfb"></div>
+</div>
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch03.html'">← Ch.3 선형대수 기초</button>
+  <button class="btn btn-p" onclick="location.href='ch04.html'">Ch.4 확률론·베이즈 →</button>
+</div>
+
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 잘 이해하고 있습니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// 고정 데이터 포인트 (x, y): 키-몸무게 스타일
+const DATA = [
+  {x: 1, y: 2.1}, {x: 2, y: 3.9}, {x: 3, y: 6.2}, {x: 4, y: 7.8}, {x: 5, y: 10.3}
+];
+
+// 데이터로부터 최적 w, b 계산
+const n = DATA.length;
+const xBar = DATA.reduce((s, d) => s + d.x, 0) / n;
+const yBar = DATA.reduce((s, d) => s + d.y, 0) / n;
+const covXY = DATA.reduce((s, d) => s + (d.x - xBar) * (d.y - yBar), 0);
+const varX  = DATA.reduce((s, d) => s + (d.x - xBar) ** 2, 0);
+const wOpt = covXY / varX;
+const bOpt = yBar - wOpt * xBar;
+const msOpt = DATA.reduce((s, d) => s + (d.y - (wOpt * d.x + bOpt)) ** 2, 0) / n;
+
+function updateLR() {
+  const w = parseFloat(document.getElementById('lr-w').value);
+  const b = parseFloat(document.getElementById('lr-b').value);
+  document.getElementById('lr-w-v').value = w.toFixed(1);
+  document.getElementById('lr-b-v').value = b.toFixed(1);
+
+  const mse = DATA.reduce((s, d) => {
+    const pred = w * d.x + b;
+    return s + (d.y - pred) ** 2;
+  }, 0) / DATA.length;
+
+  const residuals = DATA.map(d => (d.y - (w * d.x + b)).toFixed(2));
+  const quality = mse < msOpt * 1.05 ? '🎯 최적에 가깝습니다!' : mse < msOpt * 2 ? '👍 좋은 방향입니다.' : '📉 더 조정해보세요.';
+
+  document.getElementById('lr-res').innerHTML =
+    `ŷ = ${w.toFixed(1)}x + ${b.toFixed(1)}<br/>
+    MSE = <strong>${mse.toFixed(4)}</strong> &nbsp;|&nbsp; ${quality}<br/>
+    <span style="font-size:.75rem;color:var(--muted)">
+      최적해: w*=${wOpt.toFixed(3)}, b*=${bOpt.toFixed(3)}, MSE*=${msOpt.toFixed(4)}<br/>
+      잔차: [${residuals.join(', ')}]
+    </span>`;
+}
+updateLR();
+</script>
+</body>
+</html>

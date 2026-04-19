@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.1 — 집합과 함수 | 확률·수학·AI 교재</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<section class="hero">
+  <div class="badge">Ch.1 · 기초 수학 (1~2주차)</div>
+  <h1>집합과 함수</h1>
+  <p>수학적 글쓰기의 기본 언어를 배웁니다. 논문에서 등장하는 수학 기호를 읽을 수 있게 됩니다.</p>
+</section>
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 쉽게 이해하기</div>
+  <p><strong>수학 기호는 어려운 마법 문자가 아니라 짧게 적는 약속이다.</strong></p>
+  <ul>
+    <li><strong>f(x)</strong>는 "x를 넣으면 뭔가 나오는 기계" — 자판기에 동전을 넣으면 음료가 나오는 것처럼요.</li>
+    <li><strong>집합 {1, 2, 3}</strong>은 "같은 특징을 가진 것들의 묶음" — 반 친구들 명단과 같아요.</li>
+    <li><strong>AI 연결</strong>: 머신러닝 모델은 수학적으로 함수입니다. \( f_\theta(\mathbf{x}) = \hat{y} \) — 입력을 받아 예측값을 출력하는 기계예요.</li>
+  </ul>
+</div>
+
+<!-- [3] MAIN CONTENT — 섹션 1: 집합 -->
+<h2 class="st"><span class="ic">∈</span> 집합 (Set)</h2>
+<p>집합은 뚜렷이 구별되는 원소들의 모임입니다. AI 논문에서 데이터셋, 파라미터 공간, 클래스 레이블 등을 집합으로 표현합니다.</p>
+
+<!-- [4] FORMULA BOX 1 -->
+<div class="fb">
+  <div class="fl">AI 논문에서의 집합 표기</div>
+  \[
+    \mathcal{D} = \{(\mathbf{x}_1, y_1),\, (\mathbf{x}_2, y_2),\, \ldots,\, (\mathbf{x}_n, y_n)\}
+  \]
+  <div class="fn">
+    \(\mathcal{D}\): 훈련 데이터셋 전체<br>
+    \((\mathbf{x}_i, y_i)\): \(i\)번째 입력-출력 쌍 (\(\mathbf{x}_i\)는 입력 벡터, \(y_i\)는 레이블)
+  </div>
+</div>
+
+<h3 class="sub">핵심 집합 기호</h3>
+<table>
+  <thead>
+    <tr>
+      <th>기호</th>
+      <th>읽는 법</th>
+      <th>의미</th>
+      <th>예시</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>\(x \in A\)</td>
+      <td>x는 A에 속한다</td>
+      <td>x는 집합 A의 원소</td>
+      <td>\(3 \in \{1,2,3\}\)</td>
+    </tr>
+    <tr>
+      <td>\(A \subseteq B\)</td>
+      <td>A는 B에 포함된다</td>
+      <td>A는 B의 부분집합</td>
+      <td>\(\{1,2\} \subseteq \{1,2,3\}\)</td>
+    </tr>
+    <tr>
+      <td>\(A \cup B\)</td>
+      <td>A 합집합 B</td>
+      <td>A 또는 B의 원소</td>
+      <td>\(\{1,2\} \cup \{2,3\} = \{1,2,3\}\)</td>
+    </tr>
+    <tr>
+      <td>\(A \cap B\)</td>
+      <td>A 교집합 B</td>
+      <td>A이면서 B인 원소</td>
+      <td>\(\{1,2\} \cap \{2,3\} = \{2\}\)</td>
+    </tr>
+    <tr>
+      <td>\(\forall x\)</td>
+      <td>모든 x에 대해</td>
+      <td>for all x</td>
+      <td>\(\forall x \in \mathbb{R},\; x^2 \geq 0\)</td>
+    </tr>
+    <tr>
+      <td>\(\exists x\)</td>
+      <td>어떤 x가 있어서</td>
+      <td>there exists x</td>
+      <td>\(\exists x : f(x) = 0\)</td>
+    </tr>
+    <tr>
+      <td>\(\mathbb{R}^d\)</td>
+      <td>d차원 실수 공간</td>
+      <td>d개 실수의 벡터 공간</td>
+      <td>\(\mathbf{x} \in \mathbb{R}^{768}\) (BERT)</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 섹션 2: 함수 -->
+<h2 class="st"><span class="ic">f</span> 함수 (Function)</h2>
+<p>함수 \(f: X \to Y\)는 정의역 \(X\)의 각 원소를 공역 \(Y\)의 정확히 하나의 원소에 대응시키는 규칙입니다.</p>
+
+<div class="cc">
+  <div class="ct">🔑 핵심 개념 — 머신러닝 모델은 함수다</div>
+  <p>모든 AI 모델은 수학적으로 함수입니다.</p>
+  \[
+    f_\theta : \mathcal{X} \to \mathcal{Y}
+  \]
+  <p style="font-size:.88rem;color:var(--muted);margin-top:8px;">파라미터 \(\theta\)를 가진 모델이 입력 공간 \(\mathcal{X}\)에서 출력 공간 \(\mathcal{Y}\)로 매핑합니다.</p>
+</div>
+
+<!-- [4] FORMULA BOX 2 -->
+<div class="fb">
+  <div class="fl">딥러닝의 함수 합성</div>
+  \[
+    f(\mathbf{x}) = f_L \circ f_{L-1} \circ \cdots \circ f_1(\mathbf{x})
+  \]
+  <div class="fn">
+    \(L\)개 레이어 = \(L\)개 함수의 합성<br>
+    \(\circ\)는 합성 연산자: \((f \circ g)(x) = f(g(x))\)
+  </div>
+</div>
+
+<div class="callout tip">
+  <span class="ci">💡</span>
+  <div class="cb">
+    <p><strong>논문에서 자주 보이는 표현</strong><br>
+    \(\displaystyle\arg\min_\theta \mathcal{L}(\theta)\) — "손실함수 \(\mathcal{L}\)을 최소화하는 파라미터 \(\theta\)를 찾아라"</p>
+  </div>
+</div>
+
+<!-- [5] INTERACTIVE — 이 챕터는 인터랙티브 블록 없음 -->
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>📝 퀴즈 — \(\mathbb{R}^2\)의 원소는?</h4>
+  <div class="qo" onclick="ans(this, false)">
+    <span>①</span> \(3\) &nbsp;(스칼라)
+  </div>
+  <div class="qo" onclick="ans(this, true)">
+    <span>②</span> \((2.5,\; {-1.3})\) &nbsp;(2개의 실수 쌍)
+  </div>
+  <div class="qo" onclick="ans(this, false)">
+    <span>③</span> \(\{1,2,3\}\) &nbsp;(집합)
+  </div>
+  <div class="qo" onclick="ans(this, false)">
+    <span>④</span> \([1,2,3]^\top\) &nbsp;(3차원 벡터)
+  </div>
+  <div class="qfb"></div>
+</div>
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch00c.html'">← Ch.1C 경우의 수와 조합</button>
+  <button class="btn btn-p" onclick="location.href='ch02.html'">Ch.2 미분과 최적화 →</button>
+</div>
+
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답! 잘 이해하고 있습니다.' : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+</script>
+</body>
+</html>

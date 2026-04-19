@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ch.4 확률론 기초 &amp; 베이즈 정리</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+.steps{margin:16px 0;}
+.step{display:flex;gap:14px;margin-bottom:18px;}
+.sn{width:30px;height:30px;background:var(--accent);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+.sb p{margin-bottom:0;}
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.4 · 확률 &amp; 통계 (3~4주차)</div>
+  <h1>확률론 기초</h1>
+  <p>불확실성을 수학적으로 표현하는 언어. AI 모델의 예측은 본질적으로 확률입니다.</p>
+</div>
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 쉽게 이해하기 — 초등학생도 아는 확률</div>
+  <p>확률은 <strong>'어떤 일이 일어날 가능성을 0~1 사이 숫자로 나타낸 것'</strong>이다. 1이면 무조건, 0이면 절대 안 일어난다.</p>
+  <ul>
+    <li>🪙 동전 앞면이 나올 확률: 50% = <strong>0.5</strong></li>
+    <li>🌧️ 내일 비가 올 확률: 30% = <strong>0.3</strong></li>
+    <li>🐱 AI가 사진을 보고 판단: 고양이 <strong>0.9</strong>, 강아지 <strong>0.1</strong> — AI는 확률로 생각한다!</li>
+  </ul>
+</div>
+
+<!-- [3] MAIN CONTENT — 섹션 1 -->
+<h2 class="st"><span class="ic">🎲</span>확률의 3가지 기본 공리 (Kolmogorov)</h2>
+<p>모든 확률 이론의 기초가 되는 3가지 공리입니다. 이 공리들로부터 나머지 모든 확률 법칙이 유도됩니다.</p>
+
+<!-- [4] FORMULA BOX 1 -->
+<div class="fb">
+  <div class="fl">Kolmogorov 공리</div>
+  \[
+    \text{1. } P(A) \ge 0 \qquad
+    \text{2. } P(\Omega) = 1 \qquad
+    \text{3. } P(A \cup B) = P(A) + P(B) \quad \text{(A, B 배반 시)}
+  \]
+  <div class="fn">
+    Ω: 표본공간 (모든 결과의 집합)<br/>
+    공리 3: 배반(disjoint) 사건의 합집합 확률은 더한 값과 같다
+  </div>
+</div>
+
+<h3 class="sub">핵심 용어</h3>
+<table>
+  <thead>
+    <tr><th>용어</th><th>설명</th><th>예시</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>표본공간 Ω</td><td>발생 가능한 모든 결과</td><td>동전: {앞, 뒤}</td></tr>
+    <tr><td>사건 A</td><td>표본공간의 부분집합</td><td>앞면만: {앞}</td></tr>
+    <tr><td>P(A)</td><td>사건 A의 확률</td><td>P({앞}) = 0.5</td></tr>
+    <tr><td>여사건 Aᶜ</td><td>A가 아닌 사건</td><td>뒷면: P(Aᶜ) = 1 − P(A)</td></tr>
+  </tbody>
+</table>
+
+<!-- 섹션 2 -->
+<h2 class="st"><span class="ic">|</span>조건부확률 (Conditional Probability)</h2>
+<p>"B가 일어났음을 알게 됐을 때, A가 일어날 확률". 새 정보가 생기면 표본공간이 Ω에서 B로 줄어든다.</p>
+
+<div class="callout tip">
+  <div class="ci">🌦️</div>
+  <div class="cb"><p>비가 올 확률이 30%였는데, 먹구름을 봤다. 그러면 비 올 확률이 80%로 올라간다. <strong>새 정보가 생기면 확률이 바뀐다!</strong></p></div>
+</div>
+
+<!-- [4] FORMULA BOX 2 -->
+<div class="fb">
+  <div class="fl">조건부확률 공식</div>
+  \[
+    P(A \mid B) = \frac{P(A \cap B)}{P(B)}, \quad P(B) > 0
+  \]
+  <div class="fn">
+    "B가 일어났음을 알게 됐을 때, A가 일어날 확률"<br/>
+    표본공간이 Ω에서 B로 줄어드는 것과 같다
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">🤖</div>
+  <div class="cb"><p>AI에서 \(P(y \mid x)\)는 "입력 x가 주어졌을 때 y가 나올 확률" — 모든 분류기·회귀기의 학습 목표</p></div>
+</div>
+
+<!-- 섹션 3 -->
+<h2 class="st"><span class="ic">🔄</span>베이즈 정리 (Bayes' Theorem)</h2>
+<p>"처음 생각(prior)" + "새 정보(likelihood)" = "업데이트된 생각(posterior)"</p>
+
+<div class="callout warn">
+  <div class="ci">🏥</div>
+  <div class="cb"><p><strong>병 검사 예시:</strong> 병이 드묾(prior 낮음) → 검사 양성(새 정보) → 하지만 검사기도 틀릴 수 있음! → posterior 계산 필요</p></div>
+</div>
+
+<!-- [4] FORMULA BOX 3 -->
+<div class="fb">
+  <div class="fl">베이즈 정리</div>
+  \[
+    \underbrace{P(\theta \mid \mathcal{D})}_{\text{posterior}}
+    = \frac{
+      \overbrace{P(\mathcal{D} \mid \theta)}^{\text{likelihood}}
+      \cdot
+      \overbrace{P(\theta)}^{\text{prior}}
+    }{
+      \underbrace{P(\mathcal{D})}_{\text{evidence}}
+    }
+  \]
+  <div class="fn">
+    posterior: 데이터를 본 후 믿음 &nbsp;/&nbsp;
+    likelihood: θ일 때 데이터 관측 확률 &nbsp;/&nbsp;
+    prior: 데이터 보기 전 믿음 &nbsp;/&nbsp;
+    evidence: 정규화 상수, 보통 ∝ 를 써서 생략
+  </div>
+</div>
+
+<h3 class="sub">4가지 요소</h3>
+<table>
+  <thead>
+    <tr><th>용어</th><th>의미</th><th>비유</th><th>AI 예시</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prior P(θ)</td><td>데이터 보기 전 믿음</td><td>병원 가기 전 내 생각</td><td>파라미터 초기 분포</td></tr>
+    <tr><td>Likelihood P(D|θ)</td><td>θ일 때 D가 나올 확률</td><td>이 동전으로 9번 앞면 가능성</td><td>데이터 생성 확률</td></tr>
+    <tr><td>Posterior P(θ|D)</td><td>D를 보고 업데이트된 믿음</td><td>검사 결과 본 후 내 생각</td><td>학습 후 파라미터 분포</td></tr>
+    <tr><td>Evidence P(D)</td><td>정규화 상수</td><td>기준점</td><td>보통 ∝ 사용</td></tr>
+  </tbody>
+</table>
+
+<h3 class="sub">단계별 베이즈 업데이트</h3>
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><p><strong>Prior 설정</strong> — 데이터 없이 파라미터에 대한 초기 믿음 설정</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><p><strong>Likelihood 계산</strong> — 현재 파라미터로 이 데이터가 나올 확률 계산</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><p><strong>Posterior 업데이트</strong> — 베이즈 정리로 믿음을 업데이트</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">4</div>
+    <div class="sb"><p><strong>반복</strong> — 새 데이터가 올 때마다 posterior가 새로운 prior가 됨</p></div>
+  </div>
+</div>
+
+<!-- 독립성·조건부 독립 섹션 추가 -->
+<h2 class="st"><span class="ic">⊥</span>독립성과 조건부 독립 — 나이브 베이즈의 핵심</h2>
+<p>두 사건이 <strong>독립(Independent)</strong>이라는 것은 한 사건의 결과가 다른 사건의 확률에 영향을 주지 않는다는 뜻입니다. 이 개념은 나이브 베이즈, 그래픽 모델, 인과 추론 등 AI 논문에서 핵심적으로 등장합니다.</p>
+
+<div class="fb">
+  <div class="fl">INDEPENDENCE — 독립 사건의 정의</div>
+  \[ A \perp B \iff P(A \cap B) = P(A) \cdot P(B) \]
+  <div class="fn">
+    \(A \perp B\): "A와 B는 독립" 표기 (논문 표준 기호)<br/>
+    동치 조건: \(P(A \mid B) = P(A)\) — B를 알아도 A의 확률이 바뀌지 않음<br/>
+    예) 동전 앞면과 주사위 6면: 완전히 독립 → \(P(\text{앞면} \cap 6) = 0.5 \times \frac{1}{6}\)<br/>
+    반례) 비 오는 날과 우산 판매량: 독립이 아님 (연관됨)
+  </div>
+</div>
+
+<h3 class="sub">조건부 독립 (Conditional Independence)</h3>
+<p><strong>조건부 독립</strong>은 어떤 제3의 변수 C가 주어졌을 때 A와 B가 독립이 된다는 개념입니다. 나이브 베이즈 분류기와 베이지안 네트워크의 기반 가정입니다.</p>
+
+<div class="fb">
+  <div class="fl">CONDITIONAL INDEPENDENCE</div>
+  \[ A \perp B \mid C \iff P(A \cap B \mid C) = P(A \mid C) \cdot P(B \mid C) \]
+  <div class="fn">
+    \(A \perp B \mid C\): "C가 주어졌을 때 A와 B는 조건부 독립"<br/>
+    직관: C라는 공통 원인을 알면 A·B 사이의 연관성이 설명됨<br/>
+    예) 아이스크림 판매량(A)과 익사 사고(B)는 연관돼 보이지만, 기온(C)을 알면 조건부 독립<br/>
+    나이브 베이즈: \(P(x_1, x_2, \ldots, x_n \mid y) = \prod_i P(x_i \mid y)\) — y가 주어지면 모든 특성이 조건부 독립 가정
+  </div>
+</div>
+
+<h3 class="sub">주변화 (Marginalization) — 복잡한 결합 확률 다루기</h3>
+<p>결합 확률 분포에서 특정 변수를 합산(적분)하여 제거하면 나머지 변수의 <strong>주변 분포</strong>를 얻습니다. 논문에서 \(P(x) = \sum_z P(x, z)\) 형태로 자주 등장합니다.</p>
+
+<div class="fb">
+  <div class="fl">MARGINALIZATION — 주변화 공식</div>
+  \[ P(A) = \sum_{b} P(A, B=b) = \sum_{b} P(A \mid B=b) P(B=b) \]
+  <div class="fn">
+    이산: \(P(A) = \sum_b P(A,B=b)\) — B에 대해 합산<br/>
+    연속: \(p(x) = \int p(x, z) \, dz\) — z에 대해 적분<br/>
+    응용: 잠재 변수 모델(VAE, GMM)에서 잠재 변수 \(z\)를 주변화하여 \(P(x)\) 계산<br/>
+    주의: 잠재 변수가 많으면 계산이 불가능해져 변분 추론(VI)이나 MCMC가 필요함
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>논문 읽기 포인트:</strong> \(A \perp\!\!\!\perp B\), \(A \perp\!\!\!\perp B \mid C\) 기호를 보면 독립성 가정입니다. 나이브 베이즈·Hidden Markov Model·VAE 논문의 핵심 가정이니 꼭 기억하세요.</p></div>
+</div>
+
+
+<!-- [5] INTERACTIVE -->
+<div class="calc">
+  <h4>🔢 베이즈 정리 계산기 — 병 검사 예제</h4>
+  <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">P(병|양성) = P(양성|병) × P(병) / P(양성)을 직접 계산해보세요.</p>
+
+  <div class="cr">
+    <span class="cl">병 유병률 P(병)</span>
+    <input type="range" id="bay-prev" min="0.001" max="0.5" step="0.001" value="0.01" oninput="updateBayes()"/>
+    <input type="number" id="bay-prev-v" value="1.0%" style="width:68px;" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">검사 민감도 P(양성|병)</span>
+    <input type="range" id="bay-sens" min="0.5" max="1.0" step="0.01" value="0.95" oninput="updateBayes()"/>
+    <input type="number" id="bay-sens-v" value="95%" style="width:68px;" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">검사 특이도 P(음성|건강)</span>
+    <input type="range" id="bay-spec" min="0.5" max="1.0" step="0.01" value="0.90" oninput="updateBayes()"/>
+    <input type="number" id="bay-spec-v" value="90%" style="width:68px;" readonly/>
+  </div>
+
+  <div class="cres" id="bay-res">계산 중...</div>
+</div>
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 퀴즈</h4>
+  <p style="font-size:.9rem;margin-bottom:13px;">베이즈 정리에서 "데이터를 보기 전의 믿음"을 나타내는 것은?</p>
+  <div class="qo" onclick="ans(this, false)"><span>A</span> posterior</div>
+  <div class="qo" onclick="ans(this, true)"><span>B</span> prior</div>
+  <div class="qo" onclick="ans(this, false)"><span>C</span> likelihood</div>
+  <div class="qo" onclick="ans(this, false)"><span>D</span> evidence</div>
+  <div class="qfb"></div>
+</div>
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch03b.html'">← Ch.3B 선형회귀·최소제곱법</button>
+  <button class="btn btn-p" onclick="location.href='ch05.html'">Ch.5 확률변수·분포 →</button>
+</div>
+
+<script>
+function updateBayes() {
+  const prev = parseFloat(document.getElementById('bay-prev').value);
+  const sens = parseFloat(document.getElementById('bay-sens').value);
+  const spec = parseFloat(document.getElementById('bay-spec').value);
+  document.getElementById('bay-prev-v').value = (prev*100).toFixed(1) + '%';
+  document.getElementById('bay-sens-v').value = (sens*100).toFixed(0) + '%';
+  document.getElementById('bay-spec-v').value = (spec*100).toFixed(0) + '%';
+  const falsePositiveRate = 1 - spec;
+  const pPositive = sens * prev + falsePositiveRate * (1 - prev);
+  const posterior = (sens * prev) / pPositive;
+  document.getElementById('bay-res').innerHTML =
+    `P(병 | 양성) = <strong>${(posterior*100).toFixed(1)}%</strong><br/>
+    <span style="font-size:.78rem;color:var(--muted)">
+      P(양성) = ${(pPositive*100).toFixed(2)}% |
+      유병률 ${(prev*100).toFixed(1)}%,
+      양성인데 실제 병: ${(posterior*100).toFixed(1)}%
+    </span>`;
+}
+updateBayes();
+
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답! 잘 이해하고 있습니다.' : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+</script>
+</body>
+</html>

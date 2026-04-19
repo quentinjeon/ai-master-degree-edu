@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.9B — 모델 평가지표 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+.cm-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin:14px 0;font-size:.82rem;text-align:center;}
+.cm-cell{padding:10px 6px;border-radius:6px;}
+.cm-header{background:var(--surface2);color:var(--accent);font-weight:700;}
+.cm-tp{background:rgba(52,211,153,.15);color:var(--accent3);}
+.cm-fp{background:rgba(248,113,113,.15);color:var(--accent5);}
+.cm-fn{background:rgba(245,158,11,.15);color:var(--accent4);}
+.cm-tn{background:rgba(108,138,255,.10);color:var(--accent);}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.9B · ML 연결 (브릿지)</div>
+  <h1>모델 평가지표<br/>— Precision, Recall, F1, ROC·AUC</h1>
+  <p>분류 모델이 "얼마나 잘했는지"를 정확히 측정하는 지표들을 익히면, ML 논문의 실험 결과 표를 정확히 읽을 수 있습니다.</p>
+</div>
+
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>모델이 맞춘 것과 틀린 것을 <strong>"맞춤 비율"</strong>과 <strong>"빠뜨린 비율"</strong>로 나눠서 점수를 매깁니다.</p>
+  <ul>
+    <li>스팸 메일 걸러내기 — 진짜 스팸을 못 잡으면 낮은 Recall, 일반 메일을 스팸으로 잘못 잡으면 낮은 Precision</li>
+    <li>암 진단 — 암인데 정상 판정(놓침) vs 정상인데 암 판정(불필요한 치료) — 어느 게 더 나쁜지 상황마다 다름</li>
+    <li>AI 논문에서 표의 숫자가 F1=0.92 → Precision과 Recall의 조화 평균이 0.92라는 뜻</li>
+  </ul>
+</div>
+
+
+<!-- [3] MAIN CONTENT -->
+<h2 class="st"><span class="ic">📊</span>혼동 행렬 (Confusion Matrix)</h2>
+<p>이진 분류 모델의 예측 결과를 4가지 경우로 분류한 표입니다. 모든 분류 지표는 이 4개의 숫자에서 출발합니다.</p>
+
+<div class="cm-grid">
+  <div class="cm-cell cm-header"></div>
+  <div class="cm-cell cm-header">예측: Positive</div>
+  <div class="cm-cell cm-header">예측: Negative</div>
+  <div class="cm-cell cm-header">실제: Positive</div>
+  <div class="cm-cell cm-tp"><strong>TP</strong><br/>True Positive<br/><span style="font-size:.75rem;">(맞게 양성 판정)</span></div>
+  <div class="cm-cell cm-fn"><strong>FN</strong><br/>False Negative<br/><span style="font-size:.75rem;">(놓친 양성 — Type II Error)</span></div>
+  <div class="cm-cell cm-header">실제: Negative</div>
+  <div class="cm-cell cm-fp"><strong>FP</strong><br/>False Positive<br/><span style="font-size:.75rem;">(잘못 양성 판정 — Type I Error)</span></div>
+  <div class="cm-cell cm-tn"><strong>TN</strong><br/>True Negative<br/><span style="font-size:.75rem;">(맞게 음성 판정)</span></div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>Accuracy의 함정:</strong> 암 환자 비율이 1%인 데이터에서 "모두 정상"이라 예측하면 Accuracy=99%가 나옵니다. 이런 불균형 데이터에서는 Accuracy가 의미 없으므로 Precision/Recall/F1을 사용해야 합니다.</p></div>
+</div>
+
+
+<h2 class="st"><span class="ic">🎯</span>Precision · Recall · F1</h2>
+
+<div class="fb">
+  <div class="fl">PRECISION — 정밀도</div>
+  \[ \text{Precision} = \frac{TP}{TP + FP} \]
+  <div class="fn">
+    \(TP\): True Positive — 실제 양성을 양성으로 맞게 예측한 수<br/>
+    \(FP\): False Positive — 실제 음성을 양성으로 잘못 예측한 수<br/>
+    의미: "양성이라 예측한 것 중 실제로 양성인 비율" — 모델의 <strong>정확성</strong><br/>
+    예) 스팸 필터: 스팸으로 분류한 메일 중 진짜 스팸의 비율
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">RECALL (SENSITIVITY) — 재현율</div>
+  \[ \text{Recall} = \frac{TP}{TP + FN} \]
+  <div class="fn">
+    \(FN\): False Negative — 실제 양성을 음성으로 놓친 수<br/>
+    의미: "실제 양성 중 모델이 잡아낸 비율" — 모델의 <strong>커버리지</strong><br/>
+    예) 암 진단: 실제 암 환자 중 양성 판정 받은 비율 — 높을수록 암을 놓치지 않음<br/>
+    민감도(Sensitivity)와 동의어; 반대 개념은 특이도(Specificity) = TN/(TN+FP)
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">F1 SCORE — 조화 평균</div>
+  \[ F_1 = \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}} = \frac{2 \cdot TP}{2 \cdot TP + FP + FN} \]
+  <div class="fn">
+    의미: Precision과 Recall의 <strong>조화 평균</strong> — 둘 다 높아야 F1도 높아짐<br/>
+    산술 평균과 달리 조화 평균은 낮은 쪽 값에 더 많은 가중치를 줌<br/>
+    예) Precision=1.0, Recall=0.1이면 F1 = 2×0.1/(1+0.1) ≈ 0.182 (낮음)
+  </div>
+</div>
+
+<h3 class="sub">Precision-Recall Trade-off</h3>
+<p>분류 임계값(threshold)을 높이면 Precision ↑, Recall ↓. 낮추면 Recall ↑, Precision ↓. 이 상충 관계를 PR Curve로 시각화합니다.</p>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>Precision 우선 상황</h5>
+    <ul>
+      <li>스팸 필터 (일반 메일 손실 방지)</li>
+      <li>법원 판결 (무고한 사람 처벌 방지)</li>
+      <li>추천 시스템 (관련 없는 추천 최소화)</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>Recall 우선 상황</h5>
+    <ul>
+      <li>암 진단 (암 놓치면 치명적)</li>
+      <li>사기 탐지 (사기 거래 놓치면 손실)</li>
+      <li>바이러스 검사 (감염자 놓치면 확산)</li>
+    </ul>
+  </div>
+</div>
+
+
+<h2 class="st"><span class="ic">📈</span>ROC 곡선과 AUC</h2>
+<p>ROC(Receiver Operating Characteristic) 곡선은 임계값을 0→1로 변화시키면서 <strong>TPR(Recall)과 FPR</strong>의 관계를 그린 것입니다.</p>
+
+<div class="fb">
+  <div class="fl">ROC CURVE — TPR vs FPR</div>
+  \[
+    \text{TPR} = \frac{TP}{TP+FN} \quad (\text{Recall}),
+    \qquad
+    \text{FPR} = \frac{FP}{FP+TN}
+  \]
+  <div class="fn">
+    \(\text{TPR}\): True Positive Rate — 양성 중 맞게 양성 예측한 비율<br/>
+    \(\text{FPR}\): False Positive Rate — 음성 중 잘못 양성 예측한 비율<br/>
+    완벽한 모델: ROC 곡선이 (0,0) → (0,1) → (1,1) 꺾임 (좌상단 코너에 붙음)<br/>
+    랜덤 모델: ROC 곡선이 대각선 (y=x)
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">AUC — Area Under the ROC Curve</div>
+  \[ \text{AUC} = \int_0^1 \text{TPR}(\text{FPR}^{-1}(t)) \, dt \in [0, 1] \]
+  <div class="fn">
+    의미: ROC 곡선 아래 면적 — 클수록 모델 성능이 좋음<br/>
+    AUC = 1.0: 완벽한 분류<br/>
+    AUC = 0.5: 랜덤 분류 (동전 던지기 수준)<br/>
+    AUC &lt; 0.5: 의도적으로 틀리는 모델 (레이블 반전하면 좋아짐)<br/>
+    해석: "임의로 뽑은 양성 샘플의 예측 점수가 음성 샘플보다 높을 확률"
+  </div>
+</div>
+
+<h3 class="sub">지표 비교 요약</h3>
+<table>
+  <tr><th>지표</th><th>공식</th><th>언제 사용</th><th>범위</th></tr>
+  <tr><td>Accuracy</td><td>(TP+TN)/(전체)</td><td>균형 데이터</td><td>[0,1]</td></tr>
+  <tr><td>Precision</td><td>TP/(TP+FP)</td><td>FP 비용이 클 때</td><td>[0,1]</td></tr>
+  <tr><td>Recall</td><td>TP/(TP+FN)</td><td>FN 비용이 클 때</td><td>[0,1]</td></tr>
+  <tr><td>F1 Score</td><td>2PR/(P+R)</td><td>불균형 데이터</td><td>[0,1]</td></tr>
+  <tr><td>AUC-ROC</td><td>ROC 아래 면적</td><td>임계값 무관 성능 비교</td><td>[0,1]</td></tr>
+  <tr><td>BLEU</td><td>n-gram precision 기하평균</td><td>번역·텍스트 생성 (NLP)</td><td>[0,1]</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>다중 클래스:</strong> 클래스가 3개 이상이면 각 클래스를 1 vs rest로 계산 후 Macro/Micro/Weighted 평균을 씁니다. 논문에서 "macro-F1 = 0.85"가 보이면 각 클래스별 F1의 산술 평균입니다.</p></div>
+</div>
+
+
+<!-- [5] INTERACTIVE -->
+<div class="calc">
+  <h4>📊 혼동 행렬 지표 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">TP, FP, FN, TN 값을 조절하면 Precision, Recall, F1, Accuracy를 실시간으로 계산합니다.</p>
+
+  <div class="cr">
+    <span class="cl">TP (True Positive)</span>
+    <input type="range" id="mtp" min="0" max="100" step="1" value="80" oninput="updateMetrics()"/>
+    <input type="number" id="mtp-v" value="80" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">FP (False Positive)</span>
+    <input type="range" id="mfp" min="0" max="100" step="1" value="10" oninput="updateMetrics()"/>
+    <input type="number" id="mfp-v" value="10" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">FN (False Negative)</span>
+    <input type="range" id="mfn" min="0" max="100" step="1" value="20" oninput="updateMetrics()"/>
+    <input type="number" id="mfn-v" value="20" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">TN (True Negative)</span>
+    <input type="range" id="mtn" min="0" max="100" step="1" value="90" oninput="updateMetrics()"/>
+    <input type="number" id="mtn-v" value="90" readonly/>
+  </div>
+
+  <div class="cres" id="metrics-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">암 진단 AI 모델의 성능이 Precision=0.95, Recall=0.60입니다. F1 Score는 약 얼마인가요?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 약 0.775 (산술 평균)</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; 약 0.95 (Precision 기준)</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; 약 0.737 (조화 평균)</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 약 0.60 (Recall 기준)</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch09.html'">← Ch.9 AI가 확률로 배우는 법</button>
+  <button class="btn btn-p" onclick="location.href='ch10.html'">Ch.10 Softmax & 다중분류 →</button>
+</div>
+
+
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! F1 = 2×0.95×0.60/(0.95+0.60) = 1.14/1.55 ≈ 0.735 (조화 평균은 낮은 쪽에 더 민감)'
+    : '❌ 틀렸습니다. F1 = 2PR/(P+R) = 2×0.95×0.60/(0.95+0.60) ≈ 0.737 입니다.';
+}
+
+function updateMetrics() {
+  const tp = parseInt(document.getElementById('mtp').value);
+  const fp = parseInt(document.getElementById('mfp').value);
+  const fn = parseInt(document.getElementById('mfn').value);
+  const tn = parseInt(document.getElementById('mtn').value);
+
+  document.getElementById('mtp-v').value = tp;
+  document.getElementById('mfp-v').value = fp;
+  document.getElementById('mfn-v').value = fn;
+  document.getElementById('mtn-v').value = tn;
+
+  const total = tp + fp + fn + tn;
+  const acc = total > 0 ? (tp + tn) / total : 0;
+  const prec = (tp + fp) > 0 ? tp / (tp + fp) : 0;
+  const rec = (tp + fn) > 0 ? tp / (tp + fn) : 0;
+  const f1 = (prec + rec) > 0 ? 2 * prec * rec / (prec + rec) : 0;
+  const fpr = (fp + tn) > 0 ? fp / (fp + tn) : 0;
+
+  document.getElementById('metrics-res').innerHTML =
+    `Accuracy = (${tp}+${tn})/${total} = <strong>${acc.toFixed(4)}</strong><br/>` +
+    `Precision = ${tp}/(${tp}+${fp}) = <strong>${prec.toFixed(4)}</strong><br/>` +
+    `Recall    = ${tp}/(${tp}+${fn}) = <strong>${rec.toFixed(4)}</strong><br/>` +
+    `F1 Score  = 2×P×R/(P+R) = <strong>${f1.toFixed(4)}</strong><br/>` +
+    `FPR       = ${fp}/(${fp}+${tn}) = <strong>${fpr.toFixed(4)}</strong>`;
+}
+updateMetrics();
+</script>
+</body>
+</html>

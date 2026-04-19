@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.14 — 논문 읽기와 쓰기 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ STEPS ══ */
+.steps{margin:18px 0;}
+.step{display:flex;gap:14px;margin-bottom:12px;align-items:flex-start;}
+.sn{min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.sb{font-size:.9rem;line-height:1.65;}
+.sb strong{color:var(--accent2);}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.14 · 연구 방법론 (16주차)</div>
+  <h1>논문 읽기와 쓰기</h1>
+  <p>배운 걸 연구 언어로 정리합니다. 논문 구조를 파악하고 수식을 읽는 법을 익힙니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"논문은 '내가 이런 문제를 이렇게 풀었고, 이렇게 확인했어요'를 남에게 정확히 설명하는 글이다."</strong></p>
+  <ul>
+    <li>좋은 논문 = 레시피처럼 재현 가능해야 함 — 다른 사람도 똑같이 따라 할 수 있어야 진짜 연구다</li>
+    <li>수식은 "모호함을 없애는 도구" — 말로 하면 헷갈리는 것을 수식으로 쓰면 정확히 전달된다</li>
+    <li>AI에서: 논문에서 \(P(y|x)\), loss function, evaluation metric이 전부 여기서 배운 확률로 표현됨</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 논문의 기본 구조 == -->
+<h2 class="st"><span class="ic">📄</span>AI/ML 논문의 표준 구조</h2>
+<p>AI/ML 논문은 국제 학술대회(NeurIPS, ICML, ICLR 등)를 기준으로 대부분 아래의 구조를 따릅니다. 각 섹션이 무엇을 다루는지 알면 논문을 훨씬 빠르게 읽을 수 있습니다.</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><strong>Abstract (초록)</strong> — 논문 전체를 100~200단어로 요약. 문제, 방법, 결과를 포함. 읽기 전 가장 먼저 확인할 부분.</div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><strong>Introduction (서론)</strong> — 문제 정의, 기존 방법의 한계, 이 논문의 기여(contribution)를 명시. "왜 이 연구가 필요한가?"를 설명.</div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><strong>Related Work (관련 연구)</strong> — 기존 연구와 이 논문의 차별점을 설명. 학술적 맥락(context)을 이해하는 데 중요.</div>
+  </div>
+  <div class="step">
+    <div class="sn">4</div>
+    <div class="sb"><strong>Method (방법론)</strong> — 제안하는 방법의 수학적 정의. 여기서 \(P(y|x)\), loss function, 최적화 목표가 등장. 수식이 가장 많은 섹션.</div>
+  </div>
+  <div class="step">
+    <div class="sn">5</div>
+    <div class="sb"><strong>Experiments (실험)</strong> — 실험 설정, 비교 대상(baseline), 평가 지표(metric) 설명. "어떻게 검증했는가?"를 담당.</div>
+  </div>
+  <div class="step">
+    <div class="sn">6</div>
+    <div class="sb"><strong>Results &amp; Analysis (결과)</strong> — 숫자로 성능 비교, ablation study. 표와 그래프로 주장의 근거를 제시.</div>
+  </div>
+  <div class="step">
+    <div class="sn">7</div>
+    <div class="sb"><strong>Conclusion (결론)</strong> — 연구 요약과 함께 한계(limitation)와 향후 연구(future work) 명시. "아직 못 한 것"도 솔직히 적어야 좋은 논문.</div>
+  </div>
+</div>
+
+
+<!-- == 섹션 2: 논문 속 확률 표기 읽기 == -->
+<h2 class="st"><span class="ic">🔍</span>논문에서 자주 보이는 수학 표기</h2>
+<p>AI/ML 논문의 수식 대부분은 이 교재에서 배운 확률론·최적화 언어로 쓰여 있습니다. 아래 표를 통해 논문에서 자주 만나는 표기를 정리해 두세요.</p>
+
+<table>
+  <tr>
+    <th>표기</th><th>의미</th><th>주로 등장하는 논문</th>
+  </tr>
+  <tr>
+    <td>\(P(y \mid x;\, \theta)\)</td>
+    <td>파라미터 θ를 가진 모델의 조건부 확률</td>
+    <td>분류, 언어모델</td>
+  </tr>
+  <tr>
+    <td>\(q_\phi(z \mid x)\)</td>
+    <td>φ가 파라미터인 인코더의 근사 posterior</td>
+    <td>VAE</td>
+  </tr>
+  <tr>
+    <td>\(p_\theta(x \mid z)\)</td>
+    <td>θ가 파라미터인 디코더의 likelihood</td>
+    <td>VAE, 생성모델</td>
+  </tr>
+  <tr>
+    <td>\(\mathcal{L}(\theta)\)</td>
+    <td>파라미터 θ에 대한 손실함수</td>
+    <td>모든 ML 논문</td>
+  </tr>
+  <tr>
+    <td>\(\arg\min_\theta \mathcal{L}(\theta)\)</td>
+    <td>L을 최소화하는 θ 찾기</td>
+    <td>최적화 목표</td>
+  </tr>
+  <tr>
+    <td>\(\mathrm{KL}(q \| p)\)</td>
+    <td>q와 p의 KL divergence</td>
+    <td>VAE ELBO</td>
+  </tr>
+  <tr>
+    <td>\(\mathbb{E}_x[f(x)]\)</td>
+    <td>f(x)의 x에 대한 기대값</td>
+    <td>기대 손실</td>
+  </tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb">
+    <p>표기가 낯설어도 당황하지 마세요. 논문마다 기호를 조금씩 다르게 쓰는 경우가 있으니, <strong>섹션 시작부에 정의된 Notation 표</strong>를 먼저 확인하는 습관을 들이세요.</p>
+  </div>
+</div>
+
+
+<!-- == 섹션 3: 논문 읽기 전략 == -->
+<h2 class="st"><span class="ic">📖</span>효율적인 논문 읽기 전략</h2>
+<p>논문을 처음부터 끝까지 한 번에 읽는 것은 비효율적입니다. 다음 순서로 읽으면 핵심을 빠르게 파악할 수 있습니다.</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><strong>제목·Abstract 먼저</strong> — "이 논문이 무엇을 해결하려는가?" 파악. 읽을 가치가 있는 논문인지 판단하는 단계.</div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><strong>Figure·Table 훑기</strong> — 핵심 결과를 시각적으로 파악. 이게 논문의 "주장". 그림만 봐도 논문이 무엇을 이겼는지 알 수 있다.</div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><strong>Introduction 읽기</strong> — 문제 정의와 기여(contribution) 파악. 저자가 스스로 "이 논문의 핵심"을 정리해 놓은 섹션.</div>
+  </div>
+  <div class="step">
+    <div class="sn">4</div>
+    <div class="sb"><strong>Method 수식 읽기</strong> — 로스함수, 파라미터, 최적화 목표 확인. 모든 주장의 수학적 근거가 여기에 있다.</div>
+  </div>
+  <div class="step">
+    <div class="sn">5</div>
+    <div class="sb"><strong>Experiments 확인</strong> — baseline과 제안 방법 비교, ablation study. "얼마나 좋아졌는가?" + "어느 부분이 핵심인가?"</div>
+  </div>
+  <div class="step">
+    <div class="sn">6</div>
+    <div class="sb"><strong>결론·한계 확인</strong> — 어디까지 됐고 어디서 안 됐는지. 한계를 솔직하게 적은 논문이 신뢰도가 높다.</div>
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb">
+    <p><strong>처음에는 식 전체를 이해 못해도 된다.</strong> 수식에서 찾아야 하는 것: (1) 무엇을 최적화하는가? (loss/objective) — (2) 최적화하는 대상은? (\(\theta, \phi, w\)) — (3) 데이터는 어떻게 들어가는가? (\(x, y\) 기호 확인)</p>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: 연구 제안서 작성 == -->
+<h2 class="st"><span class="ic">✍️</span>내 연구문제 수학적으로 표현하기</h2>
+<p>논문을 쓰기 전에 자신의 연구 문제를 명확하게 정의해야 합니다. 수학적으로 표현하면 모호함이 사라지고, 논문의 핵심 논거가 자동으로 구성됩니다.</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><strong>문제 정의</strong> — "무엇을 입력으로 받아 무엇을 출력하는가?" — \(f: \mathcal{X} \to \mathcal{Y}\) 형식으로.</div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><strong>데이터 정의</strong> — 훈련 데이터 \(\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^n\). 입력·출력 쌍으로 명시.</div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><strong>모델 정의</strong> — \(P_\theta(y \mid x) = \ldots\) 형식으로 모델 명시. 파라미터 θ가 무엇인지 선언.</div>
+  </div>
+  <div class="step">
+    <div class="sn">4</div>
+    <div class="sb"><strong>손실함수</strong> — 최소화할 목적함수 \(\min_\theta \mathcal{L}(\theta)\) 정의. 이 한 줄이 논문의 핵심 목표.</div>
+  </div>
+  <div class="step">
+    <div class="sn">5</div>
+    <div class="sb"><strong>평가 지표</strong> — accuracy, F1, BLEU, ECE 등 측정 방법 명시. 어떻게 "좋다"고 판단할지 미리 선언해야 한다.</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX 블록 (섹션 4 내)
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">연구문제의 수학적 표현</div>
+  \[
+    \min_\theta \mathcal{L}(\theta)
+    = -\frac{1}{n}\sum_{i=1}^{n} \log P_\theta(y_i \mid \mathbf{x}_i)
+  \]
+  <div class="fn">
+    \(\theta\): 모델 파라미터 — 학습을 통해 최적화하는 대상<br/>
+    \(P_\theta(y \mid x)\): 파라미터 θ를 가진 모델의 조건부 확률<br/>
+    \(n\): 학습 데이터 크기<br/>
+    이 한 줄이 대부분의 지도학습 논문의 핵심 목표 — 음의 로그우도(NLL)를 최소화하는 것이 MLE와 동치
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📎</div>
+  <div class="cb">
+    <p>위 수식은 Ch.7에서 배운 MLE와 동일합니다. 대부분의 지도학습 논문이 이 구조를 따르므로, <strong>이 한 수식을 이해하면 수백 편의 논문 목표를 읽을 수 있습니다.</strong></p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">논문에서 "\(\arg\min_\theta \mathcal{L}(\theta)\)"가 의미하는 것은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 손실함수 L의 최대값</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; L을 가장 크게 만드는 파라미터 θ</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; 손실함수 L을 최소화하는 파라미터 θ를 찾는 것</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; θ의 기대값 계산</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch13.html'">← Ch.13 Calibration &amp; 불확실성</button>
+  <button class="btn btn-p" onclick="(window.parent !== window ? window.parent : window).location.href='../index.html'">처음으로 (홈) →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답! 잘 이해하고 있습니다.' : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+</script>
+</body>
+</html>

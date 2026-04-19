@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.5 — 확률변수와 확률분포 | 확률·수학·AI 교재</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.calc h4{color:var(--accent4);margin-bottom:16px;font-size:.97rem;}
+.cr{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.cl{font-size:.85rem;color:var(--muted);min-width:100px;}
+.cr input[type=range]{flex:1;min-width:120px;accent-color:var(--accent);}
+.cr input[type=number]{width:62px;background:var(--code);border:1px solid var(--border);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.85rem;text-align:center;}
+.cres{background:var(--code);border:1px solid var(--border);border-radius:8px;padding:14px 18px;margin-top:10px;color:var(--accent3);font-size:.92rem;line-height:1.9;}
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:var(--accent5);}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<section class="hero">
+  <div class="badge">Ch.5 · 확률 &amp; 통계 (5주차)</div>
+  <h1>확률변수와 확률분포</h1>
+  <p>랜덤한 일을 숫자로 표현하고, 그 숫자들이 어떻게 분포하는지 배웁니다.</p>
+</section>
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"확률변수는 랜덤하게 일어나는 일을 숫자로 바꾼 것이다. 분포는 '어떤 값이 얼마나 자주 나오는지 보여주는 지도'다."</strong></p>
+  <ul>
+    <li>동전 앞면=1, 뒷면=0 → 이제 평균이나 합계 같은 계산이 가능해짐!</li>
+    <li>주사위 결과 1~6 → 확률변수로 표현하면 평균, 분산 등을 수학적으로 다룰 수 있음</li>
+    <li>AI에서: 단어 → 숫자(token ID), 이미지 → 픽셀값 배열. 모든 것이 확률변수로 모델링되어 학습에 사용됨</li>
+  </ul>
+</div>
+
+<!-- [3] MAIN CONTENT — 섹션 1: 확률변수 -->
+<h2 class="st"><span class="ic">X</span>확률변수 (Random Variable)</h2>
+
+<p>확률변수는 표본공간 \(\Omega\)의 각 결과에 실수를 할당하는 함수입니다. 확률변수를 통해 "사건"을 "숫자"로 변환하여 수학적으로 계산할 수 있습니다.</p>
+<p>예를 들어 동전 던지기에서 \(X(\text{앞면}) = 1,\; X(\text{뒷면}) = 0\)으로 정의하면, 이 \(X\)가 확률변수입니다.</p>
+
+<h3 class="sub">이산형 vs 연속형</h3>
+<table>
+  <thead>
+    <tr>
+      <th>구분</th>
+      <th>설명</th>
+      <th>예시</th>
+      <th>AI 활용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>이산형</strong></td>
+      <td>셀 수 있는 값 (유한 또는 가산 무한)</td>
+      <td>주사위, 클래스 레이블</td>
+      <td>분류 출력 \(y \in \{0,1,\ldots,K\}\)</td>
+    </tr>
+    <tr>
+      <td><strong>연속형</strong></td>
+      <td>연속적인 값 (무한히 많음)</td>
+      <td>온도, 가격, 픽셀 강도</td>
+      <td>회귀 출력, 잠재 벡터</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 class="sub">PMF vs PDF vs CDF</h3>
+<table>
+  <thead>
+    <tr>
+      <th>함수</th>
+      <th>이름</th>
+      <th>적용</th>
+      <th>의미</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>PMF</strong></td>
+      <td>확률질량함수</td>
+      <td>이산형</td>
+      <td>\(P(X=k)\) — k가 나올 확률</td>
+    </tr>
+    <tr>
+      <td><strong>PDF</strong></td>
+      <td>확률밀도함수</td>
+      <td>연속형</td>
+      <td>\(f(x)\) — x 근방의 확률 밀도</td>
+    </tr>
+    <tr>
+      <td><strong>CDF</strong></td>
+      <td>누적분포함수</td>
+      <td>둘 다</td>
+      <td>\(F(x) = P(X \le x)\)</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 섹션 2: 주요 분포 -->
+<h2 class="st"><span class="ic">📊</span>AI에서 자주 등장하는 확률분포</h2>
+
+<p>AI와 머신러닝 논문에서 반복적으로 등장하는 주요 확률분포들입니다. 각 분포의 파라미터와 활용 맥락을 익혀두면 논문 읽기가 훨씬 쉬워집니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>분포</th>
+      <th>파라미터</th>
+      <th>평균</th>
+      <th>AI 활용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Bernoulli</strong> \(\text{Bern}(p)\)</td>
+      <td>\(p \in [0,1]\)</td>
+      <td>\(p\)</td>
+      <td>이진 분류 (sigmoid 출력)</td>
+    </tr>
+    <tr>
+      <td><strong>Binomial</strong> \(\text{Bin}(n,p)\)</td>
+      <td>\(n,\, p\)</td>
+      <td>\(np\)</td>
+      <td>n번 중 성공 횟수</td>
+    </tr>
+    <tr>
+      <td><strong>Categorical</strong> \(\text{Cat}(\mathbf{p})\)</td>
+      <td>\(\mathbf{p} \in \Delta^K\)</td>
+      <td>—</td>
+      <td>다중 분류 (softmax 출력)</td>
+    </tr>
+    <tr>
+      <td><strong>Gaussian</strong> \(\mathcal{N}(\mu,\sigma^2)\)</td>
+      <td>\(\mu,\, \sigma^2\)</td>
+      <td>\(\mu\)</td>
+      <td>회귀, 가중치 초기화, VAE</td>
+    </tr>
+    <tr>
+      <td><strong>Exponential</strong> \(\text{Exp}(\lambda)\)</td>
+      <td>\(\lambda > 0\)</td>
+      <td>\(1/\lambda\)</td>
+      <td>이벤트 간격 모델링</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 섹션 3: 정규분포 -->
+<h2 class="st"><span class="ic">🔔</span>정규분포 (Normal/Gaussian Distribution)</h2>
+
+<p>자연계와 데이터에서 가장 흔하게 나타나는 분포입니다. <strong>중심극한정리(CLT)</strong>에 의해 충분히 많은 샘플의 합은 정규분포에 수렴합니다.</p>
+
+<!-- [4] FORMULA BOX 1 -->
+<div class="fb">
+  <div class="fl">정규분포 확률밀도함수 (PDF)</div>
+  \[
+    \mathcal{N}(x \mid \mu, \sigma^2)
+    = \frac{1}{\sqrt{2\pi\sigma^2}}
+      \exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)
+  \]
+  <div class="fn">
+    \(\mu\): 평균 — 분포의 중심 위치<br/>
+    \(\sigma^2\): 분산 — 분포의 퍼짐 정도 (클수록 넓게 퍼짐)<br/>
+    \(\sigma\): 표준편차 \(= \sqrt{\sigma^2}\) — \(\mu\)로부터의 평균 거리
+  </div>
+</div>
+
+<div class="callout tip">
+  <span class="ci">💡</span>
+  <div class="cb">
+    <p><strong>정규분포가 자주 쓰이는 이유 — 중심극한정리(CLT)</strong><br/>
+    독립적인 확률변수들의 합은 \(n\)이 커질수록 정규분포에 수렴합니다. 딥러닝 가중치 초기화(Xavier/He init), 노이즈 모델링, VAE 잠재 공간 \(q(z|x) = \mathcal{N}(\mu_\phi, \sigma^2_\phi)\) 등에 광범위하게 사용됩니다.</p>
+  </div>
+</div>
+
+<!-- FORMULA BOX 2: 다변량 정규분포 -->
+<div class="fb">
+  <div class="fl">다변량 정규분포 (논문에서 자주 등장)</div>
+  \[
+    \mathcal{N}(\mathbf{x} \mid \boldsymbol{\mu}, \boldsymbol{\Sigma})
+    = \frac{1}{(2\pi)^{d/2}|\boldsymbol{\Sigma}|^{1/2}}
+      \exp\!\left(-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^\top\boldsymbol{\Sigma}^{-1}(\mathbf{x}-\boldsymbol{\mu})\right)
+  \]
+  <div class="fn">
+    \(\boldsymbol{\mu} \in \mathbb{R}^d\): 평균 벡터 — 각 차원의 중심값<br/>
+    \(\boldsymbol{\Sigma} \in \mathbb{R}^{d \times d}\): 공분산 행렬 — 대칭, 양의 정부호(positive definite)<br/>
+    \(|\boldsymbol{\Sigma}|\): 공분산 행렬의 행렬식 (determinant)<br/>
+    \(d\): 차원 수 — \(d=1\)이면 단변량 정규분포와 동일
+  </div>
+</div>
+
+<!-- [5] INTERACTIVE: 정규분포 계산기 -->
+<div class="calc">
+  <h4>🔢 정규분포 계산기</h4>
+
+  <div class="cr">
+    <span class="cl">평균 \(\mu\)</span>
+    <input type="range" id="nd-mu" min="-5" max="5" step="0.1" value="0" oninput="updateND()"/>
+    <input type="number" id="nd-mu-v" value="0.0" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">표준편차 \(\sigma\)</span>
+    <input type="range" id="nd-sg" min="0.1" max="3" step="0.1" value="1" oninput="updateND()"/>
+    <input type="number" id="nd-sg-v" value="1.0" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">관측값 \(x\)</span>
+    <input type="range" id="nd-x" min="-5" max="5" step="0.1" value="1" oninput="updateND()"/>
+    <input type="number" id="nd-x-v" value="1.0" readonly/>
+  </div>
+
+  <div class="cres" id="nd-res">계산 결과가 여기에 표시됩니다.</div>
+</div>
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">\(\mathcal{N}(5,\, 4)\)의 평균과 표준편차는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 평균 5, 표준편차 4</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 평균 5, 표준편차 2 &nbsp;<span style="color:var(--muted);font-size:.82rem;">(\(\sigma^2=4\)이므로 \(\sigma=\sqrt{4}=2\))</span></div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 평균 4, 표준편차 5</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 평균 5, 표준편차 16</div>
+  <div class="qfb"></div>
+</div>
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch04.html'">← Ch.4 확률론 기초</button>
+  <button class="btn btn-p" onclick="location.href='ch06.html'">Ch.6 기대값과 분산 →</button>
+</div>
+
+<script>
+/* ── 공통 함수 ── */
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답! 잘 이해하고 있습니다.' : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+/* ── 정규분포 계산기 ── */
+function ndPDF(x, mu, sg) {
+  return (1 / (sg * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mu) / sg) ** 2);
+}
+function updateND() {
+  const mu = parseFloat(document.getElementById('nd-mu').value);
+  const sg = parseFloat(document.getElementById('nd-sg').value);
+  const x  = parseFloat(document.getElementById('nd-x').value);
+  document.getElementById('nd-mu-v').value = mu.toFixed(1);
+  document.getElementById('nd-sg-v').value = sg.toFixed(1);
+  document.getElementById('nd-x-v').value  = x.toFixed(1);
+
+  const pdf = ndPDF(x, mu, sg);
+  const z = (x - mu) / sg;
+  document.getElementById('nd-res').innerHTML =
+    `f(${x.toFixed(1)}) = <strong>${pdf.toFixed(5)}</strong> &nbsp;|&nbsp; z-score = <strong>${z.toFixed(3)}</strong><br/>
+    <span style="font-size:.78rem;color:var(--muted)">μ=${mu.toFixed(1)}, σ=${sg.toFixed(1)}, σ²=${(sg*sg).toFixed(2)}</span>`;
+}
+updateND();
+</script>
+</body>
+</html>

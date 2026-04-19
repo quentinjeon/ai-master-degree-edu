@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.1B — 수열과 Σ 표기 | 확률·수학·AI 교재</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.1B · 기초 수학 브릿지 (2주차)</div>
+  <h1>수열과 Σ·Π 표기</h1>
+  <p>AI 논문 어디에나 등장하는 시그마(Σ)와 파이(Π) 기호를 자연스럽게 읽고 씁니다. 손실함수, 우도, 배치 평균 모두 Σ로 쓰입니다.</p>
+</div>
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 쉽게 이해하기</div>
+  <p><strong>Σ는 "다 더해라"는 명령어, Π는 "다 곱해라"는 명령어다.</strong> 영수증 합계를 계산하는 것과 같다.</p>
+  <ul>
+    <li><strong>Σ</strong>: 마트에서 산 물건 10개의 가격을 모두 더한다 → \(\sum_{i=1}^{10} \text{가격}_i\). 학생 30명의 점수 평균 = \(\frac{1}{30}\sum_{i=1}^{30} x_i\).</li>
+    <li><strong>수열</strong>: 계단처럼 규칙이 있는 숫자 목록. 1, 2, 3, 4, … (등차수열), 1, 2, 4, 8, … (등비수열). 학습률이 점점 줄어드는 것도 등비수열!</li>
+    <li><strong>AI 연결</strong>: 배치 손실 \(\frac{1}{n}\sum_{i=1}^{n}\mathcal{L}(f_\theta(x_i), y_i)\), 우도 \(\prod_{i=1}^{n} p(x_i|\theta)\) — 논문의 모든 평균과 곱이 Σ, Π로 표현된다.</li>
+  </ul>
+</div>
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1: Σ 표기 분해 -->
+<h2 class="st"><span class="ic">Σ</span> Σ (시그마) 표기 완전 해부</h2>
+<p>Σ는 그리스 문자로 "S(sum)"에 해당합니다. 반복되는 덧셈을 간결하게 쓰는 수학 약속입니다.</p>
+
+<div class="fb">
+  <div class="fl">Σ 표기의 구조</div>
+  \[
+    \sum_{i=1}^{n} f(i) = f(1) + f(2) + f(3) + \cdots + f(n)
+  \]
+  <div class="fn">
+    \(i\): 인덱스 변수 (루프 변수처럼 1씩 증가)<br/>
+    \(i=1\): 시작값 (Σ 아래에 표기)<br/>
+    \(n\): 끝값 (Σ 위에 표기)<br/>
+    \(f(i)\): 각 단계에서 더할 항 — 인덱스에 따라 바뀌는 식
+  </div>
+</div>
+
+<h3 class="sub">Σ 읽기 연습</h3>
+<table>
+  <thead>
+    <tr><th>수식</th><th>풀어쓰면</th><th>결과</th><th>AI에서의 의미</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>\(\sum_{i=1}^{4} i\)</td>
+      <td>\(1+2+3+4\)</td>
+      <td>\(10\)</td>
+      <td>인덱스 합산</td>
+    </tr>
+    <tr>
+      <td>\(\sum_{i=1}^{n} x_i\)</td>
+      <td>\(x_1+x_2+\cdots+x_n\)</td>
+      <td>—</td>
+      <td>n개 데이터의 합</td>
+    </tr>
+    <tr>
+      <td>\(\frac{1}{n}\sum_{i=1}^{n} x_i\)</td>
+      <td>합을 n으로 나눔</td>
+      <td>\(\bar{x}\)</td>
+      <td>표본평균 / 배치 평균</td>
+    </tr>
+    <tr>
+      <td>\(\sum_{i=1}^{n} (x_i - \bar{x})^2\)</td>
+      <td>편차 제곱의 합</td>
+      <td>—</td>
+      <td>표본분산의 분자</td>
+    </tr>
+    <tr>
+      <td>\(\sum_{k=1}^{K} y_k \log \hat{p}_k\)</td>
+      <td>클래스별 손실 합산</td>
+      <td>—</td>
+      <td>Cross-Entropy Loss</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout tip">
+  <span class="ci">✅</span>
+  <div class="cb">
+    <p><strong>Σ 계산 팁</strong>: \(\sum_{i=1}^{n} c = nc\) (상수는 n번 더해짐), \(\sum_{i=1}^{n}(a_i + b_i) = \sum a_i + \sum b_i\) (분리 가능). 이 선형성이 배치 손실 분리에 핵심입니다.</p>
+  </div>
+</div>
+
+<!-- 섹션 2: 수열 -->
+<h2 class="st"><span class="ic">📐</span> 수열 — 규칙 있는 숫자 목록</h2>
+<p>수열은 순서가 있는 수의 나열입니다. 딥러닝에서 학습률 스케줄링, 반복 스텝, 레이어 깊이 등이 모두 수열의 개념을 사용합니다.</p>
+
+<div class="fb">
+  <div class="fl">등차수열과 등비수열</div>
+  \[
+    \text{등차: } a_n = a_1 + (n-1)d \qquad \text{등비: } a_n = a_1 \cdot r^{n-1}
+  \]
+  <div class="fn">
+    등차수열 \(d\): 공차 (매번 더해지는 고정값). 예: 1, 3, 5, 7, … (d=2)<br/>
+    등비수열 \(r\): 공비 (매번 곱해지는 고정값). 예: 1, 0.5, 0.25, … (r=0.5)<br/>
+    <strong>AI 연결</strong>: 학습률 스케줄 \(\eta_t = \eta_0 \cdot \gamma^t\) 는 등비수열 (γ<1이면 감소)
+  </div>
+</div>
+
+<h3 class="sub">등비수열의 수렴 — 경사하강법과의 연결</h3>
+<p>공비 \(|r| < 1\)이면 등비수열은 0으로 수렴합니다. 경사하강법에서 학습률 \(\eta\)가 적절하면 파라미터 업데이트 크기가 점점 줄어들며 수렴합니다.</p>
+
+<div class="fb">
+  <div class="fl">등비급수 (무한 합)</div>
+  \[
+    \sum_{k=0}^{\infty} r^k = \frac{1}{1-r} \quad (|r| < 1)
+  \]
+  <div class="fn">
+    \(|r| < 1\): 수렴 조건 — 각 항이 점점 작아짐<br/>
+    예: \(1 + 0.5 + 0.25 + 0.125 + \cdots = \frac{1}{1-0.5} = 2\)<br/>
+    <strong>AI 연결</strong>: RNN의 그레디언트 소실 — 역전파 시 \(r < 1\)인 등비급수처럼 그레디언트가 0으로 사라짐
+  </div>
+</div>
+
+<!-- 섹션 3: Π 표기 -->
+<h2 class="st"><span class="ic">Π</span> Π (파이) 표기 — 곱셈 버전의 Σ</h2>
+<p>Π는 반복되는 곱셈을 간결하게 쓰는 기호입니다. 확률론에서 독립 사건들의 결합 확률을 표현할 때 핵심적으로 쓰입니다.</p>
+
+<div class="fb">
+  <div class="fl">Π 표기의 구조</div>
+  \[
+    \prod_{i=1}^{n} f(i) = f(1) \times f(2) \times \cdots \times f(n)
+  \]
+  <div class="fn">
+    구조는 Σ와 동일하지만 더하기 대신 곱하기<br/>
+    \(\prod_{i=1}^{n} p(x_i|\theta)\): n개의 독립 샘플 관측 확률의 곱 = likelihood<br/>
+    <strong>주의</strong>: 0~1 사이 값을 여러 번 곱하면 매우 빠르게 0에 가까워짐 → log로 변환 필요
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 Σ vs Π — 딥러닝 손실함수 연결</div>
+  <p>MLE: \(\hat{\theta} = \arg\max_\theta \prod_{i=1}^n p(x_i|\theta) = \arg\max_\theta \sum_{i=1}^n \log p(x_i|\theta)\)</p>
+  <p style="font-size:.85rem;color:var(--muted);margin-top:6px;">Π → log → Σ: 곱을 합으로 변환. 이것이 로그우도를 쓰는 수학적 이유입니다. \(\ln(\prod a_i) = \sum \ln a_i\) 성질 덕분.</p>
+</div>
+
+<!-- [5] INTERACTIVE -->
+<div class="calc">
+  <h4>🔢 Σ·Π 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">\(\sum_{i=1}^{n} i^p\) 와 \(\prod_{i=1}^{n} r^i\) 를 직접 계산해보세요.</p>
+
+  <div class="cr">
+    <span class="cl">항 수 \(n\)</span>
+    <input type="range" id="sq-n" min="1" max="20" step="1" value="5" oninput="updateSQ()"/>
+    <input type="number" id="sq-n-v" value="5" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">지수 \(p\)</span>
+    <input type="range" id="sq-p" min="1" max="3" step="1" value="1" oninput="updateSQ()"/>
+    <input type="number" id="sq-p-v" value="1" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">공비 \(r\)</span>
+    <input type="range" id="sq-r" min="0.1" max="0.99" step="0.01" value="0.5" oninput="updateSQ()"/>
+    <input type="number" id="sq-r-v" value="0.50" readonly/>
+  </div>
+
+  <div class="cres" id="sq-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">\(\displaystyle\sum_{i=1}^{4} i^2\) 의 값은?</p>
+  <div class="qo" onclick="ans(this, true)">(a) &nbsp; \(1^2 + 2^2 + 3^2 + 4^2 = 1 + 4 + 9 + 16 = 30\)</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; \((1+2+3+4)^2 = 100\)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(1 + 2 + 3 + 4 = 10\)</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; \(4^2 = 16\)</div>
+  <div class="qfb"></div>
+</div>
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch00a.html'">← Ch.1A 로그와 지수함수</button>
+  <button class="btn btn-p" onclick="location.href='ch00c.html'">Ch.1C 경우의 수와 조합 →</button>
+</div>
+
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 잘 이해하고 있습니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+function updateSQ() {
+  const n = parseInt(document.getElementById('sq-n').value);
+  const p = parseInt(document.getElementById('sq-p').value);
+  const r = parseFloat(document.getElementById('sq-r').value);
+  document.getElementById('sq-n-v').value = n;
+  document.getElementById('sq-p-v').value = p;
+  document.getElementById('sq-r-v').value = r.toFixed(2);
+
+  let sigma = 0;
+  const sigmaTerms = [];
+  for (let i = 1; i <= n; i++) {
+    const term = Math.pow(i, p);
+    sigma += term;
+    if (i <= 5) sigmaTerms.push(`${i}<sup>${p}</sup>`);
+  }
+  const sigmaStr = sigmaTerms.join(' + ') + (n > 5 ? ' + …' : '');
+
+  let pi = 1;
+  for (let i = 1; i <= n; i++) pi *= Math.pow(r, i);
+  const logPi = Math.log(Math.abs(pi) + 1e-300);
+
+  document.getElementById('sq-res').innerHTML =
+    `∑<sub>i=1</sub><sup>${n}</sup> i<sup>${p}</sup> = ${sigmaStr} = <strong>${sigma}</strong><br/>
+    ∏<sub>i=1</sub><sup>${n}</sup> ${r.toFixed(2)}<sup>i</sup> = <strong>${pi.toExponential(4)}</strong>
+    &nbsp;|&nbsp; log Π = <strong>${logPi.toFixed(3)}</strong>
+    <span style="font-size:.75rem;color:var(--muted);display:block;margin-top:4px;">
+      n이 커질수록 Π는 0에 가까워짐 → log를 쓰면 합으로 안전하게 계산
+    </span>`;
+}
+updateSQ();
+</script>
+</body>
+</html>

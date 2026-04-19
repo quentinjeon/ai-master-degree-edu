@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.13 — 불확실성과 캘리브레이션 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ STEPS ══ */
+.step{display:flex;gap:14px;margin-bottom:18px;}
+.sn{width:30px;height:30px;background:var(--accent);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+.sb p{margin-bottom:0;}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.13 · 응용 (15주차)</div>
+  <h1>불확실성과 캘리브레이션</h1>
+  <p>AI를 언제 믿고 언제 멈출지 이해합니다. 자신만만하게 틀리는 AI가 제일 위험합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"친구가 '나 90% 확실해'라고 100번 말했는데 실제로 90번 맞으면 믿을 수 있다. 60번만 맞으면 과신이다. AI도 똑같다!"</strong></p>
+  <ul>
+    <li>날씨 예보가 "비 올 확률 70%"라고 했을 때, 실제로 70%의 경우 비가 오면 → 잘 calibrated된 예보!</li>
+    <li>AI 의료 진단이 "90% 확신"인데 실제로 60%만 맞으면 → 위험한 AI! 과신(over-confidence)이 사고를 낸다.</li>
+    <li>AI에서: 실서비스(의료, 금융, 자율주행)에서 calibration은 정확도만큼 중요한 신뢰 지표입니다.</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 불확실성의 두 종류 == -->
+<h2 class="st"><span class="ic">🌀</span>불확실성의 두 가지 종류</h2>
+<p>AI 모델이 예측할 때 마주치는 불확실성에는 근본적으로 다른 두 종류가 있습니다. 이 둘을 구분하는 것이 좋은 AI 시스템 설계의 첫걸음입니다.</p>
+
+<table>
+  <tr>
+    <th>종류</th>
+    <th>이름</th>
+    <th>원인</th>
+    <th>줄일 수 있는가?</th>
+  </tr>
+  <tr>
+    <td><strong>Aleatoric</strong></td>
+    <td>우연적 불확실성</td>
+    <td>데이터 자체의 노이즈</td>
+    <td>❌ (본질적)</td>
+  </tr>
+  <tr>
+    <td><strong>Epistemic</strong></td>
+    <td>인식론적 불확실성</td>
+    <td>모델의 지식 부족</td>
+    <td>✅ (더 많은 데이터로)</td>
+  </tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">ℹ️</div>
+  <div class="cb">
+    <p><strong>Aleatoric</strong>: 동전의 앞/뒤 — 100% 예측은 불가능. 데이터를 아무리 늘려도 줄일 수 없는 본질적 노이즈입니다.<br/>
+    <strong>Epistemic</strong>: AI가 본 적 없는 언어로 된 질문 — 학습 데이터 확장으로 줄일 수 있음.<br/>
+    좋은 AI는 두 종류를 구분하고 적절히 표현해야 합니다.</p>
+  </div>
+</div>
+
+
+<!-- == 섹션 2: Calibration == -->
+<h2 class="st"><span class="ic">🌡️</span>캘리브레이션 (Calibration)</h2>
+<p>모델이 예측하는 신뢰도(confidence)가 실제 정확도(accuracy)와 일치하는 정도입니다. Calibration이 좋은 모델은 "60%"라고 말하면 실제로 약 60%의 경우에 맞습니다.</p>
+
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX 블록
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">완벽한 Calibration 조건</div>
+  \[
+    P(\hat{Y} = Y \mid \hat{P} = p) = p, \quad \forall p \in [0, 1]
+  \]
+  <div class="fn">
+    \(\hat{Y}\): 모델의 예측값<br/>
+    \(Y\): 실제 정답(레이블)<br/>
+    \(\hat{P}\): 모델이 출력한 신뢰도(confidence)<br/>
+    \(p\): 특정 신뢰도 값 (0~1 사이)<br/>
+    신뢰도 \(p\)라고 말한 예측들 중에서, 실제로 \(p\) 비율이 정답이어야 함<br/>
+    → 90%라고 말하면 90%가 맞아야 함 = <strong>well-calibrated</strong><br/>
+    → 90%라고 말하는데 60%만 맞으면 = <strong>over-confident</strong> (딥러닝에서 흔한 문제)
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 ECE (Expected Calibration Error)</div>
+  <p>
+    \[\text{ECE} = \sum_{b=1}^{B} \frac{n_b}{n} \left| \text{acc}(b) - \text{conf}(b) \right|\]
+  </p>
+  <p style="font-size:.88rem;color:var(--muted);margin-top:8px;">
+    신뢰도 구간(bin)별로 실제 정확도와의 차이를 가중 평균합니다.<br/>
+    • <strong>ECE = 0</strong>이면 완벽한 calibration<br/>
+    • 딥러닝 모델은 보통 over-confident (ECE &gt; 0)<br/>
+    • \(n_b\): b번째 구간의 샘플 수 &nbsp;|&nbsp; \(n\): 전체 샘플 수
+  </p>
+</div>
+
+
+<!-- == 섹션 3: Threshold Decision == -->
+<h2 class="st"><span class="ic">🚦</span>임계값 결정 &amp; 사람에게 넘기기</h2>
+<p>실서비스에서 AI의 신뢰도에 따라 자동 응답, 보류, 전문가 연결을 결정합니다. 신뢰도를 기반으로 한 의사결정 정책은 AI 안전성의 핵심입니다.</p>
+
+<h3 class="sub">의사결정 정책 — 신뢰도 임계값</h3>
+<table>
+  <tr>
+    <th>신뢰도 구간</th>
+    <th>결정</th>
+    <th>설명</th>
+  </tr>
+  <tr>
+    <td>\(p \geq 0.9\)</td>
+    <td>✅ 자동 응답</td>
+    <td>충분히 확실함</td>
+  </tr>
+  <tr>
+    <td>\(0.5 \leq p < 0.9\)</td>
+    <td>⏸️ 사람 확인 요청</td>
+    <td>불확실, 추가 검토 필요</td>
+  </tr>
+  <tr>
+    <td>\(p < 0.5\)</td>
+    <td>🔗 전문가에게 연결</td>
+    <td>AI가 모르는 영역</td>
+  </tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb">
+    <p><strong>자신만만하게 틀리는 AI가 가장 위험:</strong> 정확도 90%의 모델이라도 over-confident하면 잘못된 결정을 유발합니다. 특히 의료, 법률, 금융 도메인에서는 <strong>"모르면 모른다고 말하는 AI"</strong>가 필수입니다.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 Calibration 확인 — 100번 예측 시뮬레이션</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">모델 신뢰도와 실제 정확도를 조절하여 ECE(캘리브레이션 오차)를 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">모델 신뢰도</span>
+    <input type="range" id="cal-conf" min="0.1" max="1.0" step="0.05" value="0.9" oninput="updateCal()"/>
+    <input type="text" id="cal-conf-v" value="90%" readonly style="width:56px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;"/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">실제 정확도</span>
+    <input type="range" id="cal-acc" min="0.1" max="1.0" step="0.05" value="0.6" oninput="updateCal()"/>
+    <input type="text" id="cal-acc-v" value="60%" readonly style="width:56px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;"/>
+  </div>
+
+  <div class="cres" id="cal-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">AI가 "95% 확신"이라고 100번 말했는데 실제로 60번만 맞았다. 이 모델의 문제는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; Under-fitting</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; Over-confident (calibration 불량)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 표본 크기가 너무 작음</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; Learning rate가 너무 큼</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch12.html'">← Ch.12 딥러닝과 LLM</button>
+  <button class="btn btn-p" onclick="location.href='ch14.html'">Ch.14 논문 읽기와 쓰기 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 잘 이해하고 있습니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// ── Calibration 시뮬레이터 ──
+function updateCal() {
+  const conf = parseFloat(document.getElementById('cal-conf').value);
+  const acc = parseFloat(document.getElementById('cal-acc').value);
+  document.getElementById('cal-conf-v').value = (conf*100).toFixed(0)+'%';
+  document.getElementById('cal-acc-v').value = (acc*100).toFixed(0)+'%';
+  const ece = Math.abs(conf - acc);
+  const status = ece < 0.05 ? '✅ 잘 calibrated'
+    : conf > acc ? `⚠️ Over-confident (${(ece*100).toFixed(0)}% 과신)`
+    : `⚠️ Under-confident (${(ece*100).toFixed(0)}% 과소)`;
+  document.getElementById('cal-res').innerHTML =
+    `신뢰도: ${(conf*100).toFixed(0)}% | 실제 정확도: ${(acc*100).toFixed(0)}% | ECE ≈ <strong>${ece.toFixed(2)}</strong><br/>
+    <span style="font-size:.78rem;color:var(--muted)">${status}</span>`;
+}
+updateCal();
+</script>
+</body>
+</html>

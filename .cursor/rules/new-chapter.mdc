@@ -1,0 +1,87 @@
+---
+description: 새 챕터 HTML을 처음부터 생성할 때 에이전트가 따라야 할 단계별 워크플로우
+globs: chapters/*.html
+alwaysApply: false
+---
+
+# 새 챕터 HTML 생성 워크플로우
+
+## Step 1 — 명세 확인
+
+새 챕터 요청이 오면 먼저 해당 명세 파일을 읽는다:
+```
+docs/chapters/weekNN.md
+```
+여기서 N은 챕터 번호. 없으면 `docs/PRD.md`의 5절(챕터 목록)을 확인.
+
+## Step 2 — 템플릿 복사
+
+`docs/CHAPTER_TEMPLATE.md`의 HTML 코드 블록을 `chapters/chNN.html`로 복사.
+
+## Step 3 — 메타 정보 채우기
+
+명세의 `## 메타 정보`를 읽고 아래를 교체:
+
+```
+PLACEHOLDER 위치          →  채울 내용
+──────────────────────────────────────────────
+<title>Ch.N — ...        →  Ch.4 — 확률론 기초 | 확률·수학·AI 교재
+.badge "Ch.N · ..."      →  Ch.4 · 확률 & 통계 (3~4주차)
+.hero h1                 →  확률론 기초
+.hero p                  →  한 줄 설명
+.btn 이전 챕터           →  ch03.html + 챕터명
+.btn 다음 챕터           →  ch05.html + 챕터명
+```
+
+## Step 4 — EASY BOX 채우기
+
+명세의 `## EASY BOX 내용`을 변환:
+- `핵심 비유` → `.easy p > strong`으로 강조
+- `예시 리스트` → `.easy ul > li` 3개
+- 마지막 li는 반드시 AI와 연결
+
+## Step 5 — 섹션 채우기
+
+명세의 `## 섹션 구성`을 순서대로:
+
+```
+섹션 아이콘  →  h2.st > span.ic 에 이모지
+섹션 제목    →  h2.st 텍스트
+설명 단락    →  p 태그
+수식 박스:
+  레이블     →  .fb .fl
+  수식       →  \[ LaTeX \]
+  주석       →  .fb .fn (기호별 한국어 설명)
+표           →  <table> (PRD 스펙 그대로)
+callout      →  .callout.info/.tip/.warn (명세의 타입 반영)
+```
+
+## Step 6 — 인터랙티브 채우기
+
+명세의 `## 인터랙티브` 섹션이 있으면:
+- 파라미터 표 → `.calc .cr` 블록으로 변환
+- JavaScript 로직 → `<script>` 최하단에 배치
+- 페이지 로드 시 함수 한 번 호출 추가
+
+명세에 `✗` 표시면 `.calc` 블록 전체 삭제.
+
+## Step 7 — 퀴즈 채우기
+
+명세의 `## 퀴즈` 섹션을 변환:
+- 질문 → `.qb p`
+- 4개 선택지 → `.qo` × 4
+- 정답 위치의 `onclick` → `ans(this, true)`, 나머지 → `ans(this, false)`
+
+## Step 8 — 완료 체크리스트
+
+```
+[ ] 7개 블록이 순서대로 모두 있는가
+[ ] EASY BOX의 마지막 예시가 AI와 연결되는가
+[ ] 모든 .fb 블록에 .fn 주석이 있는가
+[ ] PLACEHOLDER / FILL 텍스트가 남아있지 않은가
+[ ] 이전/다음 챕터 링크가 실제 파일과 일치하는가
+[ ] CSS 색상 하드코딩이 없는가
+[ ] MathJax 수식이 \( \) 또는 \[ \]로 감싸졌는가
+[ ] 인터랙티브가 실시간으로 업데이트되는가
+[ ] 퀴즈 정답이 본문 내용과 일치하는가
+```

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.2 — 미분과 최적화 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.2 · 기초 수학 (1~2주차)</div>
+  <h1>미분과 최적화</h1>
+  <p>AI 학습의 엔진인 경사하강법(Gradient Descent)을 이해하기 위한 핵심 개념입니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"미분은 '조금 변할 때 얼마나 달라지는지'이고, 경사하강법은 '산에서 제일 빠른 길로 내려오는 것'처럼 AI가 실수를 줄여나가는 방법이다."</strong></p>
+  <ul>
+    <li>🚗 <strong>미분 = 자동차 속도계</strong> — "지금 이 순간 얼마나 빨리 달리는지" = 순간 변화율</li>
+    <li>🏔 <strong>경사하강법 = 눈을 감고 내려오기</strong> — 발로 경사를 느끼며 가장 가파른 방향으로 한 걸음씩</li>
+    <li>🤖 <strong>딥러닝의 학습</strong> = 손실함수를 최소화하는 파라미터를 경사하강법으로 찾는 것</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 미분 == -->
+<h2 class="st"><span class="ic">∂</span>미분 (Derivative)</h2>
+<p>미분은 함수의 <strong>순간 변화율</strong>입니다. "입력이 조금 변할 때 출력이 얼마나 변하는가?"를 수식으로 표현한 것입니다.</p>
+
+<!-- 수식 박스 1 -->
+<div class="fb">
+  <div class="fl">미분의 정의 (극한)</div>
+  \[ f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h} \]
+  <div class="fn">
+    \(f'(x)\): 함수 \(f\)의 \(x\)에서의 순간 변화율 (도함수)<br/>
+    \(h\): 입력의 변화량 (극히 작은 값)<br/>
+    \(h \to 0\): 변화량을 무한히 작게 가져갈 때의 변화율 비율
+  </div>
+</div>
+
+<h3 class="sub">기본 미분 공식 — AI 활용 연결</h3>
+<table>
+  <tr>
+    <th>함수 \(f(x)\)</th>
+    <th>미분 \(f'(x)\)</th>
+    <th>AI 활용</th>
+  </tr>
+  <tr>
+    <td>\(x^n\)</td>
+    <td>\(nx^{n-1}\)</td>
+    <td>다항식 층</td>
+  </tr>
+  <tr>
+    <td>\(e^x\)</td>
+    <td>\(e^x\)</td>
+    <td>Softmax 분모</td>
+  </tr>
+  <tr>
+    <td>\(\ln x\)</td>
+    <td>\(1/x\)</td>
+    <td>Log-likelihood, CE loss</td>
+  </tr>
+  <tr>
+    <td>\(\sigma(x) = \dfrac{1}{1+e^{-x}}\)</td>
+    <td>\(\sigma(x)(1-\sigma(x))\)</td>
+    <td>시그모이드 역전파</td>
+  </tr>
+  <tr>
+    <td>\(\text{ReLU}(x) = \max(0,x)\)</td>
+    <td>\(\mathbf{1}[x>0]\)</td>
+    <td>딥러닝 활성화 함수</td>
+  </tr>
+</table>
+
+<!-- == 섹션 2: 편미분과 그레디언트 == -->
+<h2 class="st"><span class="ic">∇</span>편미분과 그레디언트</h2>
+<p>여러 파라미터가 있을 때 각각에 대한 편미분을 벡터로 모은 것이 <strong>그레디언트(Gradient)</strong>입니다. 그레디언트는 손실함수가 가장 빠르게 증가하는 방향을 가리킵니다.</p>
+
+<!-- 수식 박스 2 -->
+<div class="fb">
+  <div class="fl">그레디언트 벡터</div>
+  \[ \nabla_\theta \mathcal{L} = \left( \frac{\partial \mathcal{L}}{\partial \theta_1},\ \frac{\partial \mathcal{L}}{\partial \theta_2},\ \ldots,\ \frac{\partial \mathcal{L}}{\partial \theta_n} \right)^\top \]
+  <div class="fn">
+    \(\nabla_\theta \mathcal{L}\): 손실함수 \(\mathcal{L}\)의 파라미터 \(\theta\)에 대한 그레디언트 벡터<br/>
+    \(\frac{\partial \mathcal{L}}{\partial \theta_i}\): \(\theta_i\)만 변할 때 \(\mathcal{L}\)의 변화율 (편미분)<br/>
+    음수 방향 \(-\nabla_\theta \mathcal{L}\): 손실이 가장 빠르게 <strong>감소</strong>하는 방향
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>편미분 직관:</strong> 여러 변수 중 하나만 변화시키고 나머지는 상수로 고정한 채 미분하는 것. 마치 산의 등고선에서 한 방향으로만 경사를 재는 것과 같습니다.</p></div>
+</div>
+
+<!-- == 섹션 3: 경사하강법 == -->
+<h2 class="st"><span class="ic">⬇</span>경사하강법 (Gradient Descent)</h2>
+<p>AI 학습의 핵심: 손실함수를 최소화하도록 파라미터를 <strong>반복적으로 업데이트</strong>합니다. 그레디언트의 반대 방향(가장 가파르게 감소하는 방향)으로 한 걸음씩 이동합니다.</p>
+
+<!-- 수식 박스 3 -->
+<div class="fb">
+  <div class="fl">파라미터 업데이트 규칙</div>
+  \[ \theta_{t+1} = \theta_t - \eta \cdot \nabla_\theta \mathcal{L}(\theta_t) \]
+  <div class="fn">
+    \(\theta_t\): \(t\)번째 스텝의 파라미터 값<br/>
+    \(\eta\) (에타): 학습률(learning rate) — 너무 크면 발산, 너무 작으면 느리게 수렴<br/>
+    \(\nabla_\theta \mathcal{L}(\theta_t)\): 현재 파라미터에서의 그레디언트 (증가 방향)<br/>
+    \(t\): 업데이트 스텝 인덱스
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb">
+    <p><strong>연쇄 법칙 (Chain Rule):</strong> 역전파(Backpropagation)의 핵심.</p>
+    <p>\(\dfrac{\partial \mathcal{L}}{\partial x} = \dfrac{\partial \mathcal{L}}{\partial z} \cdot \dfrac{\partial z}{\partial x}\) — 합성 함수를 거꾸로 미분하며 그레디언트를 전달합니다.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 경사하강법 시뮬레이터 — f(x) = x²</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    간단한 함수 \(f(x) = x^2\)에서 경사하강법을 체험하세요. \(f'(x) = 2x\)이므로 \(x_{t+1} = x_t - \eta \cdot 2x_t\)
+  </p>
+
+  <div class="cr">
+    <span class="cl">시작점 \(x_0\)</span>
+    <input type="range" id="gd-x0" min="-5" max="5" step="0.1" value="4" oninput="updateGD()"/>
+    <input type="number" id="gd-x0-v" value="4.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">학습률 \(\eta\)</span>
+    <input type="range" id="gd-lr" min="0.01" max="0.99" step="0.01" value="0.3" oninput="updateGD()"/>
+    <input type="number" id="gd-lr-v" value="0.30" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">반복 횟수</span>
+    <input type="range" id="gd-it" min="1" max="20" step="1" value="5" oninput="updateGD()"/>
+    <input type="number" id="gd-it-v" value="5" readonly/>
+  </div>
+
+  <div class="cres" id="gd-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">\(f(x) = x^3 + 2x\)의 도함수 \(f'(x)\)는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(3x + 2\)</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(3x^2 + 2\)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(x^2 + 2x\)</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; \(3x^3 + 2\)</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch01.html'">← Ch.1 집합과 함수</button>
+  <button class="btn btn-p" onclick="location.href='ch02b.html'">Ch.2B 적분 기초 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 잘 이해하고 있습니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// ── 경사하강법 시뮬레이터 ──
+function updateGD() {
+  const x0 = parseFloat(document.getElementById('gd-x0').value);
+  const lr  = parseFloat(document.getElementById('gd-lr').value);
+  const it  = parseInt(document.getElementById('gd-it').value);
+  document.getElementById('gd-x0-v').value = x0.toFixed(1);
+  document.getElementById('gd-lr-v').value = lr.toFixed(2);
+  document.getElementById('gd-it-v').value = it;
+  let x = x0, steps = [x0.toFixed(3)];
+  for (let i = 0; i < it; i++) {
+    x -= lr * 2 * x;
+    steps.push(x.toFixed(3));
+  }
+  document.getElementById('gd-res').innerHTML =
+    `시작 x₀=${x0} → ${it}번 후 x=<strong>${x.toFixed(5)}</strong>, f(x)=<strong>${(x*x).toFixed(7)}</strong><br/>
+    <span style="font-size:.78rem;color:var(--muted)">경로: ${steps.slice(0,6).join(' → ')}${steps.length>6?' → …':''}</span>`;
+}
+updateGD();
+</script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.8 — MAP, Bias-Variance Tradeoff, 가설검정 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ STEPS ══ */
+.step{display:flex;gap:14px;margin-bottom:18px;}
+.sn{width:30px;height:30px;background:var(--accent);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+.sb p{margin-bottom:0;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.8 · 통계 &amp; 추정 (10주차)</div>
+  <h1>MAP, Bias-Variance Tradeoff, 가설검정</h1>
+  <p>너무 단순한 모델도, 너무 복잡한 모델도 위험합니다. 좋은 추정이 무엇인지 배웁니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>너무 단순한 모델은 패턴을 못 보고(underfitting), 너무 복잡한 모델은 노이즈까지 외운다(overfitting). — <strong>"딱 적당한 복잡도를 찾는 것이 Bias-Variance Tradeoff다."</strong></p>
+  <ul>
+    <li>과소적합: 시험을 준비 못 해서 모든 문제에 "2번"이라고 쓰는 것 (너무 단순)</li>
+    <li>과적합: 작년 시험 문제를 통째로 외워서 올해 새 문제는 못 푸는 것 (너무 복잡)</li>
+    <li>AI에서: 적절한 모델 크기, 정규화, 드롭아웃 → 좋은 일반화 (generalization)</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: MAP == -->
+<h2 class="st"><span class="ic">🎯</span>MAP 추정 (MLE + Prior)</h2>
+<p>MAP(Maximum A Posteriori)는 MLE에 사전 지식(prior)을 추가한 추정법입니다. MLE가 데이터만 보고 판단하는 반면, MAP는 데이터와 우리가 미리 가진 지식(prior)을 함께 고려합니다.</p>
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX 1: MAP vs MLE
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">MAP VS MLE</div>
+  \[
+    \hat{\theta}_{MLE} = \operatorname{argmax}_\theta \log P(\mathcal{D} \mid \theta)
+    \quad \text{vs} \quad
+    \hat{\theta}_{MAP} = \operatorname{argmax}_\theta \left[ \log P(\mathcal{D} \mid \theta) + \log P(\theta) \right]
+  \]
+  <div class="fn">
+    \(\hat{\theta}_{MLE}\): MLE 추정값 — 데이터만 봄 (데이터가 적으면 과적합 위험)<br/>
+    \(\hat{\theta}_{MAP}\): MAP 추정값 — 데이터 + prior를 함께 봄<br/>
+    \(\log P(\mathcal{D} \mid \theta)\): 로그 우도(log-likelihood) — 데이터가 파라미터 θ 아래서 관측될 확률<br/>
+    \(\log P(\theta)\): 로그 사전확률(log-prior) — 파라미터에 대한 사전 지식 (정규화 역할)<br/>
+    Gaussian prior \(P(\theta)\) → L2 정규화와 수학적으로 동치
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 정규화 = MAP의 prior</div>
+  <p><strong>L2 정규화:</strong> loss + λ‖θ‖² = Gaussian prior \(\mathcal{N}(0, 1/\lambda)\) 가정</p>
+  <p><strong>L1 정규화:</strong> loss + λ‖θ‖₁ = Laplace prior 가정</p>
+  <p>즉, <strong>정규화는 베이지안 해석에서 prior를 추가하는 것</strong>과 수학적으로 동일합니다. 정규화 강도 λ를 높이면 prior의 영향이 커져 파라미터가 0에 가까워집니다.</p>
+</div>
+
+
+<!-- == 섹션 2: Bias-Variance Tradeoff == -->
+<h2 class="st"><span class="ic">⚖️</span>Bias-Variance Tradeoff</h2>
+<p>모델의 예측 오류는 bias²과 variance의 합으로 분해됩니다. 이 두 항목은 서로 상충관계(tradeoff)에 있어, 하나를 줄이면 다른 하나가 커지는 경향이 있습니다.</p>
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX 2: Bias-Variance 분해
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">BIAS-VARIANCE 분해</div>
+  \[
+    \mathbb{E}\left[(\hat{f}(x) - y)^2\right] =
+    \underbrace{\text{Bias}[\hat{f}(x)]^2}_{\text{과소적합}} +
+    \underbrace{\text{Var}[\hat{f}(x)]}_{\text{과적합}} +
+    \underbrace{\sigma^2_\epsilon}_{\text{줄일 수 없는 노이즈}}
+  \]
+  <div class="fn">
+    \(\mathbb{E}[(\hat{f}(x) - y)^2]\): 기댓값 예측 오류 (Mean Squared Error)<br/>
+    \(\text{Bias}[\hat{f}(x)]^2\): 모델이 평균적으로 얼마나 틀리는지 — 너무 단순한 모델 → 큰 bias (과소적합)<br/>
+    \(\text{Var}[\hat{f}(x)]\): 훈련 데이터에 따라 예측이 얼마나 흔들리는지 — 너무 복잡한 모델 → 큰 variance (과적합)<br/>
+    \(\sigma^2_\epsilon\): 데이터 자체의 노이즈 — 어떤 모델도 줄일 수 없음 (irreducible error)
+  </div>
+</div>
+
+<h3 class="sub">Bias vs Variance 비교</h3>
+<table>
+  <tr>
+    <th></th>
+    <th>Bias 큼</th>
+    <th>Variance 큼</th>
+  </tr>
+  <tr>
+    <td><strong>모델 복잡도</strong></td>
+    <td>너무 단순</td>
+    <td>너무 복잡</td>
+  </tr>
+  <tr>
+    <td><strong>상태</strong></td>
+    <td>과소적합 (underfitting)</td>
+    <td>과적합 (overfitting)</td>
+  </tr>
+  <tr>
+    <td><strong>해결책</strong></td>
+    <td>모델 복잡도 증가, 특성 추가</td>
+    <td>정규화, 드롭아웃, 더 많은 데이터</td>
+  </tr>
+  <tr>
+    <td><strong>예시</strong></td>
+    <td>선형 모델로 비선형 패턴 학습</td>
+    <td>100차 다항식으로 10개 데이터 학습</td>
+  </tr>
+</table>
+
+
+<!-- == 섹션 3: 가설검정 == -->
+<h2 class="st"><span class="ic">🔬</span>통계적 가설 검정</h2>
+<p>논문에서 "이 방법이 정말 더 좋은가?"를 통계적으로 검증하는 방법입니다. 가설검정은 데이터를 근거로 주장의 타당성을 판단하는 엄밀한 절차입니다.</p>
+
+<div class="step">
+  <div class="sn">1</div>
+  <div class="sb"><p><strong>귀무가설 H₀ 설정</strong>: "두 방법 사이에 차이가 없다" — 기본 가정으로 기각하려는 가설</p></div>
+</div>
+<div class="step">
+  <div class="sn">2</div>
+  <div class="sb"><p><strong>대립가설 H₁ 설정</strong>: "새로운 방법이 더 좋다" — 증명하려는 주장</p></div>
+</div>
+<div class="step">
+  <div class="sn">3</div>
+  <div class="sb"><p><strong>검정 통계량 계산</strong>: 데이터로부터 t-통계량, z-통계량 등 계산하여 수치화</p></div>
+</div>
+<div class="step">
+  <div class="sn">4</div>
+  <div class="sb"><p><strong>p-value 계산</strong>: p &lt; α (보통 0.05)이면 귀무가설 기각 → 대립가설 채택</p></div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 p-value의 정확한 의미</div>
+  <p><strong>p-value</strong> = "귀무가설이 사실이라고 가정했을 때, 현재 관측된 데이터(또는 더 극단적인 결과)가 나올 확률"</p>
+  <p>예: p = 0.03 → H₀이 사실이면 이런 데이터가 나올 확률이 3% → H₀ 기각 (통계적으로 유의미한 차이 존재)</p>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb">
+    <p><strong>흔한 오해:</strong></p>
+    <p>p-value는 "가설이 옳을 확률"이 <strong>아닙니다</strong>. p &lt; 0.05가 실용적 중요성을 보장하지 않으며(효과 크기, Cohen's d 함께 보기), 표본이 크면 의미 없는 차이도 p &lt; 0.05가 나올 수 있습니다.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 Bias-Variance 트레이드오프 시뮬레이터</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">모델 복잡도와 데이터 노이즈를 조절하여 Bias², Variance, 총 오류가 어떻게 변하는지 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">모델 복잡도</span>
+    <input type="range" id="bv-complexity" min="1" max="10" step="1" value="3" oninput="updateBV()"/>
+    <input type="number" id="bv-c-v" value="3" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">데이터 노이즈</span>
+    <input type="range" id="bv-noise" min="0" max="5" step="0.1" value="1" oninput="updateBV()"/>
+    <input type="number" id="bv-n-v" value="1.0" readonly/>
+  </div>
+
+  <div class="cres" id="bv-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">L2 정규화(<code>loss + λ‖θ‖²</code>)는 MAP 관점에서 어떤 prior를 가정하는가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; Laplace prior</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; Bernoulli prior</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; Gaussian prior N(0, 1/λ)</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; Uniform prior</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch07.html'">← Ch.7 표본과 MLE</button>
+  <button class="btn btn-p" onclick="location.href='ch09.html'">Ch.9 ML 연결 1 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 잘 이해하고 있습니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// ── Bias-Variance 시뮬레이터 ──
+function updateBV() {
+  const c = parseInt(document.getElementById('bv-complexity').value);
+  const noise = parseFloat(document.getElementById('bv-noise').value);
+  document.getElementById('bv-c-v').value = c;
+  document.getElementById('bv-n-v').value = noise.toFixed(1);
+
+  const bias2 = Math.max(0, 5 - c) ** 1.5;
+  const variance = (c * 0.8) ** 1.5;
+  const irreducible = noise ** 2;
+  const totalError = bias2 + variance + irreducible;
+
+  document.getElementById('bv-res').innerHTML =
+    `총 오류 = <strong>${totalError.toFixed(2)}</strong><br/>
+    Bias² = ${bias2.toFixed(2)} | Variance = ${variance.toFixed(2)} | 노이즈 = ${irreducible.toFixed(2)}<br/>
+    <span style="font-size:.78rem;color:var(--muted)">
+      ${c <= 3 ? '⚠️ 과소적합 위험 (bias 큼)' : c >= 8 ? '⚠️ 과적합 위험 (variance 큼)' : '✅ 균형 잡힌 복잡도'}
+    </span>`;
+}
+updateBV();
+</script>
+</body>
+</html>

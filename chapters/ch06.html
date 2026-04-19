@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.6 — 기대값과 분산 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.6 · 확률 &amp; 통계 (7주차)</div>
+  <h1>기대값과 분산</h1>
+  <p>평균과 흔들림을 수학적으로 표현합니다. AI 학습 목표와 불확실성의 기초입니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"기대값은 '보통 어느 정도인가', 분산은 '얼마나 들쑥날쑥한가'다."</strong></p>
+  <ul>
+    <li>기대값: 동전을 1000번 던지면 앞면이 약 500번 나옴 → 기대값 0.5</li>
+    <li>분산: 학생 5명 키가 비슷하면 분산 작음, 한 명이 아주 작고 한 명이 아주 크면 분산 큼</li>
+    <li>AI에서: AI 학습 = 기대 손실 \(\mathbb{E}[L]\)을 최소화. 모델 예측의 불확실성 = 분산</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 기대값 == -->
+<h2 class="st"><span class="ic">⚖️</span>기대값 (Expected Value / Mean)</h2>
+<p>확률변수 X의 기대값은 무한히 많은 실험을 반복했을 때 나타나는 <strong>평균값</strong>입니다. 이산형과 연속형 모두 정의할 수 있으며, 확률로 가중 평균한 값이라고 이해할 수 있습니다.</p>
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX — 수식 1: 기대값 공식
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">기대값 공식</div>
+  \[
+    \mathbb{E}[X] = \begin{cases}
+      \displaystyle\sum_x x \cdot P(X=x) & \text{(이산형)} \\[8pt]
+      \displaystyle\int_{-\infty}^{\infty} x \cdot f(x) \, dx & \text{(연속형)}
+    \end{cases}
+  \]
+  <div class="fn">
+    \(\mathbb{E}[X]\): 기대값 연산자 — 논문에서 \(E[\cdot]\) 또는 \(\mathbb{E}[\cdot]\)로 표기<br/>
+    \(P(X=x)\): 이산형 확률변수의 확률질량함수 (PMF)<br/>
+    \(f(x)\): 연속형 확률변수의 확률밀도함수 (PDF)
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+  FORMULA BOX — 수식 2: 기대값 선형성
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">기대값의 선형성 (매우 중요)</div>
+  \[ \mathbb{E}[aX + bY] = a\,\mathbb{E}[X] + b\,\mathbb{E}[Y] \]
+  <div class="fn">
+    \(a, b\): 상수 (스칼라 계수)<br/>
+    \(X, Y\): 임의의 확률변수 — X, Y가 독립이 아니어도 이 식은 항상 성립<br/>
+    머신러닝에서 배치 손실 계산 시 핵심적으로 사용됨 (배치 = 각 샘플 손실의 선형 합)
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 AI에서의 기대값</div>
+  <p>학습 목표는 기대 손실을 최소화하는 파라미터를 구하는 것입니다:</p>
+  \[ \theta^* = \arg\min_{\theta}\; \mathbb{E}_{(x,y)\sim p_{\text{data}}}\!\left[L(f_\theta(x),\, y)\right] \]
+  <p style="margin-top:8px;">배치 SGD에서는 미니배치로 기대 그레디언트를 근사합니다. 선형성 덕분에 배치 평균 손실 = 전체 기대 손실의 불편추정량이 됩니다.</p>
+</div>
+
+<!-- == 섹션 2: 분산 == -->
+<h2 class="st"><span class="ic">📏</span>분산과 표준편차 (Variance &amp; Standard Deviation)</h2>
+<p>분산은 확률변수의 값이 기대값으로부터 얼마나 <strong>흩어져 있는지</strong>를 측정합니다. 표준편차는 분산의 제곱근으로, 원래 단위와 같아 해석이 편리합니다.</p>
+
+<!-- ════════════════════════════════════════
+  FORMULA BOX — 수식 3: 분산 공식
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">분산 공식</div>
+  \[ \text{Var}(X) = \mathbb{E}\!\left[(X - \mathbb{E}[X])^2\right] = \mathbb{E}[X^2] - \left(\mathbb{E}[X]\right)^2 \]
+  <div class="fn">
+    \(\text{Var}(X)\): 분산 — 기대값으로부터 벗어남의 평균 제곱<br/>
+    \(\mathbb{E}[X^2]\): 확률변수 제곱의 기대값<br/>
+    두 번째 등식: 계산에 편리한 형태 (전개 공식으로 유도 가능)<br/>
+    표준편차: \(\sigma = \sqrt{\text{Var}(X)}\) — 원래 단위와 동일하여 해석이 직관적
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>📉 분산이 작을 때</h5>
+    <p>예측값이 기대값 근처에 집중됨</p>
+    <ul>
+      <li>모델 예측이 안정적</li>
+      <li>낮은 불확실성 (low uncertainty)</li>
+      <li>키가 비슷한 학생 5명</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>📈 분산이 클 때</h5>
+    <p>예측값이 넓게 퍼져 있음</p>
+    <ul>
+      <li>모델 예측이 불안정</li>
+      <li>높은 불확실성 (high uncertainty)</li>
+      <li>키 차이가 큰 학생 집단</li>
+    </ul>
+  </div>
+</div>
+
+<!-- == 섹션 3: 공분산과 상관관계 == -->
+<h2 class="st"><span class="ic">↔️</span>공분산 (Covariance) &amp; 상관관계 (Correlation)</h2>
+<p>두 확률변수가 <strong>함께 어떻게 변하는지</strong> 측정합니다. 공분산은 방향을 알려주고, 상관계수는 크기를 정규화하여 −1 ~ 1 범위로 표준화합니다.</p>
+
+<!-- ════════════════════════════════════════
+  FORMULA BOX — 수식 4: 공분산과 상관계수
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">공분산과 상관계수</div>
+  \[
+    \text{Cov}(X, Y) = \mathbb{E}\!\left[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])\right]
+  \]
+  \[
+    \rho(X,Y) = \frac{\text{Cov}(X,Y)}{\sqrt{\text{Var}(X)\,\text{Var}(Y)}} \in [-1,\,1]
+  \]
+  <div class="fn">
+    \(\text{Cov}(X,Y) > 0\): 두 변수가 함께 증가하는 경향<br/>
+    \(\text{Cov}(X,Y) < 0\): 한 변수가 증가하면 다른 변수는 감소<br/>
+    \(\text{Cov}(X,Y) = 0\): 선형 관계 없음 (단, 독립의 역은 성립하지 않음)<br/>
+    \(\rho\): 상관계수 — 단위 없음, −1(완전 음의 상관) ~ 1(완전 양의 상관) 범위
+  </div>
+</div>
+
+<h3 class="sub">공분산 성질 요약</h3>
+<table>
+  <tr><th>기호</th><th>의미</th><th>예시</th></tr>
+  <tr><td>\(\text{Cov}(X,Y) > 0\)</td><td>함께 증가</td><td>키와 몸무게</td></tr>
+  <tr><td>\(\text{Cov}(X,Y) < 0\)</td><td>반대로 움직임</td><td>운동량과 체지방률</td></tr>
+  <tr><td>\(\text{Cov}(X,Y) = 0\)</td><td>선형 독립</td><td>신발 크기와 수학 성적</td></tr>
+  <tr><td>\(\rho = \pm 1\)</td><td>완전 선형 관계</td><td>\(Y = aX + b\) 형태</td></tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb">
+    <p><strong>상관관계 ≠ 인과관계:</strong> 아이스크림 판매량과 익사 사고 수는 상관관계가 높지만, 원인은 여름 기온입니다. 논문에서 이 혼동을 조심해야 합니다.</p>
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb">
+    <p><strong>AI에서 공분산 행렬:</strong> 다변수 가우시안 분포 \(\mathcal{N}(\mu, \Sigma)\)에서 \(\Sigma\)는 공분산 행렬입니다. 특성(feature) 간 상관 구조를 인코딩하며, PCA·Gaussian Process 등 핵심 알고리즘에 등장합니다.</p>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 이산분포 기대값·분산 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">주사위의 기대값과 분산을 직접 계산해보세요. 각 면의 수와 편향을 조정할 수 있습니다.</p>
+
+  <div class="cr">
+    <span class="cl">주사위 면 수</span>
+    <input type="range" id="ev-n" min="2" max="6" step="1" value="6" oninput="updateEV()"/>
+    <input type="number" id="ev-n-v" value="6" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">편향 (1번 면 가중치)</span>
+    <input type="range" id="ev-bias" min="1" max="10" step="1" value="1" oninput="updateEV()"/>
+    <input type="number" id="ev-bias-v" value="1" readonly/>
+  </div>
+
+  <div class="cres" id="ev-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">\(\text{Var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2\) 에서 \(\mathbb{E}[X] = 3\), \(\mathbb{E}[X^2] = 13\)이면 \(\text{Var}(X)\)는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 6</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; 10</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; 4 &nbsp; <span style="color:var(--muted);font-size:.82rem;">(13 − 3² = 13 − 9 = 4)</span></div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 3</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch05.html'">← Ch.5 확률분포</button>
+  <button class="btn btn-p" onclick="location.href='ch07.html'">Ch.7 표본과 MLE →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 잘 이해하고 있습니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용)
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// ── 이산분포 기대값·분산 계산기 ──
+function updateEV() {
+  const n = parseInt(document.getElementById('ev-n').value);
+  const bias = parseInt(document.getElementById('ev-bias').value);
+  document.getElementById('ev-n-v').value = n;
+  document.getElementById('ev-bias-v').value = bias;
+
+  const weights = Array.from({length: n}, (_, i) => i === 0 ? bias : 1);
+  const total = weights.reduce((a, b) => a + b, 0);
+  const probs = weights.map(w => w / total);
+
+  const ev = probs.reduce((acc, p, i) => acc + p * (i + 1), 0);
+  const ev2 = probs.reduce((acc, p, i) => acc + p * (i + 1) ** 2, 0);
+  const variance = ev2 - ev ** 2;
+
+  document.getElementById('ev-res').innerHTML =
+    `기대값 E[X] = <strong>${ev.toFixed(3)}</strong> &nbsp;|&nbsp; ` +
+    `분산 Var(X) = <strong>${variance.toFixed(3)}</strong> &nbsp;|&nbsp; ` +
+    `표준편차 σ = <strong>${Math.sqrt(variance).toFixed(3)}</strong>`;
+}
+updateEV();
+</script>
+</body>
+</html>
