@@ -11,75 +11,7 @@ window.MathJax = {
 };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<style>
-:root {
-  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
-  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
-  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
-  --hl:rgba(108,138,255,0.10);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
-p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
-.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
-.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
-.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
-.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
-.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
-.easy p{font-size:.93rem;margin-bottom:6px;}
-.easy ul{padding-left:18px;margin:6px 0;}
-.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
-h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
-h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
-h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
-.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
-.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
-.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
-.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
-.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
-.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
-.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
-.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
-.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
-.callout .ci{font-size:17px;flex-shrink:0;}
-.callout .cb p{margin-bottom:0;font-size:.88rem;}
-table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
-th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
-td{padding:8px 13px;border-bottom:1px solid var(--border);}
-tr:hover td{background:var(--hl);}
-.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
-.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
-.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
-.qo:hover{background:var(--hl);border-color:var(--accent);}
-.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
-.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
-.qfb{margin-top:10px;font-size:.85rem;display:none;}
-.qfb.show{display:block;}
-.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
-.calc h4{color:var(--accent4);margin-bottom:14px;}
-.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
-.cl{font-size:12px;color:var(--muted);min-width:115px;}
-input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
-input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
-.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
-.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
-.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
-.btn-p{background:var(--accent);color:#fff;}
-.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
-.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.btn-s:hover{background:var(--hl);}
-.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
-.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
-.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
-.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
-.col-box ul{padding-left:16px;}
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
-</style>
+<link rel="stylesheet" href="../style.css"/>
 </head>
 <body>
 

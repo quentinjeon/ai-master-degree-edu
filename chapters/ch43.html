@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.43 — RAG 수학 기반 · Dense Retrieval·FAISS·임베딩 기하학 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.43 · RAG 이론 심화 (Phase 3-D)</div>
+  <h1>RAG 수학 기반 —<br/>Dense Retrieval·FAISS·임베딩 기하학</h1>
+  <p>벡터 유사도 검색의 수학적 기반. MIPS 문제, FAISS 근사 알고리즘, DPR 학습 이론, Modular RAG 아키텍처 — 논문을 직접 구현하는 수준으로.</p>
+</div>
+
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>수천만 권의 책 중에서 내 질문과 가장 관련 있는 단락을 1초 안에 찾는 문제다. 모든 책을 다 읽을 수는 없으니, 책마다 <strong>'핵심 특징 벡터'를 미리 만들어 놓고, 내 질문과 각도가 비슷한 벡터를 빠르게 찾는다</strong> — 이것이 MIPS 문제이고, FAISS가 이를 해결한다.</p>
+  <ul>
+    <li>완전 검색(Brute Force): 1억 개 문서 × 768차원 코사인 계산 → 수 분 소요</li>
+    <li>FAISS IVF: 문서를 군집(클러스터)으로 나누고 관련 군집만 검색 → 수 밀리초</li>
+    <li>HNSW: 계층적 그래프로 탐색 → 더 빠르지만 메모리 더 필요</li>
+    <li>AI에서: OpenAI 임베딩 API + FAISS로 수백만 문서 RAG 구축 실제 사례</li>
+  </ul>
+</div>
+
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1 -->
+<h2 class="st"><span class="ic">📐</span>벡터 공간에서 의미는 어디에 있는가</h2>
+<p>임베딩 모델은 텍스트를 고차원 벡터로 변환합니다. 잘 학습된 임베딩 공간에서는 의미적으로 유사한 텍스트가 기하학적으로 가까운 위치에 있습니다. 이 기하학적 구조가 RAG 검색의 수학적 토대가 됩니다.</p>
+
+<!-- [4] FORMULA BOX 1 -->
+<div class="fb">
+  <div class="fl">코사인 유사도와 내적의 관계</div>
+  \[
+  \cos\theta(u, v) = \frac{u \cdot v}{\|u\| \|v\|}
+  \quad\Leftrightarrow\quad u \cdot v \quad\text{(정규화된 경우 동일)}
+  \]
+  <div class="fn">
+    \(\|u\| = \|v\| = 1\) (L2 정규화)이면 코사인 유사도 = 내적<br/>
+    DPR 등 대부분의 검색 모델은 L2 정규화된 임베딩 사용<br/>
+    코사인 유사도: 방향 유사도(크기 무관) — 문서 길이 차이를 무시<br/>
+    유클리드 거리: \(\|u-v\|^2 = 2 - 2\cos\theta\) (정규화된 경우) → 동치 관계
+  </div>
+</div>
+
+<!-- [4] FORMULA BOX 2 -->
+<div class="fb">
+  <div class="fl">임베딩 공간의 차원의 저주 (Curse of Dimensionality)</div>
+  \[
+  \mathbb{E}\!\left[\frac{\max_{i} d(q, p_i) - \min_{i} d(q, p_i)}{\min_{i} d(q, p_i)}\right]
+  \xrightarrow{d\to\infty} 0
+  \]
+  <div class="fn">
+    고차원 공간에서 모든 점 사이의 거리가 점점 비슷해지는 현상<br/>
+    768차원 임베딩: 여전히 차별적 신호 존재하지만 주의 필요<br/>
+    해결 전략: 차원 축소(PCA), 이분법적 인덱스(IVF), 근사 검색(ANN)<br/>
+    \(d(q, p_i)\): 쿼리 \(q\)와 문서 \(p_i\) 사이의 거리 / \(d\): 임베딩 차원
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">ℹ️</div>
+  <div class="cb"><p><strong>정규화의 중요성:</strong> 검색 전 L2 정규화(\(\|e\| = 1\))를 수행하면 코사인 유사도와 내적이 동치가 되어, FAISS의 내적 인덱스(IndexFlatIP)로 코사인 검색을 수행할 수 있습니다. DPR과 대부분의 임베딩 모델이 이 방식을 사용합니다.</p></div>
+</div>
+
+
+<!-- 섹션 2 -->
+<h2 class="st"><span class="ic">⚡</span>MIPS — 수억 벡터에서 가장 가까운 것 찾기</h2>
+<p>MIPS(Maximum Inner Product Search)는 쿼리 벡터와 내적이 가장 큰 벡터를 찾는 문제입니다. Exact MIPS는 \(O(n \cdot d)\)이므로 수억 개 문서에는 비실용적입니다. FAISS는 근사(Approximate Nearest Neighbor) 방법으로 이를 해결합니다.</p>
+
+<!-- [4] FORMULA BOX 3 -->
+<div class="fb">
+  <div class="fl">IVF (Inverted File Index) — 군집 기반 근사 검색</div>
+  \[
+  \hat{p} = \arg\max_{p \in \mathcal{C}_{k^*}} E_Q(q)^\top E_P(p)
+  \quad\text{where}\quad
+  k^* = \arg\min_{k} \|E_Q(q) - c_k\|_2
+  \]
+  <div class="fn">
+    \(c_k\): \(k\)번째 군집의 중심 벡터(k-means로 사전 계산)<br/>
+    쿼리와 가장 가까운 \(\text{nprobe}\)개 군집 내에서만 검색<br/>
+    \(\text{nprobe}\uparrow\) → 정확도↑, 속도↓ (trade-off)<br/>
+    전체 검색 대비 \(\text{nprobe}/\text{nlist}\) 비율만큼 검색 범위 축소
+  </div>
+</div>
+
+<!-- [4] FORMULA BOX 4 -->
+<div class="fb">
+  <div class="fl">PQ (Product Quantization) — 벡터 압축</div>
+  \[
+  E_P(p) \approx [q_1, q_2, \ldots, q_M]
+  \quad\text{where}\quad
+  q_m = \arg\min_{c \in \mathcal{C}_m} \|E_P(p)_{d_m} - c\|_2
+  \]
+  <div class="fn">
+    768차원 벡터를 \(M\)개 서브공간으로 분할 (예: \(M=8\) → 각 96차원)<br/>
+    각 서브공간에서 k-means → 코드북(codebook) 생성<br/>
+    원본 \(768 \times 4\) byte = 3072B → PQ 압축 후 \(8 \times 1\) byte = 8B (384배 압축!)<br/>
+    속도↑↑, 메모리↓↓, 정확도 약간 손실 — 수억 문서 RAG에서 필수
+  </div>
+</div>
+
+<h3 class="sub">FAISS 인덱스 비교</h3>
+<table>
+  <tr><th>인덱스</th><th>방법</th><th>메모리</th><th>속도</th><th>정확도</th><th>사용 시</th></tr>
+  <tr><td><strong>Flat</strong></td><td>완전 탐색</td><td>높음</td><td>느림</td><td>100%</td><td>&lt; 100만 문서</td></tr>
+  <tr><td><strong>IVF-Flat</strong></td><td>군집 기반</td><td>높음</td><td>빠름</td><td>95%+</td><td>수백만 문서</td></tr>
+  <tr><td><strong>IVF-PQ</strong></td><td>군집+압축</td><td>매우 낮음</td><td>매우 빠름</td><td>85~95%</td><td>수억 문서</td></tr>
+  <tr><td><strong>HNSW</strong></td><td>그래프 기반</td><td>높음</td><td>매우 빠름</td><td>95%+</td><td>실시간 서비스</td></tr>
+</table>
+
+
+<!-- 섹션 3 -->
+<h2 class="st"><span class="ic">🎯</span>DPR 학습 — 올바른 임베딩 공간 만들기</h2>
+<p>Dense Passage Retrieval(DPR)은 질문 인코더 \(E_Q\)와 문서 인코더 \(E_P\)를 대조 학습(Contrastive Learning)으로 훈련합니다. 정답 문서는 가까이, 관련 없는 문서는 멀리 밀어내는 방식으로 임베딩 공간을 최적화합니다.</p>
+
+<!-- [4] FORMULA BOX 5 -->
+<div class="fb">
+  <div class="fl">DPR 학습 손실 — In-Batch Negative Sampling</div>
+  \[
+  \mathcal{L}_{\text{DPR}} = -\log\frac{e^{s(q_i, p_i^+)}}{e^{s(q_i, p_i^+)} + \sum_{j \neq i} e^{s(q_i, p_j^-)}}
+  \]
+  <div class="fn">
+    \(s(q,p) = E_Q(q)^\top E_P(p)\): 유사도 점수 (내적)<br/>
+    \(p_i^+\): 질문 \(q_i\)에 대한 정답 문서 (positive)<br/>
+    \(p_j^-\): 다른 질문의 정답 문서 (in-batch negatives) — 같은 배치의 나머지 문서들<br/>
+    배치 크기 \(B\)이면 \(B-1\)개의 negative 자동 생성 → 효율적 학습<br/>
+    Hard Negative Mining: 모델이 헷갈리는 어려운 negative 추가 → 성능↑
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>최신 임베딩 모델:</strong> OpenAI text-embedding-3-large (3072차원), Voyage AI, Cohere Embed v3 등이 DPR의 원리를 대규모 데이터로 확장한 것입니다. In-Batch Negative를 수천 개 단위로 확장하고 Hard Negative Mining을 체계적으로 적용해 범용 임베딩 성능을 달성했습니다.</p></div>
+</div>
+
+
+<!-- 섹션 4 -->
+<h2 class="st"><span class="ic">🏗</span>Modular RAG — 현대 RAG 시스템의 구조</h2>
+<p>기본 RAG에서 발전한 Modular RAG는 각 모듈을 독립적으로 교체·튜닝할 수 있는 구조입니다. 파이프라인의 각 단계를 분리함으로써 성능 병목을 정확히 진단하고 최적화할 수 있습니다.</p>
+
+<h3 class="sub">Modular RAG 4단계 파이프라인</h3>
+<div class="pipeline">
+  <div class="pmodule">
+    <div class="pm-title">① Query Transformation</div>
+    <div class="pm-items">Rewriting<br/>Decomposition<br/>HyDE</div>
+  </div>
+  <div class="parrow">→</div>
+  <div class="pmodule">
+    <div class="pm-title">② Retrieval</div>
+    <div class="pm-items">Dense / Sparse<br/>Hybrid<br/>Multi-step</div>
+  </div>
+  <div class="parrow">→</div>
+  <div class="pmodule">
+    <div class="pm-title">③ Post-Retrieval</div>
+    <div class="pm-items">Reranking<br/>Context 압축<br/>Filtering</div>
+  </div>
+  <div class="parrow">→</div>
+  <div class="pmodule">
+    <div class="pm-title">④ Generation</div>
+    <div class="pm-items">Prompt 구성<br/>LLM 생성<br/>Self-RAG</div>
+  </div>
+</div>
+
+<!-- [4] FORMULA BOX 6 -->
+<div class="fb">
+  <div class="fl">Self-RAG — 검색 여부 자체 결정 (Asai et al., 2023)</div>
+  \[
+  P(y, r \mid x) = P(r \mid x) \cdot P(y \mid x, r, d^*)
+  \quad\text{where}\quad
+  d^* = \arg\max_{d} P(d \mid x) \cdot P(\text{isrel} \mid x, d)
+  \]
+  <div class="fn">
+    \(r\): 검색 토큰 (Retrieve / No-Retrieve 중 모델이 결정)<br/>
+    항상 검색하는 Naive RAG 대신, 검색이 필요할 때만 검색<br/>
+    \(P(\text{isrel}|x,d)\): 검색된 문서가 관련있는지 모델이 스스로 판단<br/>
+    4개 특수 토큰 사용: [Retrieve], [IsRel], [IsSup], [IsUse]<br/>
+    이 토큰들로 검색 필요성·관련성·지지성·유용성을 단계적으로 평가
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>Sparse vs Dense 검색의 상호보완:</strong> BM25(Sparse)는 정확한 키워드 매칭에 강하고, Dense는 의미적 유사성에 강합니다. 실제 프로덕션 RAG 시스템은 두 가지를 결합한 Hybrid 검색(RRF, Reciprocal Rank Fusion)을 사용하는 경우가 많습니다.</p></div>
+</div>
+
+
+<!-- [5] INTERACTIVE — FAISS IVF nprobe Trade-off 탐색기 -->
+<div class="calc">
+  <h4>⚡ IVF nprobe — 속도 vs 정확도 Trade-off</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">슬라이더를 조절해 FAISS IVF 인덱스의 속도와 정확도 trade-off를 실시간으로 탐색하세요.</p>
+
+  <div class="cr">
+    <span class="cl">군집 수 (nlist)</span>
+    <input type="range" id="faiss-nlist" min="16" max="4096" step="16" value="256" oninput="updateFAISS()"/>
+    <input type="number" id="faiss-nlist-v" value="256" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">탐색 군집 수 (nprobe)</span>
+    <input type="range" id="faiss-nprobe" min="1" max="256" step="1" value="8" oninput="updateFAISS()"/>
+    <input type="number" id="faiss-nprobe-v" value="8" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">총 문서 수 (만 개)</span>
+    <input type="range" id="faiss-n" min="1" max="1000" step="10" value="100" oninput="updateFAISS()"/>
+    <input type="number" id="faiss-n-v" value="100" readonly/>
+  </div>
+
+  <div class="cres" id="faiss-res">슬라이더를 조절해 결과를 확인하세요.</div>
+</div>
+
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">DPR 학습에서 In-Batch Negative Sampling을 사용하는 주된 이유는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 정답 문서를 더 많이 포함시키기 위해</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 배치 내 다른 질문의 문서를 부정 예시로 자동 활용해 추가 데이터 없이 대조 학습 효율을 높이기 위해</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; FAISS 인덱스 구축 속도를 높이기 위해</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 임베딩 차원을 줄이기 위해</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch42.html'">← Ch.42 효과크기와 결과 해석</button>
+  <button class="btn btn-p" onclick="location.href='ch44.html'">Ch.44 LLM Alignment 이론 →</button>
+</div>
+
+
+<script>
+// ── 퀴즈 공통 함수 ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! In-Batch Negative Sampling은 추가 데이터 없이 배치 내 다른 샘플을 부정 예시로 활용합니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인하세요.';
+}
+
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── FAISS IVF Trade-off 계산기 ──
+function updateFAISS() {
+  const nlist = parseInt(document.getElementById('faiss-nlist').value);
+  const nprobe = Math.min(parseInt(document.getElementById('faiss-nprobe').value), nlist);
+  const n = parseInt(document.getElementById('faiss-n').value) * 10000;
+  document.getElementById('faiss-nlist-v').value = nlist;
+  document.getElementById('faiss-nprobe-v').value = nprobe;
+  document.getElementById('faiss-n-v').value = (n / 10000).toFixed(0);
+  const docsPerCluster = Math.round(n / nlist);
+  const searchRatio = nprobe / nlist;
+  const speedup = Math.max(1, nlist / nprobe);
+  const recall = 1 - Math.exp(-3 * searchRatio);
+  document.getElementById('faiss-res').innerHTML =
+    `군집당 평균 문서 수: <strong>${docsPerCluster.toLocaleString()}</strong><br/>
+     검색 비율: ${nprobe}/${nlist} = <strong>${(searchRatio*100).toFixed(1)}%</strong><br/>
+     완전 탐색 대비 속도: <strong style="color:var(--accent3)">${speedup.toFixed(0)}×</strong> 빠름<br/>
+     추정 Recall@10: <strong>${(recall*100).toFixed(1)}%</strong><br/>
+     <span style="font-size:.78rem;color:var(--muted)">nprobe = nlist이면 완전 탐색과 동일. 권장: nprobe = nlist × 0.03~0.1 (3~10%만 탐색)</span>`;
+}
+updateFAISS();
+</script>
+</body>
+</html>

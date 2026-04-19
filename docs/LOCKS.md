@@ -64,6 +64,17 @@
 | `chapters/ch38.html` | 🔓 FREE | — | — |
 | `chapters/ch39.html` | 🔓 FREE | — | — |
 | `chapters/ch40.html` | 🔓 FREE | — | — |
+| `chapters/ch14c.html` | 🔓 FREE | — | — |
+| `chapters/ch41.html` | 🔓 FREE | — | — |
+| `chapters/ch42.html` | 🔓 FREE | — | — |
+| `chapters/ch12b.html` | 🔓 FREE | — | — |
+| `chapters/ch12c.html` | 🔓 FREE | — | — |
+| `chapters/ch12d.html` | 🔓 FREE | — | — |
+| `chapters/ch12e.html` | 🔓 FREE | — | — |
+| `chapters/ch12f.html` | 🔓 FREE | — | — |
+| `chapters/ch43.html` | 🔓 FREE | — | — |
+| `chapters/ch44.html` | 🔓 FREE | — | — |
+| `chapters/ch45.html` | 🔓 FREE | — | — |
 
 ---
 

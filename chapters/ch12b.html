@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.12B — LLM 사전학습·파인튜닝·LoRA | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.12B · LLM 학습 (Unit 3 고도화)</div>
+  <h1>LLM 사전학습·파인튜닝·LoRA</h1>
+  <p>ChatGPT가 어떻게 학습되는지 — 사전학습, 지도 파인튜닝(SFT), 그리고 LoRA로 1% 파라미터만 바꿔 성능을 끌어올리는 비결.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"요리사를 키우는 과정과 같다. 먼저 수백만 권의 요리책을 읽혀서 '일반 요리 감각'을 익히고(사전학습), 그다음 특정 식당 스타일에 맞게 짧게 추가 훈련한다(파인튜닝). LoRA는 요리책 전체를 새로 쓰는 대신 '핵심 레시피 메모지'만 추가하는 방법이다."</strong></p>
+  <ul>
+    <li><strong>사전학습:</strong> GPT-4는 인터넷 전체 텍스트로 사전학습 → 다음 토큰 예측을 수조 번 반복</li>
+    <li><strong>SFT:</strong> "의사처럼 대화하는 방법"을 수천 개 예시로 추가 학습</li>
+    <li><strong>LoRA:</strong> 1750억 파라미터 모델을 파인튜닝할 때 단 0.1%만 업데이트 → GPU 비용 1/100</li>
+    <li><strong>AI에서:</strong> LLaMA 3, Mistral, Gemma 등이 모두 LoRA로 도메인 특화 — 소비자 GPU로도 대형 모델 파인튜닝 가능</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 사전학습 == -->
+<h2 class="st"><span class="ic">📚</span>사전학습 — 조 단위 토큰으로 언어 구조 흡수</h2>
+<p>사전학습(Pretraining)은 LLM이 특정 태스크 없이 인터넷 텍스트 전체를 학습하는 단계입니다. 목표는 단순합니다: "다음 토큰을 예측하라." 하지만 이 단순한 목표가 수학, 코딩, 논문 독해 능력을 자연스럽게 만들어냅니다.</p>
+
+
+<!-- [4] 수식 박스 1 -->
+<div class="fb">
+  <div class="fl">사전학습 목적함수 — 자기회귀 NLL (Negative Log-Likelihood)</div>
+  \[
+    \mathcal{L}_{\text{PT}}(\theta) = -\sum_{t=1}^{T} \log P_\theta(w_t \mid w_1, \ldots, w_{t-1})
+  \]
+  <div class="fn">
+    \(w_t\): \(t\)번째 토큰 — 어휘(vocabulary)에서 하나의 단어/서브워드<br/>
+    \(\theta\): LLM의 전체 파라미터 (가중치 행렬들)<br/>
+    \(T\): 시퀀스 전체 길이<br/>
+    모든 위치에서 이전 토큰들을 조건으로 다음 토큰을 맞히도록 경사하강법으로 최적화<br/>
+    사전학습 후 모델 = "언어를 이해하는 만능 기반" (Foundation Model) — 특정 태스크 명세 없이도 범용 능력 획득
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 사전학습 스케일의 비밀</div>
+  <p>사전학습의 성능은 데이터·파라미터·연산량 세 가지 스케일에 따라 결정됩니다:</p>
+  <ul style="padding-left:18px;margin-top:9px;">
+    <li style="margin-bottom:6px;"><strong>데이터:</strong> 수조(trillion) 토큰 — Common Crawl, Wikipedia, GitHub, arXiv 등 혼합</li>
+    <li style="margin-bottom:6px;"><strong>규모:</strong> GPT-3 = 1,750억 파라미터 / LLaMA 3 = 700억 파라미터</li>
+    <li style="margin-bottom:6px;"><strong>비용:</strong> GPT-4 사전학습 추정 ~$100M 이상 (A100 GPU 수천 장)</li>
+    <li><strong>Chinchilla 법칙:</strong> 최적 비율 — 토큰 수 ≈ 파라미터 수 × 20 (Hoffmann et al., 2022)</li>
+  </ul>
+</div>
+
+
+<!-- == 섹션 2: 지도 파인튜닝 SFT == -->
+<h2 class="st"><span class="ic">🎯</span>지도 파인튜닝 — "이렇게 대화해" 가르치기</h2>
+<p>SFT(Supervised Fine-Tuning)는 사전학습된 모델에게 "올바른 대화 방식"을 가르치는 단계입니다. (질문, 이상적 대답) 쌍을 수천~수만 개 준비하여 같은 NLL 손실로 학습합니다. 사전학습과 수식 구조는 동일하지만, <strong>응답(y) 부분의 토큰에만</strong> 손실을 계산한다는 점이 핵심 차이입니다.</p>
+
+<!-- [4] 수식 박스 2 -->
+<div class="fb">
+  <div class="fl">SFT 목적함수 — Supervised Fine-Tuning Loss</div>
+  \[
+    \mathcal{L}_{\text{SFT}}(\theta) = -\sum_{(x,y) \in \mathcal{D}_{\text{SFT}}} \sum_{t=1}^{|y|} \log P_\theta(y_t \mid x,\, y_{<t})
+  \]
+  <div class="fn">
+    \(x\): 사용자 질문(prompt) — 모델에게 주어지는 입력<br/>
+    \(y\): 이상적 응답, \(y_t\)는 \(t\)번째 응답 토큰<br/>
+    \(\mathcal{D}_{\text{SFT}}\): (질문, 응답) 쌍으로 구성된 지도 학습 데이터셋<br/>
+    사전학습과 수식은 동일하지만 <strong>응답 \(y\) 부분의 토큰만 손실 계산</strong> — 질문 \(x\) 부분은 손실에서 제외<br/>
+    InstructGPT(ChatGPT 전신)는 약 13,000개 (질문, 응답) 쌍으로 SFT 진행
+  </div>
+</div>
+
+<h3 class="sub">사전학습 vs SFT 비교</h3>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>사전학습</th>
+    <th>SFT</th>
+  </tr>
+  <tr>
+    <td><strong>데이터</strong></td>
+    <td>인터넷 전체 (수조 토큰)</td>
+    <td>큐레이션된 대화 (수만 쌍)</td>
+  </tr>
+  <tr>
+    <td><strong>목적</strong></td>
+    <td>언어 구조 학습</td>
+    <td>지시 따르기 (Instruction Following)</td>
+  </tr>
+  <tr>
+    <td><strong>비용</strong></td>
+    <td>매우 높음 ($M ~ $B)</td>
+    <td>상대적으로 낮음 ($K ~ $M)</td>
+  </tr>
+  <tr>
+    <td><strong>효과</strong></td>
+    <td>범용 능력 부여</td>
+    <td>행동 방향 설정 (도움·무해함·정직)</td>
+  </tr>
+  <tr>
+    <td><strong>손실 계산 대상</strong></td>
+    <td>모든 위치의 토큰</td>
+    <td>응답(y) 토큰만</td>
+  </tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p><strong>InstructGPT (Ouyang et al., 2022):</strong> GPT-3 → ChatGPT의 핵심 레시피. SFT → RLHF 순서로 학습. SFT 단계에서 인간 작성 고품질 응답 13K쌍 사용. 사전학습 대비 100배 적은 데이터로도 사용자 선호도가 크게 향상됨.</p></div>
+</div>
+
+
+<!-- == 섹션 3: LoRA == -->
+<h2 class="st"><span class="ic">⚡</span>LoRA — 1%만 업데이트해도 충분하다</h2>
+<p>전체 파인튜닝(Full Fine-Tuning)은 700억 파라미터를 모두 업데이트하여 엄청난 GPU 메모리가 필요합니다. LoRA(Low-Rank Adaptation)는 가중치 업데이트 행렬 \(\Delta W\)를 두 개의 작은 행렬 \(B \cdot A\)로 분해하여, 실제로 업데이트할 파라미터를 99% 줄입니다.</p>
+
+<!-- [4] 수식 박스 3 -->
+<div class="fb">
+  <div class="fl">LoRA — 저차원 업데이트 분해 (Hu et al., 2022)</div>
+  \[
+    W' = W_0 + \Delta W = W_0 + BA
+    \quad\text{where}\quad
+    B \in \mathbb{R}^{d \times r},\;
+    A \in \mathbb{R}^{r \times k},\;
+    r \ll \min(d, k)
+  \]
+  <div class="fn">
+    \(W_0 \in \mathbb{R}^{d \times k}\): 사전학습된 원본 가중치 — <strong>고정(freeze), 업데이트 안 함</strong><br/>
+    \(B,\, A\): 실제로 학습할 작은 행렬. \(B\)는 0으로, \(A\)는 가우시안 랜덤으로 초기화 → 초기 \(\Delta W = 0\)<br/>
+    \(r\): 랭크(rank) — 보통 4~64. \(r\)이 작을수록 파라미터 수가 적음<br/>
+    파라미터 수 비교: 원본 \(d \times k\) → LoRA: \(r \times (d + k)\)<br/>
+    예: \(r=8,\; d=k=4096\)이면 원본 16,777,216 → LoRA 65,536 ≈ <strong>99.6% 절감</strong>
+  </div>
+</div>
+
+<!-- [4] 수식 박스 4 -->
+<div class="fb">
+  <div class="fl">LoRA 파라미터 효율 계산 — 절감률 공식</div>
+  \[
+    \text{절감률} = 1 - \frac{r(d + k)}{dk} \approx 1 - \frac{r}{\min(d,k)}
+  \]
+  <div class="fn">
+    \(r = 8,\; d = k = 4096\): 절감률 \(\approx 99.6\%\)<br/>
+    \(r = 64,\; d = k = 4096\): 절감률 \(\approx 96.9\%\) — 랭크를 높여도 여전히 큰 절감<br/>
+    실제 LoRA는 Transformer의 Attention \(Q, K, V, O\) 행렬에 선택적으로 적용<br/>
+    <strong>QLoRA (Dettmers et al., 2023)</strong>: INT4 양자화 + LoRA = 소비자 GPU 단 1장으로도 70B 모델 파인튜닝 가능
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>QLoRA (Dettmers et al., 2023):</strong> 4비트 양자화(INT4) + LoRA를 결합. 단일 RTX 3090 GPU (24GB VRAM)로도 LLaMA 70B 파인튜닝이 가능하게 만든 혁신. 기존 FP16 LoRA 대비 메모리 사용량 약 4배 감소. NeurIPS 2023 Outstanding Paper.</p></div>
+</div>
+
+
+<!-- == 섹션 4: 양자화 == -->
+<h2 class="st"><span class="ic">🗜</span>양자화 — FP32에서 INT4로, 메모리 1/8</h2>
+<p>LLM의 가중치는 보통 FP32(32비트 부동소수점)로 저장됩니다. 양자화(Quantization)는 이를 INT8 또는 INT4로 압축하여 메모리와 연산 비용을 줄입니다. LoRA와 결합하면 소비자 GPU에서도 대형 모델을 다룰 수 있게 됩니다.</p>
+
+<!-- [4] 수식 박스 5 -->
+<div class="fb">
+  <div class="fl">선형 양자화 (Linear Quantization)</div>
+  \[
+    w_{\text{quant}} = \text{round}\!\left(\frac{w - z}{s}\right)
+    \quad\text{역양자화:}\quad
+    \hat{w} = s \cdot w_{\text{quant}} + z
+  \]
+  <div class="fn">
+    \(s\) (scale): 양자화 간격 \(= \dfrac{\max(w) - \min(w)}{2^{\text{bits}} - 1}\) — 실수 범위를 정수 범위로 균일 분할<br/>
+    \(z\) (zero-point): 0이 어떤 정수 값에 매핑되는지 — 비대칭 양자화에서 필요<br/>
+    \(w_{\text{quant}}\): 양자화된 정수 가중치 (INT8이면 −128~127, INT4이면 −8~7)<br/>
+    <strong>INT8:</strong> FP32 대비 4배 압축 / 정확도 손실 미미<br/>
+    <strong>INT4:</strong> FP32 대비 8배 압축 / 정확도 약간 손실 — NF4(Normal Float 4) 방식으로 개선 가능
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>📊 비트폭별 특성 비교</h5>
+    <ul>
+      <li><strong>FP32</strong>: 4 bytes/파라미터, 정밀도 최고</li>
+      <li><strong>FP16/BF16</strong>: 2 bytes/파라미터, 훈련 표준</li>
+      <li><strong>INT8</strong>: 1 byte/파라미터, 추론에 안전</li>
+      <li><strong>INT4</strong>: 0.5 bytes/파라미터, QLoRA 활용</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>🔗 LoRA + 양자화 조합 효과</h5>
+    <ul>
+      <li>사전학습 가중치: INT4 고정 (메모리 8배 절감)</li>
+      <li>LoRA 어댑터: FP16으로 학습 (정밀도 유지)</li>
+      <li>70B 모델 기준: ~140GB → ~35GB로 감소</li>
+      <li>단일 A100 80GB 또는 RTX 3090×2로 가능</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>⚡ LoRA 파라미터 절감률 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">랭크 \(r\)과 행렬 차원 \(d, k\)를 조절하여 LoRA가 얼마나 많은 파라미터를 절감하는지 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">랭크 \(r\)</span>
+    <input type="range" id="lora-r" min="1" max="64" step="1" value="8" oninput="updateLoRA()"/>
+    <input type="number" id="lora-r-v" value="8" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">행 차원 \(d\) (d_model)</span>
+    <input type="range" id="lora-d" min="512" max="8192" step="512" value="4096" oninput="updateLoRA()"/>
+    <input type="number" id="lora-d-v" value="4096" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">열 차원 \(k\)</span>
+    <input type="range" id="lora-k" min="512" max="8192" step="512" value="4096" oninput="updateLoRA()"/>
+    <input type="number" id="lora-k-v" value="4096" readonly/>
+  </div>
+
+  <div class="cres" id="lora-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">LoRA에서 랭크(r)를 낮추면 어떤 일이 일어나는가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 학습 파라미터가 증가하고 표현력이 높아진다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 학습 파라미터가 감소하고 메모리 효율이 높아지지만 표현력도 줄어든다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 사전학습된 가중치 W₀가 업데이트된다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 모델의 사전학습 지식이 사라진다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch12.html'">← Ch.12 딥러닝·LLM 기초</button>
+  <button class="btn btn-p" onclick="location.href='ch12c.html'">Ch.12C RLHF·선호도 학습·DPO →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! LoRA는 랭크를 낮추면 파라미터와 표현력이 모두 감소합니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인하세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── LoRA 파라미터 절감률 계산기 ──
+function updateLoRA() {
+  const r = parseInt(document.getElementById('lora-r').value);
+  const d = parseInt(document.getElementById('lora-d').value);
+  const k = parseInt(document.getElementById('lora-k').value);
+  document.getElementById('lora-r-v').value = r;
+  document.getElementById('lora-d-v').value = d;
+  document.getElementById('lora-k-v').value = k;
+  const fullParams = d * k;
+  const loraParams = r * (d + k);
+  const savings = ((1 - loraParams / fullParams) * 100).toFixed(2);
+  document.getElementById('lora-res').innerHTML =
+    `원본 파라미터: <strong>${fullParams.toLocaleString()}</strong> (${d}×${k})<br/>
+     LoRA 파라미터: <strong>${loraParams.toLocaleString()}</strong> (r×(d+k) = ${r}×${d+k})<br/>
+     절감률: <strong style="color:var(--accent3)">${savings}%</strong><br/>
+     메모리 절감: ${(fullParams * 4 / 1e6).toFixed(1)}MB → ${(loraParams * 4 / 1e6).toFixed(1)}MB (FP32 기준)<br/>
+     <span style="font-size:.78rem;color:var(--muted)">r을 줄이면 파라미터는 줄지만 표현력도 감소. 보통 r=8~16이 좋은 균형점.</span>`;
+}
+updateLoRA();
+</script>
+</body>
+</html>

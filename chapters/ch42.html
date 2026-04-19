@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.42 — 효과크기와 결과 해석 심화 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.42 · 결과 해석 (Phase 3-D — 실전 역량 2주차)</div>
+  <h1>효과크기와<br/>결과 해석 심화</h1>
+  <p>"p &lt; 0.05"는 시작일 뿐입니다. 효과가 얼마나 큰지, 어디서 왜 좋아졌는지, 비용 대비 가치가 있는지 — SCI급 논문의 결과 해석 전략.</p>
+</div>
+
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>시험 점수가 평균보다 1점 높아서 통계적으로 유의미하다 해도, <strong>1점 차이가 입시에서 의미 있는가? 효과크기는 "얼마나 다른가"를 본다.</strong></p>
+  <ul>
+    <li>p &lt; 0.05 but tiny effect: 10만 명 데이터에서 새 약이 혈압을 0.1mmHg 낮춤 → 통계적 유의미, 임상적 무의미</li>
+    <li>큰 효과, p &gt; 0.05: 샘플 5명에서 큰 차이가 보였지만 p = 0.12 → 데이터가 더 필요한 것</li>
+    <li>AI에서: "정확도 0.3% 향상 (p &lt; 0.001)"은 상용 시스템에서 의미 있을 수도, 없을 수도 있다. Effect size + 비용이 함께 보고돼야 한다</li>
+  </ul>
+</div>
+
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1 -->
+<h2 class="st"><span class="ic">📐</span>효과크기 (Effect Size) — 차이의 크기를 측정한다</h2>
+<p>p-value는 "차이가 우연이 아닐 확률"을 말합니다. 그러나 샘플이 매우 많으면 아주 작은 차이도 p &lt; 0.05가 됩니다. 효과크기는 "차이가 실제로 얼마나 큰가"를 측정합니다. SCI 논문에서 두 가지를 함께 보고하는 것이 표준입니다.</p>
+
+<!-- [4] FORMULA BOX -->
+<div class="fb">
+  <div class="fl">Cohen's d — 두 집단 평균 차이의 효과크기</div>
+  \[
+  d = \frac{\bar{X}_1 - \bar{X}_2}{s_{\text{pooled}}}
+  \quad\text{where}\quad
+  s_{\text{pooled}} = \sqrt{\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}}
+  \]
+  <div class="fn">
+    \(\bar{X}_1, \bar{X}_2\): 두 그룹의 평균 (예: 제안 모델 vs 기준 모델의 정확도)<br/>
+    \(s_{\text{pooled}}\): 합동 표준편차 (두 그룹의 분산을 샘플 크기로 가중 평균)<br/>
+    \(d = 0.2\): 작은 효과 / \(d = 0.5\): 중간 / \(d \geq 0.8\): 큰 효과 (Cohen's 기준)<br/>
+    단위 없음: 표준편차 단위로 표준화했으므로 서로 다른 스케일도 비교 가능
+  </div>
+</div>
+
+<h3 class="sub">효과크기 해석 기준</h3>
+<table>
+  <tr><th>Cohen's d</th><th>효과 크기</th><th>해석</th><th>ML 논문 예시</th></tr>
+  <tr><td>0.0 ~ 0.2</td><td><span class="d-badge d-tiny">매우 작음</span></td><td>실질적 의미 재검토</td><td>정확도 0.1~0.5% 향상</td></tr>
+  <tr><td>0.2 ~ 0.5</td><td><span class="d-badge d-small">작음</span></td><td>주목할 만하나 제한적</td><td>정확도 1~2% 향상</td></tr>
+  <tr><td>0.5 ~ 0.8</td><td><span class="d-badge d-med">중간</span></td><td>실질적으로 의미 있음</td><td>정확도 3~5% 향상</td></tr>
+  <tr><td>0.8 이상</td><td><span class="d-badge d-large">큼</span></td><td>강한 실질적 효과</td><td>정확도 10% 이상 향상</td></tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>p-value와 effect size를 모두 보고한다.</strong> "p = 0.03, d = 0.15"는 통계적으로 유의미하지만 효과가 매우 작다는 뜻이다. "p = 0.08, d = 0.72"는 샘플이 부족해서 유의미성은 낮지만 효과는 크다는 뜻이다. 두 정보를 함께 봐야 한다.</p></div>
+</div>
+
+
+<!-- 섹션 2 -->
+<h2 class="st"><span class="ic">📊</span>핵심 성능표 설계 — Results Table 표준 구조</h2>
+<p>논문의 Results 섹션에서 Table 1은 논문의 핵심 주장을 전달합니다. 좋은 성능표는 독자가 10초 안에 "제안 방법이 기준 대비 얼마나 좋은가"를 이해할 수 있어야 합니다.</p>
+
+<h3 class="sub">성능표 설계 원칙</h3>
+<table>
+  <tr><th>원칙</th><th>잘못된 예</th><th>올바른 예</th></tr>
+  <tr><td>Baseline 포함</td><td>제안 방법만 표시</td><td>기준 모델 + SOTA + 제안 방법</td></tr>
+  <tr><td>여러 Metric</td><td>정확도만 보고</td><td>Accuracy + F1 + 추론 시간</td></tr>
+  <tr><td>통계적 표기</td><td>87.3%</td><td><strong>87.3 ± 0.4%</strong></td></tr>
+  <tr><td>강조 표시</td><td>없음</td><td><strong>굵게</strong> = 최고 성능</td></tr>
+  <tr><td>다중 데이터셋</td><td>하나만 보고</td><td>Dataset A / Dataset B 열 분리</td></tr>
+</table>
+
+<div class="fb">
+  <div class="fl">성능 개선율 계산 표준</div>
+  \[
+  \text{상대 개선율} = \frac{\text{제안} - \text{baseline}}{\text{baseline}} \times 100\%
+  \qquad
+  \text{절대 개선} = \text{제안} - \text{baseline}
+  \]
+  <div class="fn">
+    baseline이 90%일 때 제안이 91%: 절대 개선 = 1%, 상대 개선 = 1.1%<br/>
+    baseline이 50%일 때 제안이 55%: 절대 개선 = 5%, 상대 개선 = 10%<br/>
+    논문에서 둘 다 보고하는 것이 좋음 (상대 개선만 쓰면 baseline이 낮을 때 과장 가능)<br/>
+    오류율 중심: (baseline error - 제안 error) / baseline error × 100%
+  </div>
+</div>
+
+
+<!-- 섹션 3 -->
+<h2 class="st"><span class="ic">🔬</span>세부 케이스 분석 — 평균이 가리는 진실</h2>
+<p>전체 평균 정확도가 좋아도, 특정 클래스나 서브그룹에서는 나빠졌을 수 있습니다. SCI급 논문은 평균 외에 세부 분석을 요구합니다. 이 분석이 논문의 Discussion과 Limitation을 풍부하게 만듭니다.</p>
+
+<h3 class="sub">세부 분석 4종류</h3>
+<table>
+  <tr><th>분석 유형</th><th>확인하는 것</th><th>발견 가능한 문제</th></tr>
+  <tr><td>클래스별 분석</td><td>각 라벨에서의 Precision/Recall</td><td>소수 클래스 성능 저하</td></tr>
+  <tr><td>서브그룹 분석</td><td>특정 속성(나이, 도메인 등)별 성능</td><td>편향(bias) 발견</td></tr>
+  <tr><td>오류 유형 분석</td><td>False Positive vs False Negative</td><td>어느 방향 오류가 더 위험한가</td></tr>
+  <tr><td>실패 사례 분석</td><td>틀린 예시 10~20개 직접 확인</td><td>모델의 체계적 약점 발견</td></tr>
+</table>
+
+<div class="fb">
+  <div class="fl">클래스 불균형에서의 F1 비교</div>
+  \[
+  \text{Macro-F1} = \frac{1}{K}\sum_{k=1}^K F1_k
+  \qquad\text{vs}\qquad
+  \text{Weighted-F1} = \sum_{k=1}^K \frac{n_k}{N} F1_k
+  \]
+  <div class="fn">
+    \(K\): 클래스 수, \(n_k\): k번째 클래스의 샘플 수, \(N\): 전체 샘플 수<br/>
+    Macro-F1: 모든 클래스를 동등하게 취급 → 소수 클래스 성능 중시<br/>
+    Weighted-F1: 샘플 수에 비례하여 가중 → 다수 클래스 성능 중시<br/>
+    클래스 불균형이 있으면 두 가지 모두 보고해야 함
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>실패 사례를 논문에 공개하는 것은 강점이다.</strong> "Figure 3: 대표적인 실패 사례"처럼 오답 예시를 보여주면, 리뷰어가 "이 저자는 자기 모델의 한계를 정확히 파악하고 있다"고 판단한다. 실패 사례 분석이 Limitation + 향후 연구로 자연스럽게 이어진다.</p></div>
+</div>
+
+
+<!-- 섹션 4 -->
+<h2 class="st"><span class="ic">⚖</span>비용-성능 트레이드오프</h2>
+<p>SCI급 논문에서 "성능이 1% 올랐다"는 충분하지 않을 수 있습니다. 그 1%를 위해 계산 비용이 10배 늘었다면, 실용적 가치가 있는지 의문입니다. 비용-성능 트레이드오프 분석은 레벨 3 논문의 필수 항목입니다.</p>
+
+<table>
+  <tr><th>비용 항목</th><th>측정 방법</th><th>논문에서의 표기</th></tr>
+  <tr><td>추론 지연 (Latency)</td><td>ms/sample</td><td>"평균 추론 시간: 12ms"</td></tr>
+  <tr><td>계산 복잡도</td><td>FLOP 수</td><td>"GFLOPs: 3.2 vs 1.8 (기준)"</td></tr>
+  <tr><td>메모리 사용량</td><td>GPU 메모리 (GB)</td><td>"학습 메모리: 24GB"</td></tr>
+  <tr><td>파라미터 수</td><td>백만 단위 (M)</td><td>"파라미터: 340M vs 110M (기준)"</td></tr>
+</table>
+
+<div class="fb">
+  <div class="fl">성능-비용 효율 지표</div>
+  \[
+  \text{효율} = \frac{\Delta \text{Performance}}{\Delta \text{Cost}}
+  = \frac{\text{Acc}_{\text{제안}} - \text{Acc}_{\text{baseline}}}{\text{FLOPs}_{\text{제안}} / \text{FLOPs}_{\text{baseline}}}
+  \]
+  <div class="fn">
+    분자: 성능 향상량 (예: +2.3%p)<br/>
+    분모: 비용 증가 비율 (예: 1.5x = 50% 증가)<br/>
+    효율이 높을수록 적은 비용으로 큰 성능 향상<br/>
+    논문 Figure: 성능(y축) vs 계산 비용(x축) 산점도로 시각화하면 직관적
+  </div>
+</div>
+
+
+<!-- 섹션 5 -->
+<h2 class="st"><span class="ic">🌐</span>일반화 가능성 — 내 결과는 어디까지 통하는가</h2>
+<p>연구의 일반화 가능성(generalizability)은 결과의 가장 중요한 측면 중 하나입니다. 내 방법이 특정 데이터셋·언어·도메인에서만 좋은지, 아니면 더 넓은 범위에서도 통하는지 논의해야 합니다.</p>
+
+<table>
+  <tr><th>검증 유형</th><th>방법</th><th>논문에서의 의미</th></tr>
+  <tr><td>다중 데이터셋</td><td>3개 이상 다른 데이터셋에서 실험</td><td>"다양한 도메인에서 일관된 성능"</td></tr>
+  <tr><td>Distribution shift</td><td>학습 분포와 다른 데이터로 테스트</td><td>"OOD 강건성"</td></tr>
+  <tr><td>크기 변화</td><td>더 큰/작은 모델로도 작동하는지</td><td>"Scaling에 강건한 방법"</td></tr>
+  <tr><td>언어/도메인 변환</td><td>영어 모델을 한국어에 적용</td><td>"언어 독립적 방법"</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">ℹ️</div>
+  <div class="cb"><p><strong>일반화 가능성의 한계를 솔직하게 적는 것이 강점이다.</strong> "본 연구는 의료 영상 도메인에서만 검증됐으며, 자연어 도메인으로의 직접 적용은 추가 실험이 필요하다"처럼 범위를 명확히 하면, 리뷰어가 "범위 밖의 결과를 주장한다"고 공격할 수 없다.</p></div>
+</div>
+
+
+<!-- [5] INTERACTIVE — Cohen's d 계산기 + 비용-성능 분석 -->
+<div class="calc">
+  <h4>🔢 Cohen's d 계산기 + 성능-비용 효율 분석</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">두 모델의 실험 결과를 입력해 효과크기와 성능-비용 효율을 계산하세요.</p>
+
+  <div class="cr">
+    <span class="cl">제안 방법 평균 (%)</span>
+    <input type="range" id="mean1" min="50" max="100" step="0.1" value="87.3" oninput="updateEffectSize()"/>
+    <input type="number" id="mean1-v" value="87.3" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">기준 모델 평균 (%)</span>
+    <input type="range" id="mean2" min="50" max="100" step="0.1" value="85.0" oninput="updateEffectSize()"/>
+    <input type="number" id="mean2-v" value="85.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">제안 표준편차</span>
+    <input type="range" id="std1" min="0.1" max="5" step="0.1" value="0.4" oninput="updateEffectSize()"/>
+    <input type="number" id="std1-v" value="0.4" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">기준 표준편차</span>
+    <input type="range" id="std2" min="0.1" max="5" step="0.1" value="0.6" oninput="updateEffectSize()"/>
+    <input type="number" id="std2-v" value="0.6" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">실험 반복 수 (seed 수)</span>
+    <input type="range" id="n1" min="1" max="20" step="1" value="5" oninput="updateEffectSize()"/>
+    <input type="number" id="n1-v" value="5" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">비용 비율 (제안/기준 FLOPs)</span>
+    <input type="range" id="flop_ratio" min="0.5" max="5" step="0.1" value="1.5" oninput="updateEffectSize()"/>
+    <input type="number" id="flop_ratio-v" value="1.5" readonly/>
+  </div>
+
+  <div class="cres" id="effect-res">슬라이더를 조절해 효과크기를 계산하세요.</div>
+</div>
+
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">두 모델을 비교한 논문에서 "p = 0.001, Cohen's d = 0.18"이라면 어떻게 해석해야 하는가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; p &lt; 0.05이므로 완전히 유의미한 결과다</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; Cohen's d &lt; 0.2이므로 이 실험은 실패다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; p-value와 Cohen's d는 같은 정보를 다르게 표현한 것이다</div>
+  <div class="qo" onclick="ans(this, true)">(d) &nbsp; 통계적으로 유의미하지만 효과 크기가 매우 작아 실질적 의미가 제한적이다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch41.html'">← Ch.41 구현·재현성 엔지니어링</button>
+  <button class="btn btn-p" disabled>커리큘럼 완성 🎓</button>
+</div>
+
+
+<script>
+// ── 퀴즈 공통 함수 ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! p와 d는 서로 다른 정보 — p는 "우연인가", d는 "얼마나 큰가"를 말합니다.'
+    : '❌ 틀렸습니다. p-value와 Cohen\'s d는 서로 다른 정보입니다. 둘 다 봐야 합니다.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Cohen's d 계산기 ──
+function updateEffectSize() {
+  const m1 = parseFloat(document.getElementById('mean1').value);
+  const m2 = parseFloat(document.getElementById('mean2').value);
+  const s1 = parseFloat(document.getElementById('std1').value);
+  const s2 = parseFloat(document.getElementById('std2').value);
+  const n  = parseInt(document.getElementById('n1').value);
+  const fr = parseFloat(document.getElementById('flop_ratio').value);
+
+  document.getElementById('mean1-v').value = m1.toFixed(1);
+  document.getElementById('mean2-v').value = m2.toFixed(1);
+  document.getElementById('std1-v').value  = s1.toFixed(1);
+  document.getElementById('std2-v').value  = s2.toFixed(1);
+  document.getElementById('n1-v').value    = n;
+  document.getElementById('flop_ratio-v').value = fr.toFixed(1);
+
+  // Cohen's d (합동 표준편차)
+  const s_pooled = Math.sqrt(((n-1)*s1*s1 + (n-1)*s2*s2) / (2*n - 2));
+  const d = Math.abs(m1 - m2) / s_pooled;
+
+  const dLevel = d < 0.2 ? '매우 작음 🔴' :
+                 d < 0.5 ? '작음 🟡' :
+                 d < 0.8 ? '중간 🟢' : '큼 🏆';
+
+  // 개선율
+  const absImprove = (m1 - m2).toFixed(2);
+  const relImprove = m2 > 0 ? ((m1 - m2) / m2 * 100).toFixed(2) : '—';
+
+  // 비용-성능 효율
+  const efficiency = fr > 0 ? (Math.abs(m1 - m2) / fr).toFixed(3) : '—';
+
+  // 간단 t-통계량 근사 (같은 n 가정)
+  const se = s_pooled * Math.sqrt(2 / n);
+  const t  = Math.abs(m1 - m2) / se;
+  const df = 2 * n - 2;
+  const sigThresh = df > 30 ? 1.96 : df > 10 ? 2.10 : 2.57;
+  const pLabel = t > sigThresh ? 'p &lt; 0.05 ✅' : 'p ≥ 0.05 (데이터 추가 필요)';
+
+  const res = document.getElementById('effect-res');
+  res.style.color = d >= 0.5 ? 'var(--accent3)' : d >= 0.2 ? 'var(--accent4)' : 'var(--accent5)';
+  res.innerHTML =
+    `<strong>Cohen's d = ${d.toFixed(3)}</strong> &nbsp; 효과 크기: ${dLevel}<br/>
+     유의성 근사: ${pLabel} &nbsp; (t = ${t.toFixed(2)}, df = ${df})<br/>
+     절대 개선: ${parseFloat(absImprove) >= 0 ? '+' : ''}${absImprove}%p &nbsp;|&nbsp; 상대 개선: ${relImprove >= 0 ? '+' : ''}${relImprove}%<br/>
+     비용 증가: ${fr}× &nbsp;|&nbsp; 성능-비용 효율: ${efficiency} (%p / FLOPs 배수)<br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       d와 p-value를 모두 봐야 합니다. d가 작으면 통계적 유의미해도 실질 효과가 없을 수 있습니다.<br/>
+       효율이 낮으면 성능 향상 대비 계산 비용이 과도한 것입니다.
+     </span>`;
+}
+updateEffectSize();
+</script>
+</body>
+</html>

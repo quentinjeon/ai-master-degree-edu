@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.12E — RAG 검색 증강 생성 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.12E · RAG (Unit 3 고도화) ★</div>
+  <h1>RAG — 검색 증강 생성</h1>
+  <p>LLM이 모르는 것을 찾아서 답하게 하는 법 — Retrieval-Augmented Generation의 수학과 아키텍처. 논문·기업 AI 시스템의 90%가 사용하는 핵심 기술.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"오픈북 시험과 클로즈북 시험의 차이다. LLM이 혼자 기억에 의존하면 클로즈북(오래된 정보, 환각 가능). RAG는 시험장에 교재를 가져와서 답을 찾아 쓰는 오픈북 시험이다."</strong></p>
+  <ul>
+    <li><strong>클로즈북 LLM:</strong> "2026년 최신 논문에 대해 알려줘" → 학습 데이터에 없어서 환각(hallucination)</li>
+    <li><strong>RAG:</strong> 질문 → 벡터 DB 검색 → 관련 논문 조각 가져오기 → LLM이 보며 답변</li>
+    <li><strong>기업 활용:</strong> 사내 문서 RAG, 법률 문서 RAG, 의료 기록 RAG</li>
+    <li><strong>AI에서:</strong> ChatGPT 웹 검색, Perplexity AI, NotebookLM 모두 RAG 방식</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: RAG 기본 파이프라인 == -->
+<h2 class="st"><span class="ic">🔍</span>RAG 기본 파이프라인 — 검색 + 생성</h2>
+<p>RAG는 LLM의 두 가지 핵심 문제를 해결합니다: ①학습 데이터 이후 정보는 모름(지식 최신성), ②틀린 정보를 확신하며 생성(환각). 외부 문서를 검색해서 컨텍스트로 제공하면 두 문제가 크게 완화됩니다.</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><strong>문서 전처리 (오프라인)</strong> — 문서를 청크(chunk)로 나눔 → 임베딩 모델로 벡터 변환 → 벡터 DB(FAISS, Pinecone 등)에 저장</div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><strong>검색 (실시간)</strong> — 사용자 질문을 동일한 임베딩 모델로 벡터 변환 → 벡터 DB에서 Top-k 유사 청크 검색</div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><strong>생성 (실시간)</strong> — 검색된 청크 + 사용자 질문을 프롬프트로 결합 → LLM이 참고하여 최종 답변 생성</div>
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">RAG 생성 확률 (Lewis et al., 2020)</div>
+  \[P(y \mid x) = \sum_{z \in \text{top-}k(p_\eta(\cdot|x))} p_\eta(z \mid x) \cdot p_\theta(y \mid x, z)\]
+  <div class="fn">
+    \(x\): 입력 질문<br/>
+    \(z\): 검색된 문서 조각(passage)<br/>
+    \(p_\eta(z \mid x)\): 검색 모델이 질문 \(x\)에 대해 문서 \(z\)를 선택할 확률<br/>
+    \(p_\theta(y \mid x, z)\): LLM이 질문 \(x\)와 문서 \(z\)를 보고 답 \(y\)를 생성할 확률<br/>
+    전체 확률: top-k 문서들에 대한 가중 합산 — 여러 근거 문서를 종합하여 답변 생성
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p><strong>원본 논문:</strong> Lewis et al. (2020) "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks" (NeurIPS 2020) — RAG라는 용어를 처음 정립한 논문. Facebook AI Research에서 발표, 현재 인용 수 수천 회를 넘는 핵심 레퍼런스.</p></div>
+</div>
+
+
+<!-- == 섹션 2: Dense Retrieval == -->
+<h2 class="st"><span class="ic">🧲</span>Dense Retrieval — 벡터 유사도로 의미 검색</h2>
+<p>전통적 키워드 검색(BM25)은 "단어가 겹치는지"만 봅니다. Dense Retrieval(DPR)은 임베딩 모델로 질문과 문서를 같은 벡터 공간에 표현하여 의미적 유사도로 검색합니다. "자동차"와 "차량"처럼 표현이 달라도 의미가 같으면 검색됩니다.</p>
+
+<div class="fb">
+  <div class="fl">DPR 유사도 점수 (Karpukhin et al., 2020)</div>
+  \[s(q, p) = E_Q(q)^\top E_P(p) \quad\text{검색:}\quad \hat{p} = \arg\max_{p \in \mathcal{C}} E_Q(q)^\top E_P(p)\]
+  <div class="fn">
+    \(E_Q\): 질문 인코더(예: BERT 기반), \(E_P\): 문서 인코더<br/>
+    코사인 유사도 대신 내적(dot product) 사용 → 정규화된 임베딩에서는 동일<br/>
+    \(\mathcal{C}\): 전체 문서 코퍼스 (수백만~수억 개 문서)<br/>
+    MIPS(Maximum Inner Product Search): FAISS로 근사 검색 → \(O(\log n)\) 복잡도<br/>
+    두 인코더를 분리하여 문서 임베딩을 미리 계산·저장 → 실시간 검색 시 질문만 인코딩
+  </div>
+</div>
+
+<h3 class="sub">BM25 vs Dense Retrieval 비교</h3>
+<table>
+  <tr>
+    <th>항목</th>
+    <th>BM25 (희소 검색)</th>
+    <th>Dense Retrieval (밀집 검색)</th>
+  </tr>
+  <tr>
+    <td><strong>원리</strong></td>
+    <td>키워드 매칭, TF-IDF</td>
+    <td>임베딩 벡터 유사도</td>
+  </tr>
+  <tr>
+    <td><strong>동의어 처리</strong></td>
+    <td>❌ "자동차"≠"차"</td>
+    <td>✅ 의미적 유사도 포착</td>
+  </tr>
+  <tr>
+    <td><strong>학습 필요</strong></td>
+    <td>❌ (통계 기반)</td>
+    <td>✅ (임베딩 모델 학습)</td>
+  </tr>
+  <tr>
+    <td><strong>속도</strong></td>
+    <td>매우 빠름 (역색인)</td>
+    <td>근사 검색 필요 (FAISS)</td>
+  </tr>
+  <tr>
+    <td><strong>현재 추세</strong></td>
+    <td>Hybrid(BM25+Dense)에서 병행</td>
+    <td>Dense가 대세, 단독 또는 Hybrid</td>
+  </tr>
+</table>
+
+
+<!-- == 섹션 3: Advanced RAG == -->
+<h2 class="st"><span class="ic">🏗</span>Advanced RAG 기법 — 검색 품질 향상</h2>
+<p>Naive RAG는 "그냥 Top-k 검색 후 붙여넣기"입니다. 실제 시스템에서는 검색 전·중·후를 모두 개선하는 Advanced RAG 기법이 필요합니다. 특히 전문 도메인(의학, 법률, 금융)에서 검색 품질이 답변 품질의 병목이 됩니다.</p>
+
+<div class="cc">
+  <div class="ct">🔑 Advanced RAG 핵심 기법</div>
+  <ul style="padding-left:18px;margin-top:9px;">
+    <li style="margin-bottom:6px;"><strong>Query Rewriting:</strong> 사용자 질문을 검색에 최적화된 형태로 변환 (검색 전)</li>
+    <li style="margin-bottom:6px;"><strong>HyDE (Hypothetical Document Embeddings):</strong> 가상 답변 문서를 먼저 생성 → 그 임베딩으로 검색 (검색 전)</li>
+    <li style="margin-bottom:6px;"><strong>Reranking:</strong> Cross-Encoder로 Top-k 결과를 재순위화 → 더 관련성 높은 문서 선택 (검색 후)</li>
+    <li style="margin-bottom:6px;"><strong>Chunk Size Tuning:</strong> 청크 크기·오버랩 최적화 → 문맥 유지와 정밀도 균형</li>
+    <li><strong>Hybrid Search:</strong> BM25 + Dense + RRF(Reciprocal Rank Fusion)로 통합 → 두 방법의 장점 결합</li>
+  </ul>
+</div>
+
+<div class="fb">
+  <div class="fl">HyDE — 가상 문서 임베딩 (Gao et al., 2022)</div>
+  \[\hat{p} = \arg\max_{p \in \mathcal{C}} E_P(p)^\top E_P(\hat{d}) \quad\text{where}\quad \hat{d} \sim \text{LLM}(x)\]
+  <div class="fn">
+    \(x\): 사용자 질문, \(\hat{d}\): LLM이 생성한 가상 답변 문서<br/>
+    질문 \(x\) 대신 가상 답변 \(\hat{d}\)의 임베딩으로 검색 수행<br/>
+    가상 답변은 틀려도 됨 — 검색 공간에서 올바른 문서와 더 가까운 위치에 있으면 충분<br/>
+    전문 도메인(의학, 법률)에서 특히 효과적: 질문보다 가상 답변이 문서 스타일과 유사<br/>
+    단점: LLM 호출이 검색 전에 추가되므로 지연 시간 증가
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">Reciprocal Rank Fusion (RRF) — Hybrid 검색 점수 통합</div>
+  \[\text{RRF}(d) = \sum_{r \in R} \frac{1}{k + \text{rank}_r(d)} \quad (k = 60 \text{ 권장})\]
+  <div class="fn">
+    \(R\): 여러 검색 방법의 집합(BM25, Dense 등)<br/>
+    \(\text{rank}_r(d)\): 방법 \(r\)에서 문서 \(d\)의 순위 (1위 = 1)<br/>
+    \(k = 60\): 상위 순위의 영향을 완화하는 상수 (경험적 최적값)<br/>
+    점수 스케일이 달라도 순위만 사용하므로 자연스럽게 통합 가능<br/>
+    구현 단순성 대비 효과 우수 — 대부분의 프로덕션 시스템에서 기본 선택
+  </div>
+</div>
+
+
+<!-- == 섹션 4: RAG 평가 — RAGAS == -->
+<h2 class="st"><span class="ic">📊</span>RAGAS — RAG 시스템을 어떻게 평가하는가</h2>
+<p>RAG 시스템은 일반 LLM 평가와 다릅니다. 검색 품질과 생성 품질을 따로 평가해야 합니다. RAGAS(RAG Assessment)는 사람의 레이블 없이 LLM 자체를 평가자로 활용하는 자동 평가 프레임워크입니다.</p>
+
+<table>
+  <tr>
+    <th>메트릭</th>
+    <th>평가 대상</th>
+    <th>측정 내용</th>
+  </tr>
+  <tr>
+    <td><strong>Faithfulness</strong></td>
+    <td>생성 품질</td>
+    <td>답변이 검색된 문서에 근거하는가 (환각 탐지)</td>
+  </tr>
+  <tr>
+    <td><strong>Answer Relevancy</strong></td>
+    <td>생성 품질</td>
+    <td>답변이 질문에 관련성 있는가</td>
+  </tr>
+  <tr>
+    <td><strong>Context Precision</strong></td>
+    <td>검색 품질</td>
+    <td>검색된 문서 중 실제 도움이 된 비율</td>
+  </tr>
+  <tr>
+    <td><strong>Context Recall</strong></td>
+    <td>검색 품질</td>
+    <td>필요한 정보가 검색에 포함되었는가</td>
+  </tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>환각(Hallucination)의 두 유형:</strong> ①<strong>Intrinsic:</strong> 검색된 문서와 모순되는 내용 생성, ②<strong>Extrinsic:</strong> 검색 문서에 없는 내용을 지어냄. RAG는 특히 Intrinsic 환각을 Faithfulness 메트릭으로 감지합니다. Top-k 결과가 충분히 관련성 있더라도 LLM이 이를 무시하고 사전 지식을 사용하면 Faithfulness가 낮아집니다.</p></div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>📌 검색 품질 개선 방향</h5>
+    <ul>
+      <li>Context Precision 낮음 → Reranker 추가</li>
+      <li>Context Recall 낮음 → Top-k 증가, Chunk 크기 조정</li>
+      <li>두 메트릭 모두 낮음 → 임베딩 모델 교체</li>
+      <li>Hybrid Search로 희소·밀집 검색 결합</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>📌 생성 품질 개선 방향</h5>
+    <ul>
+      <li>Faithfulness 낮음 → 프롬프트 강화 ("문서만 참조")</li>
+      <li>Answer Relevancy 낮음 → Query Rewriting 적용</li>
+      <li>두 메트릭 모두 낮음 → LLM 모델 교체 or 파인튜닝</li>
+      <li>Citation 추가로 근거 투명성 확보</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔍 RAG 청크 크기·Top-k 최적화 탐색기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">청크 크기, 검색 수(Top-k), 오버랩 비율을 조절하여 RAG 시스템의 품질과 비용 트레이드오프를 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">청크 크기 (토큰)</span>
+    <input type="range" id="rag-chunk" min="64" max="1024" step="64" value="256" oninput="updateRAG()"/>
+    <input type="number" id="rag-chunk-v" value="256" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">Top-k (검색 수)</span>
+    <input type="range" id="rag-topk" min="1" max="20" step="1" value="5" oninput="updateRAG()"/>
+    <input type="number" id="rag-topk-v" value="5" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">오버랩 (%)</span>
+    <input type="range" id="rag-overlap" min="0" max="50" step="5" value="20" oninput="updateRAG()"/>
+    <input type="number" id="rag-overlap-v" value="20" readonly/>
+  </div>
+
+  <div class="cres" id="rag-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">RAG에서 Faithfulness(충실도)가 낮다는 것은 무엇을 의미하는가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 검색된 문서가 질문과 관련이 없다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; LLM의 답변이 검색된 문서의 내용과 일치하지 않는 부분이 있다 (환각)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 필요한 정보가 검색에 포함되지 않았다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; Top-k 수가 너무 적다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch12d.html'">← Ch.12D LLM 추론 심화·CoT</button>
+  <button class="btn btn-p" onclick="location.href='ch12f.html'">Ch.12F LLM 평가 방법론 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! Faithfulness는 답변이 검색 문서에 충실한지 — 즉 환각 여부를 측정합니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인하세요.';
+}
+
+// ── 체크박스 저장 ──
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── RAG 탐색기 ──
+function updateRAG() {
+  const chunk = parseInt(document.getElementById('rag-chunk').value);
+  const topk = parseInt(document.getElementById('rag-topk').value);
+  const overlap = parseInt(document.getElementById('rag-overlap').value);
+  document.getElementById('rag-chunk-v').value = chunk;
+  document.getElementById('rag-topk-v').value = topk;
+  document.getElementById('rag-overlap-v').value = overlap;
+
+  const contextTokens = chunk * topk;
+  const overlapTokens = Math.round(chunk * overlap / 100);
+  const effectiveChunk = chunk - overlapTokens;
+  const retrievalQuality = Math.min(1.0, 0.3 + topk * 0.07 + (chunk > 128 ? 0.1 : 0));
+  const noiseRisk = Math.min(1.0, topk * 0.05 + (chunk > 512 ? 0.3 : 0));
+  const contextWindow = contextTokens > 8192 ? '⚠️ 긴 컨텍스트 (LLM 부담)' : '✅ 적정';
+
+  document.getElementById('rag-res').innerHTML =
+    `LLM 컨텍스트 토큰: <strong>${contextTokens.toLocaleString()}</strong> ${contextWindow}<br/>
+     유효 청크 크기: ${effectiveChunk} 토큰 (오버랩 ${overlapTokens} 토큰 제외)<br/>
+     검색 품질 추정: ${'█'.repeat(Math.round(retrievalQuality * 10))}${'░'.repeat(10 - Math.round(retrievalQuality * 10))} ${(retrievalQuality * 100).toFixed(0)}%<br/>
+     노이즈 위험도: ${'█'.repeat(Math.round(noiseRisk * 10))}${'░'.repeat(10 - Math.round(noiseRisk * 10))} ${(noiseRisk * 100).toFixed(0)}%<br/>
+     <span style="font-size:.78rem;color:var(--muted)">권장: 청크 128~512 토큰, 오버랩 10~20%, Top-k 3~7.</span>`;
+}
+updateRAG();
+</script>
+</body>
+</html>

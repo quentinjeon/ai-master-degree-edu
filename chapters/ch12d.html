@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.12D — LLM 추론 심화 CoT·GRPO | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- ══ [1] HERO ══ -->
+<div class="hero">
+  <div class="badge">Ch.12D · LLM 추론 (Unit 3 고도화)</div>
+  <h1>LLM 추론 심화 — CoT·Self-Consistency·GRPO</h1>
+  <p>"생각하고 나서 답하는" AI — CoT가 LLM의 수학 실력을 2배로 높이는 원리, 그리고 DeepSeek-R1을 만든 GRPO.</p>
+</div>
+
+<!-- ══ [2] EASY BOX ══ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"수학 시험에서 답만 적는 학생보다 풀이 과정을 쓰는 학생이 더 정확하다. CoT는 LLM에게 '답 전에 풀이 과정부터 쓰게' 하는 방법이다."</strong></p>
+  <ul>
+    <li>직접 답변: "17×24 = ?" → 중간 단계 없이 바로 답하면 오류 가능성이 높다</li>
+    <li>CoT 적용: "17×24 = 17×20 + 17×4 = 340 + 68 = 408" → 단계별 검증으로 정확도 상승</li>
+    <li>Self-Consistency: 같은 문제를 10번 풀어 가장 많이 나온 답을 선택 (다수결)</li>
+    <li>AI에서: GPT-o1, o3, DeepSeek-R1 등 추론 모델이 CoT + GRPO 조합으로 탄생했다</li>
+  </ul>
+</div>
+
+<!-- ══ [3] MAIN CONTENT — 섹션 1: CoT ══ -->
+<h2 class="st"><span class="ic">🧠</span> Chain of Thought — 단계별로 생각하면 더 잘 맞춘다</h2>
+
+<p>CoT(Wei et al., 2022)는 LLM이 최종 답변 전에 중간 추론 단계를 생성하도록 유도합니다. "단계별로 생각해보자"(Let's think step by step)라는 문구 하나로 수학·논리 문제 정확도를 크게 높입니다.</p>
+
+<!-- ══ [4] FORMULA BOX 1 — CoT 생성 확률 ══ -->
+<div class="fb">
+  <div class="fl">CoT 생성 확률</div>
+  \[P(a \mid x) = \sum_{r} P(a \mid x, r) \cdot P(r \mid x)\]
+  <div class="fn">
+    \(x\): 입력 질문 &nbsp;|&nbsp; \(r\): 추론 체인(reasoning chain) &nbsp;|&nbsp; \(a\): 최종 답<br/>
+    직접 생성: \(P(a \mid x)\) — 중간 단계 없이 바로 답을 예측<br/>
+    CoT: \(r\)을 먼저 생성하고, 그 맥락에서 \(a\)를 예측 → 더 정확한 조건부 확률<br/>
+    마치 조건부 확률의 주변화처럼 더 많은 정보를 활용하여 답을 도출
+  </div>
+</div>
+
+<h3 class="sub">CoT 변형 기법</h3>
+<table>
+  <thead>
+    <tr><th>기법</th><th>방법</th><th>장점</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Zero-shot CoT</td><td>"Let's think step by step" 추가</td><td>예시 불필요</td></tr>
+    <tr><td>Few-shot CoT</td><td>풀이 과정 포함 예시 3~5개 제공</td><td>더 높은 정확도</td></tr>
+    <tr><td>Self-Consistency</td><td>다수결 투표</td><td>신뢰도 향상</td></tr>
+    <tr><td>ToT (Tree of Thoughts)</td><td>여러 추론 경로 탐색</td><td>복잡한 계획 문제</td></tr>
+  </tbody>
+</table>
+
+<!-- ══ 섹션 2: Self-Consistency ══ -->
+<h2 class="st"><span class="ic">🗳</span> Self-Consistency — 다수결로 더 정확하게</h2>
+
+<p>Self-Consistency(Wang et al., 2022)는 동일한 프롬프트를 여러 번 샘플링하여 가장 자주 나온 답을 선택합니다. 단일 추론 경로에 의존하는 greedy decoding의 한계를 극복합니다.</p>
+
+<!-- ══ [4] FORMULA BOX 2 — Self-Consistency 다수결 ══ -->
+<div class="fb">
+  <div class="fl">Self-Consistency 다수결</div>
+  \[\hat{a} = \arg\max_{a} \sum_{i=1}^{N} \mathbf{1}\!\left[a_i = a\right] \quad \text{where each } a_i \sim P(\cdot \mid x, r_i),\; r_i \sim P(\cdot \mid x)\]
+  <div class="fn">
+    \(N\)번 샘플링하여 가장 많이 등장한 답 \(\hat{a}\)를 최종 선택<br/>
+    \(N\)이 클수록 정확도 향상 (보통 \(N=40\)이면 수렴)<br/>
+    단점: 추론 비용 \(N\)배 증가 (비용-정확도 트레이드오프)<br/>
+    고성능이 필요할 때만 사용 — 실시간 응답보다는 정확도 우선 시스템에 적합
+  </div>
+</div>
+
+<!-- ══ 섹션 3: GRPO ══ -->
+<h2 class="st"><span class="ic">🚀</span> GRPO — DeepSeek-R1의 핵심 알고리즘</h2>
+
+<p>GRPO(Group Relative Policy Optimization, Shao et al., 2024)는 DeepSeek-R1을 만든 핵심 알고리즘입니다. 같은 질문에 대해 여러 응답을 생성하고, 그룹 내 상대적 보상을 사용하여 PPO의 가치 함수(Value Network) 없이 학습합니다.</p>
+
+<!-- ══ [4] FORMULA BOX 3 — GRPO 목적함수 ══ -->
+<div class="fb">
+  <div class="fl">GRPO 목적함수 (Shao et al., 2024)</div>
+  \[J_{\text{GRPO}}(\theta) = \mathbb{E}_{q \sim \mathcal{D},\, \{o_i\}_{i=1}^G \sim \pi_{\theta_{\text{old}}}}\!\left[\frac{1}{G}\sum_{i=1}^G \min\!\left(\rho_i A_i,\; \text{clip}(\rho_i, 1\pm\epsilon)A_i\right) - \beta D_{\text{KL}}\right]\]
+  <div class="fn">
+    \(q\): 질문 &nbsp;|&nbsp; \(G\): 그룹 크기(한 번에 생성하는 응답 수, 보통 8~16)<br/>
+    \(o_i\): \(i\)번째 응답 &nbsp;|&nbsp; \(\rho_i = \pi_\theta(o_i \mid q) / \pi_{\theta_\text{old}}(o_i \mid q)\): 중요도 비율<br/>
+    \(A_i\): 어드밴티지 — 그룹 내 상대적 보상으로 계산<br/>
+    \(\text{clip}(\cdot, 1\pm\epsilon)\): PPO 클리핑 — 너무 큰 업데이트 방지 &nbsp;|&nbsp; \(\beta D_\text{KL}\): KL 정규화 항
+  </div>
+</div>
+
+<!-- ══ [4] FORMULA BOX 4 — GRPO 어드밴티지 계산 ══ -->
+<div class="fb">
+  <div class="fl">GRPO 어드밴티지 계산</div>
+  \[A_i = \frac{r_i - \text{mean}(\{r_j\}_{j=1}^G)}{\text{std}(\{r_j\}_{j=1}^G)}\]
+  <div class="fn">
+    \(r_i\): \(i\)번째 응답의 보상 (정답이면 +1, 오답이면 0 또는 −1)<br/>
+    그룹 내 평균을 빼고 표준편차로 나눔 → 상대적 우열만 신호로 사용<br/>
+    가치 함수(Critic Network) 학습이 불필요 → PPO보다 단순하고 안정적<br/>
+    DeepSeek-R1의 수학 추론 능력이 이 방법으로 크게 향상됨
+  </div>
+</div>
+
+<div class="callout info">
+  <strong>📌 DeepSeek-R1과 GRPO</strong>
+  DeepSeek-R1(2025)은 GRPO를 사용하여 수학·코딩 문제에서 OpenAI o1에 근접하는 성능을 달성했습니다. 핵심은 "생각 과정(Thinking)"을 출력하도록 훈련 + 결과 기반 보상(정답=1, 오답=0)만 사용하는 단순한 GRPO. 별도의 Critic Network 없이 그룹 내 비교만으로 강화학습을 안정적으로 수행합니다.
+</div>
+
+<!-- ══ 섹션 4: MoE ══ -->
+<h2 class="st"><span class="ic">🔀</span> MoE — 파라미터는 많지만 쓰는 건 일부만</h2>
+
+<p>MoE(Mixture of Experts)는 LLM의 FFN 레이어를 여러 "전문가" 네트워크로 교체하고, 각 토큰마다 일부 전문가만 활성화하는 구조입니다. 전체 파라미터는 매우 크지만, 추론 시 실제 연산량은 활성화된 전문가 수에만 비례합니다.</p>
+
+<!-- ══ [4] FORMULA BOX 5 — MoE 라우팅 ══ -->
+<div class="fb">
+  <div class="fl">MoE 라우팅</div>
+  \[\text{MoE}(x) = \sum_{i \in \text{top-}k} g_i(x) \cdot E_i(x) \quad\text{where}\quad g(x) = \text{softmax}(W_g x)\]
+  <div class="fn">
+    \(E_i(x)\): \(i\)번째 전문가 네트워크의 출력<br/>
+    \(g_i(x)\): \(i\)번째 전문가의 게이팅 가중치 (상위 \(k\)개만 활성화)<br/>
+    Mistral-8×7B: 8개 전문가 중 2개 활성화 → 실제 연산량 = 13B 파라미터 수준, 용량 = 47B<br/>
+    GPT-4는 추정상 16개 전문가 × 111B 파라미터 MoE 구조
+  </div>
+</div>
+
+<!-- ══ [5] INTERACTIVE — Self-Consistency 다수결 시뮬레이터 ══ -->
+<div class="calc">
+  <h4>🗳 Self-Consistency — N번 샘플링의 효과</h4>
+
+  <div class="cr">
+    <span class="cl">샘플링 횟수 \(N\)</span>
+    <input type="range" id="sc-n" min="1" max="40" step="1" value="10" oninput="updateSC()"/>
+    <input type="number" id="sc-n-v" value="10" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">정답 확률 (단일 시도)</span>
+    <input type="range" id="sc-p" min="0.1" max="0.9" step="0.05" value="0.5" oninput="updateSC()"/>
+    <input type="number" id="sc-p-v" value="0.50" readonly/>
+  </div>
+
+  <div class="cres" id="sc-res">계산 중...</div>
+</div>
+
+<!-- ══ [6] QUIZ ══ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">GRPO가 PPO에 비해 갖는 핵심 장점은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 인간 피드백 없이도 작동한다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 가치 함수(Critic Network) 없이 그룹 내 상대 보상으로 학습하여 더 단순하다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 보상 모델을 사용하지 않는다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 무조건 성능이 더 높다</div>
+  <div class="qfb"></div>
+</div>
+
+<!-- ══ [7] NAV BUTTONS ══ -->
+<div class="nb">
+  <a href="ch12c.html" class="btn btn-s">← Ch.12C RLHF·선호도 학습·DPO</a>
+  <a href="ch12e.html" class="btn btn-p">Ch.12E RAG: 검색 증강 생성 →</a>
+</div>
+
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! GRPO는 Critic Network 없이 그룹 내 상대 보상으로 학습합니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인하세요.';
+}
+
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+function combinations(n, k) {
+  if (k === 0 || k === n) return 1;
+  if (k > n - k) k = n - k;
+  let result = 1;
+  for (let i = 0; i < k; i++) { result *= (n - i); result /= (i + 1); }
+  return result;
+}
+
+function updateSC() {
+  const N = parseInt(document.getElementById('sc-n').value);
+  const p = parseFloat(document.getElementById('sc-p').value);
+  document.getElementById('sc-n-v').value = N;
+  document.getElementById('sc-p-v').value = p.toFixed(2);
+
+  let majority = 0;
+  for (let k = Math.ceil(N / 2); k <= N; k++) {
+    const binom = combinations(N, k);
+    majority += binom * Math.pow(p, k) * Math.pow(1 - p, N - k);
+  }
+
+  document.getElementById('sc-res').innerHTML =
+    `단일 시도 정답 확률: <strong>${(p * 100).toFixed(0)}%</strong><br/>
+     N=${N}번 다수결 정답 확률: <strong style="color:var(--accent3)">${(majority * 100).toFixed(1)}%</strong><br/>
+     향상: +${((majority - p) * 100).toFixed(1)}%p<br/>
+     추론 비용: ${N}배<br/>
+     <span style="font-size:.78rem;color:var(--muted)">p=0.5이면 단순 다수결이지만, p&gt;0.5이면 N↑로 급격히 향상됩니다.</span>`;
+}
+
+updateSC();
+</script>
+</body>
+</html>

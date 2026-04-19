@@ -63,6 +63,91 @@
 
 ---
 
+## 📋 100단계 갭 분석 — 신규 챕터 명세 (2026-04-19)
+
+> 100단계 연구 로드맵 갭 분석 결과 추가된 챕터  
+> 명세 파일: `docs/chapters/week14c.md`, `week41.md`, `week42.md`
+
+| 락 | 챕터 | 출력 파일 | 상태 | 담당 에이전트 | 완료일 | QA |
+|:--:|------|---------|:----:|------------|:------:|:--:|
+| 🔓 | Ch.14C 학문적 사고력 — 연구자의 논리 훈련 | `chapters/ch14c.html` | 🏆 QA_PASS | Main-Agent | 2026-04-19 | ✅ |
+| 🔓 | Ch.41 구현·재현성 엔지니어링 | `chapters/ch41.html` | 🏆 QA_PASS | Main-Agent | 2026-04-19 | ✅ |
+| 🔓 | Ch.42 효과크기와 결과 해석 심화 | `chapters/ch42.html` | 🏆 QA_PASS | Main-Agent | 2026-04-19 | ✅ |
+
+> **갭 해결**:
+> - Ch.14C → 100단계 섹션 3 (학문적 사고력) 전체. Level 1→2 브릿지. 기존 커리큘럼에서 유일하게 없던 독립 영역.
+> - Ch.41 → 100단계 섹션 7 후반부 (7-4~7-10). PyTorch·Config·Seed·로그 등 구현 재현성. Level 3 실전 필수.
+> - Ch.42 → 100단계 섹션 4-6 (효과크기) + 섹션 8 전체 (결과 해석). Level 2→3 전환의 핵심 측정 능력.
+>
+> **Phase 배치**: Ch.14C = Phase 1 보강 / Ch.41·Ch.42 = Phase 3-D (신규, 실전 역량)
+
+---
+
+## 🤖 Unit 3 LLM·RAG 고도화 — Stanford CME295 연계 (2026-04-19)
+
+> **기반 강좌**: Stanford CME295 — Transformers and Large Language Models (Autumn 2025)  
+> **유튜브 플레이리스트**: [https://www.youtube.com/playlist?list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy](https://www.youtube.com/playlist?list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy)  
+> **PRD**: `docs/PRD_UNIT3_LLM_RAG.md`  
+> **명세 파일**: `week12b.md`, `week12c.md`, `week12d.md`, `week12e.md`, `week12f.md`, `week43.md`, `week44.md`
+
+### Unit 3 확장 (AI & ML 연결 — LLM·RAG 심화)
+
+| 락 | 챕터 | 출력 파일 | 상태 | CME295 강의 | 담당 에이전트 | 완료일 | QA |
+|:--:|------|---------|:----:|------------|------------|:------:|:--:|
+| 🔓 | Ch.12B LLM 사전학습·파인튜닝·LoRA | `chapters/ch12b.html` | 🏆 QA_PASS | [L4](https://www.youtube.com/watch?v=VlA_jt_3Qc4&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=4) | Chapter-Agent-P12B | 2026-04-19 | ✅ |
+| 🔓 | Ch.12C RLHF·선호도 학습·DPO | `chapters/ch12c.html` | 🏆 QA_PASS | [L5](https://www.youtube.com/watch?v=PmW_TMQ3l0I&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=5) | Chapter-Agent-P12C | 2026-04-19 | ✅ |
+| 🔓 | Ch.12D LLM 추론 심화·CoT·GRPO | `chapters/ch12d.html` | 🏆 QA_PASS | [L3](https://www.youtube.com/watch?v=Q5baLehv5So&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=3)+[L6](https://www.youtube.com/watch?v=k5Fh-UgTuCo&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=6) | — | — | ✅ |
+| 🔓 | Ch.12E RAG — 검색 증강 생성 ★ | `chapters/ch12e.html` | 🏆 QA_PASS | [L7](https://www.youtube.com/watch?v=h-7S6HNq0Vg&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=7) | Chapter-Agent-P12E | 2026-04-19 | ✅ |
+| 🔓 | Ch.12F LLM 평가 방법론 | `chapters/ch12f.html` | 🏆 QA_PASS | [L8](https://www.youtube.com/watch?v=8fNP4N46RRo&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=8) | Chapter-Agent-P12F | 2026-04-19 | ✅ |
+
+### Phase 3-D 확장 (고급 이론 — Unit 5)
+
+| 락 | 챕터 | 출력 파일 | 상태 | CME295 강의 | 담당 에이전트 | 완료일 | QA |
+|:--:|------|---------|:----:|------------|------------|:------:|:--:|
+| 🔓 | Ch.43 RAG 수학 기반·Dense Retrieval 이론 | `chapters/ch43.html` | 🏆 QA_PASS | [L7](https://www.youtube.com/watch?v=h-7S6HNq0Vg&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=7) | Chapter-Agent-P43 | 2026-04-19 | ✅ |
+| 🔓 | Ch.44 LLM Alignment 이론·RLHF 수학 | `chapters/ch44.html` | 🏆 QA_PASS | [L5](https://www.youtube.com/watch?v=PmW_TMQ3l0I&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=5) | Chapter-Agent-P44 | 2026-04-19 | ✅ |
+
+> **배치**:
+> - Ch.12B~12F → Unit 3 (AI & ML 연결) 확장. 8챕터 → 13챕터.
+> - Ch.43~44 → Unit 5 Phase 3-D (고급 LLM 이론). 14챕터 → 16챕터.
+> - 총 챕터: 51 → **58챕터** (신규 7개 추가)
+
+---
+
+## 🏫 3대 Stanford 강좌 통합 — PRD v2.0 추가 (2026-04-19)
+
+> **통합 PRD**: `docs/PRD_UNIT3_LLM_RAG.md` (v2.0)  
+> **3대 강좌**:
+> - Stanford CS229 Machine Learning (Andrew Ng, 2018): https://youtu.be/jGwO_UgTS7I
+> - Stanford CME295 Transformers & LLMs (Amidi, 2025): https://www.youtube.com/watch?v=Ub3GoFaUcds&list=PLoROMvodv4rOCXd21gf0CF4xr35yINeOy&index=1
+> - Stanford CS336 Language Modeling from Scratch (Liang+Hashimoto, 2026): https://youtu.be/JuoVZkPBiKk
+
+### CS336 기반 신규 챕터 (Phase 3-D)
+
+| 락 | 챕터 | 출력 파일 | 상태 | CS336 강의 | 담당 에이전트 | 완료일 | QA |
+|:--:|------|---------|:----:|------------|------------|:------:|:--:|
+| 🔓 | Ch.45 LM 구현 실습: 토크나이저·FLOPs·FlashAttention·Scaling | `chapters/ch45.html` | 🏆 QA_PASS | [L1](https://youtu.be/JuoVZkPBiKk)+L2+L6+L9+L11 | Main-Agent | 2026-04-19 | ✅ |
+
+### CS229 기반 기존 챕터 유튜브 링크 추가 계획
+
+> Wave 8: 기존 챕터에 CS229 강의 `.callout.info` 링크 삽입  
+> 대상: Ch.03B, Ch.04, Ch.07, Ch.09, Ch.12, Ch.24, Ch.25, Ch.12C
+
+| 챕터 | CS229 강의 연결 |
+|------|--------------|
+| Ch.03B 선형회귀 | L2 Supervised Learning |
+| Ch.04 베이즈 | L5 GDA·Naive Bayes |
+| Ch.07 표본·MLE | L2~L3 MLE |
+| Ch.09 Logistic 회귀 | L3 Logistic Regression |
+| Ch.12 딥러닝 | L10~L11 Neural Networks |
+| Ch.24 고유값 | L15 PCA |
+| Ch.25 SVD·LoRA | L15 PCA·ICA |
+| Ch.12C RLHF | L16~L19 RL |
+
+> **총 챕터**: 51 → **59챕터** (신규 8개: Ch.12B~12F, Ch.43~45)
+
+---
+
 ## ⚪ 레벨 0 (사전 준비) — 브릿지 챕터 명세
 
 > Level 0 커리큘럼(1년) 완료 후 Level 1 진입 전 필수 브릿지  
@@ -148,12 +233,12 @@
 |:--:|------|---------|:----:|------------|:------:|:--:|
 | 🔓 | Ch.35 논문 비판 독해 방법론 | `chapters/ch35.html` | 🏆 QA_PASS | Chapter-Agent-P35 | 2026-04-19 | ✅ |
 | 🔓 | Ch.36 연구 설계·실험 방법론 | `chapters/ch36.html` | 🏆 QA_PASS | Chapter-Agent-P36 | 2026-04-19 | ✅ |
-| 🔓 | Ch.37 선행연구 구조화·문헌 지도 | `chapters/ch37.html` | 🆓 TODO | — | — | — |
-| 🔓 | Ch.38 데이터 수집·품질·윤리 관리 | `chapters/ch38.html` | 🆓 TODO | — | — | — |
-| 🔓 | Ch.39 방법론 설계 + 논문 글쓰기 IMRaD | `chapters/ch39.html` | 🆓 TODO | — | — | — |
-| 🔓 | Ch.40 리뷰 대응·Response Letter·재투고 | `chapters/ch40.html` | 🆓 TODO | — | — | — |
+| 🔓 | Ch.37 선행연구 구조화·문헌 지도 | `chapters/ch37.html` | 🏆 QA_PASS | Main-Agent | 2026-04-19 | ✅ |
+| 🔓 | Ch.38 데이터 수집·품질·윤리 관리 | `chapters/ch38.html` | 🏆 QA_PASS | Main-Agent | 2026-04-19 | ✅ |
+| 🔓 | Ch.39 방법론 설계 + 논문 글쓰기 IMRaD | `chapters/ch39.html` | 🏆 QA_PASS | Main-Agent | 2026-04-19 | ✅ |
+| 🔓 | Ch.40 리뷰 대응·Response Letter·재투고 | `chapters/ch40.html` | 🏆 QA_PASS | Main-Agent | 2026-04-19 | ✅ |
 
-> **🔴 레벨 3 (고급) Phase 3 — Ch.27~Ch.36 QA_PASS 완료 (2026-04-19)** | Ch.37~Ch.40 파일 미생성 (TODO)
+> **🔴 레벨 3 (고급) Phase 3 — Ch.27~Ch.40 전 챕터 QA_PASS 완료 (2026-04-19)**
 
 ---
 
@@ -234,6 +319,31 @@
 
 ---
 
+
+---
+
+## 📋 LLM 심화 시리즈 — Stanford CME295 기반 신규 챕터 (2026-04-19)
+
+> Stanford CME295 강의 기반 LLM 심화 챕터 및 Phase 3-D 확장
+> 명세 파일: `docs/chapters/week12b.md` ~ `week12f.md`, `week43.md`, `week44.md`
+
+### Unit 3 고도화 — LLM 심화 시리즈 (Ch.12B~12F)
+
+| 락 | 챕터 | 출력 파일 | 상태 | 담당 에이전트 | 완료일 | QA |
+|:--:|------|---------|:----:|------------|:------:|:--:|
+| 🔓 | Ch.12B LLM 사전학습·파인튜닝·LoRA | `chapters/ch12b.html` | 🏆 QA_PASS | Chapter-Agent-P12B | 2026-04-19 | ✅ |
+| 🔓 | Ch.12C RLHF·선호도 학습·DPO |  | 🆓 TODO | — | — | — |
+| 🔓 | Ch.12D LLM 추론 심화·CoT·GRPO |  | 🆓 TODO | — | — | — |
+| 🔓 | Ch.12E RAG — 검색 증강 생성 |  | 🆓 TODO | — | — | — |
+| 🔓 | Ch.12F LLM 평가 방법론 | `chapters/ch12f.html` | 🏆 QA_PASS | Chapter-Agent-P12F | 2026-04-19 | ✅ |
+
+### Phase 3-D 확장 — LLM 심화 이론 (Ch.43~44)
+
+| 락 | 챕터 | 출력 파일 | 상태 | 담당 에이전트 | 완료일 | QA |
+|:--:|------|---------|:----:|------------|:------:|:--:|
+| 🔓 | Ch.43 RAG 수학 기반·Dense Retrieval·FAISS |  | 🆓 TODO | — | — | — |
+| 🔓 | Ch.44 LLM Alignment 이론·RLHF 수학·DPO 도출 |  | 🆓 TODO | — | — | — |
+
 ## QA 결과
 
 _QA Agent가 기록. 챕터 에이전트는 이 섹션 수정 금지._
@@ -283,7 +393,7 @@ _QA Agent가 기록. 챕터 에이전트는 이 섹션 수정 금지._
 | Ch.35 논문 비판 독해 방법론 | ✅ PASS | PROGRESS TODO였으나 완성 파일 확인 |
 | Ch.36 연구 설계·실험 방법론 | ✅ PASS | — |
 
-> **전체 QA 누계 (2026-04-19 기준)**: ✅ PASS 36개 / ❌ FAIL 0개 (수정 완료 포함)
+> **전체 QA 누계 (2026-04-19 기준)**: ✅ PASS 40개 / ❌ FAIL 0개 (수정 완료 포함)
 
 ---
 
@@ -301,7 +411,7 @@ _QA Agent가 기록. 챕터 에이전트는 이 섹션 수정 금지._
 
 ## 🔗 통합 완료 (Integration Agent)
 
-- **날짜**: 2026-04-19
+### 1차 통합 (2026-04-19)
 - **담당**: Main-Agent (Integration)
 - **작업 내용**:
   - `index.html` 사이드바에 Unit 4 (Ch.15~Ch.26) 추가 ✅
@@ -311,5 +421,45 @@ _QA Agent가 기록. 챕터 에이전트는 이 섹션 수정 금지._
   - CSS 신규 유닛 색상 클래스 추가 (`.nu-adv`, `.nu-res`, `.pu-adv`, `.pu-res`) ✅
   - JS `TOTAL` 값 23 → 47 업데이트 ✅
   - 사이드바 타이틀 "Phase 1" → "Phase 1~3" 업데이트 ✅
-- **연결된 챕터**: Unit 0 (3) + Unit 1 (6) + Unit 2 (5) + Unit 3 (8) + Unit 4 (12) + Unit 5 (10) = 44챕터
+
+### 2차 통합 (2026-04-19) — Phase 3-C 완성
+- **담당**: Main-Agent (Integration)
+- **작업 내용**:
+  - `index.html` 사이드바 Unit 5에 Ch.37~Ch.40 추가 ✅
+  - `index.html` 홈 학습 경로 카드 Unit 5에 Ch.37~Ch.40 추가 ✅
+  - Unit 5 표기 "10챕터" → "14챕터" 수정 ✅
+  - JS `TOTAL` 값 47 → 51 업데이트 ✅
+  - `ch36.html` NAV 다음 버튼 → ch37.html 연결 수정 ✅
+  - Ch.37~40 QA 실시 → 전 챕터 PASS ✅
+- **연결된 챕터**: Unit 0 (3) + Unit 1 (6) + Unit 2 (5) + Unit 3 (8) + Unit 4 (12) + Unit 5 (14) = 48챕터
+- **index.html 업데이트**: ✅ 완료
+
+### 3차 통합 (2026-04-19) — 100단계 갭 분석 신규 챕터 추가
+- **담당**: Main-Agent (Integration)
+- **작업 내용**:
+  -  사이드바 Unit 3에 Ch.14C 추가 ✅
+  -  사이드바 Unit 5에 Ch.41, Ch.42 추가 ✅
+  -  홈 학습 경로 Unit 3에 Ch.14C 추가 ✅
+  -  홈 학습 경로 Unit 5에 Ch.41, Ch.42 추가 ✅
+  - Unit 5 표기 14챕터 → 16챕터 수정 ✅
+  - JS  값 51 → 54 업데이트 ✅
+  - Ch.14C, Ch.41, Ch.42 QA 실시 → 전 챕터 PASS ✅
+- **연결된 챕터**: Unit 0 (3) + Unit 1 (6) + Unit 2 (5) + Unit 3 (9) + Unit 4 (12) + Unit 5 (16) = 51챕터
+- **index.html 업데이트**: ✅ 완료
+
+---
+
+### 4차 통합 (2026-04-19) — LLM 심화 시리즈 + Phase 3-D 확장
+
+- **담당**: Main-Agent (Integration)
+- **작업 내용**:
+  - `index.html` 사이드바 Unit 3에 Ch.12B~12F 추가 (5개) ✅
+  - `index.html` 사이드바 Unit 5에 Ch.43, Ch.44 추가 (2개) ✅
+  - `index.html` 홈 학습 경로 Unit 3에 Ch.12B~12F 추가 ✅
+  - `index.html` 홈 학습 경로 Unit 5에 Ch.43, Ch.44 추가 ✅
+  - Unit 3 표기 "8챕터" → "13챕터" 수정 ✅
+  - Unit 5 표기 "16챕터" → "18챕터" 수정 ✅
+  - JS `TOTAL` 값 54 → 61 업데이트 ✅
+  - Ch.12B~12F, Ch.43~44 개발 및 QA 실시 → 전 챕터 PASS ✅
+- **연결된 챕터**: Unit 3 (13챕터) + Unit 5 (18챕터) 확장
 - **index.html 업데이트**: ✅ 완료

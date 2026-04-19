@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.45 — LM 구현 실습 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- ════════════════════ [1] HERO ════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.45 · LM 구현 실습 (Phase 3-D)</div>
+  <h1>언어 모델 구현 실습<br/>BPE · FLOPs · FlashAttention · Scaling Laws</h1>
+  <p>ChatGPT를 처음부터 만든다면 어디서 시작하는가 — 토크나이저부터 학습 비용 계산, I/O 최적화, Chinchilla 스케일링 법칙까지. Stanford CS336 "Language Modeling from Scratch"의 핵심을 한 챕터에.</p>
+</div>
+
+
+<!-- ════════════════════ [2] EASY BOX ════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>레고처럼 언어 모델을 처음부터 직접 쌓아본다.</strong> 설명서(논문)를 보고 브릭(토크나이저→어텐션→학습루프)을 하나씩 조립하면서 "이 브릭이 왜 필요한가"를 손으로 느끼는 것이 핵심이다.</p>
+  <ul>
+    <li>토크나이저: "안녕하세요"를 ["안녕", "하세요"] 조각으로 쪼개서 숫자로 바꾸는 단계 — 컴퓨터가 글자를 읽는 법</li>
+    <li>FLOPs 계산: LLaMA 70B 모델을 학습하려면 수영장 수백 개를 물로 채우는 만큼의 계산량이 필요</li>
+    <li>FlashAttention: 느린 외부 창고(HBM) 대신 빠른 책상 서랍(SRAM)에서 계산 — 같은 결과를 10배 빠르게</li>
+    <li>AI에서: Stanford CS336 Assignment 1이 바로 이 내용 — 수강생이 직접 LLaMA 수준의 Transformer를 Python으로 구현</li>
+  </ul>
+</div>
+
+<div class="callout info">
+  <div class="ci">📺</div>
+  <div class="cb">
+    <p><strong>Stanford CS336 강의 (Spring 2026)</strong> — Percy Liang &amp; Tatsu Hashimoto<br/>
+    <a href="https://youtu.be/JuoVZkPBiKk" style="color:var(--accent);">▶ L1: 개요·토크나이저</a> &nbsp;|&nbsp;
+    <a href="https://www.youtube.com/playlist?list=PLoROMvodv4rMqXOcazWaTUHhq-yembLCV" style="color:var(--accent);">전체 플레이리스트 →</a> &nbsp;|&nbsp;
+    <a href="https://cs336.stanford.edu/" style="color:var(--accent);">공식 사이트 →</a></p>
+  </div>
+</div>
+
+
+<!-- ════════════════════ [3] MAIN CONTENT ════════════════════ -->
+
+<!-- ── 섹션 1: BPE 토크나이저 ── -->
+<h2 class="st"><span class="ic">🔤</span>BPE 토크나이저 — 텍스트를 숫자로 바꾸는 첫 단계</h2>
+
+<p>모든 언어 모델은 텍스트를 직접 처리하지 않습니다. 먼저 텍스트를 정수(token ID)의 시퀀스로 변환해야 합니다. BPE(Byte Pair Encoding, Sennrich et al., 2016)는 자주 등장하는 문자 쌍을 반복적으로 합쳐 어휘집(vocabulary)을 만드는 알고리즘입니다.</p>
+
+<p>GPT-4는 약 10만 개, LLaMA 3는 약 12만 8천 개의 어휘집을 사용합니다. 어휘집이 클수록 문장을 더 짧은 토큰 수로 표현할 수 있어 긴 문맥을 처리하는 데 유리합니다.</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><p><strong>초기화</strong>: 모든 개별 바이트(256개)를 어휘집에 추가. 텍스트를 바이트 단위로 분리한다.</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><p><strong>빈도 계산</strong>: 현재 토큰 시퀀스에서 인접한 토큰 쌍의 등장 빈도를 모두 계산한다.</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><p><strong>합치기(Merge)</strong>: 가장 자주 나오는 쌍 (a, b)를 새 토큰 ab로 합쳐 어휘집에 추가하고 텍스트를 업데이트.</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">4</div>
+    <div class="sb"><p><strong>반복</strong>: 목표 어휘 크기(V)에 도달할 때까지 2~3을 반복. 최종 어휘 크기 = 256 + V.</p></div>
+  </div>
+</div>
+
+<!-- FORMULA BOX 1 -->
+<div class="fb">
+  <div class="fl">BPE MERGE 규칙 (Sennrich et al., 2016)</div>
+  \[
+    \text{merge}(a,\,b) \quad \text{s.t.} \quad \text{freq}(ab) = \max_{\,(x,\,y)} \text{freq}(xy)
+  \]
+  <div class="fn">
+    \(\text{freq}(ab)\): 현재 토큰 시퀀스에서 인접 쌍 (a, b)의 등장 횟수<br/>
+    \(\max_{(x,y)}\): 모든 인접 쌍 중 빈도가 최대인 쌍을 선택<br/>
+    merge 1회 → 어휘 크기 +1, V번 반복 → 최종 어휘 크기 = 256 + V<br/>
+    GPT-4 tiktoken: V ≈ 100,000 → 어휘 크기 약 100,256개
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 토크나이저 종류 비교</div>
+  <table>
+    <tr><th>종류</th><th>대표 모델</th><th>합치기 기준</th><th>특징</th></tr>
+    <tr><td>BPE</td><td>GPT, LLaMA</td><td>등장 빈도 최대</td><td>언어 무관, 범용적</td></tr>
+    <tr><td>WordPiece</td><td>BERT</td><td>우도 증가 최대</td><td>서브워드 분리에 특화</td></tr>
+    <tr><td>SentencePiece</td><td>T5, Gemma</td><td>BPE + WordPiece 통합</td><td>공백 포함 raw text 처리</td></tr>
+    <tr><td>Tiktoken</td><td>GPT-4, o1, o3</td><td>BPE 기반</td><td>Rust 구현, 매우 빠름</td></tr>
+  </table>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>한국어 BPE 특이점</strong>: 영어는 단어 경계가 공백으로 명확하지만 한국어는 형태소(어간+어미)가 복잡합니다. "안녕하세요"는 BPE로 ["안녕", "하세요"]처럼 분리될 수 있고, 이 분리 패턴이 모델의 언어 이해에 직접 영향을 줍니다. 한국어 특화 모델들은 더 큰 어휘집을 사용하는 경향이 있습니다.</p></div>
+</div>
+
+
+<!-- ── 섹션 2: FLOPs·메모리 계산 ── -->
+<h2 class="st"><span class="ic">⚡</span>Transformer FLOPs 계산 — "학습에 얼마나 걸리는가"</h2>
+
+<p>"7B 파라미터 모델을 1조 토큰으로 학습하면 H100 GPU 몇 개가 몇 일 필요한가?" 이 질문에 정확하게 답하려면 FLOPs(Floating Point Operations) 계산이 필수입니다. CS336 L2에서 Percy Liang이 강조하는 <strong>Arithmetic Intensity</strong> 분석의 핵심이기도 합니다.</p>
+
+<!-- FORMULA BOX 2 -->
+<div class="fb">
+  <div class="fl">TRANSFORMER 학습 총 FLOPS 근사 (Kaplan et al., 2020)</div>
+  \[
+    C \approx 6ND
+    \quad\text{where}\quad N = \text{파라미터 수},\; D = \text{학습 토큰 수}
+  \]
+  <div class="fn">
+    \(C\): 총 연산량 (FLOPs = Floating Point Operations)<br/>
+    \(N\): 모델 파라미터 수 (예: LLaMA 3 8B → N = 8×10⁹)<br/>
+    \(D\): 학습에 사용한 토큰 수 (예: 1조 토큰 → D = 10¹²)<br/>
+    계수 6의 유래: 순전파 2×ND + 역전파 4×ND ≈ 6ND<br/>
+    예시: GPT-3 (175B 파라미터, 300B 토큰) → C ≈ 3.1×10²³ FLOPs
+  </div>
+</div>
+
+<!-- FORMULA BOX 3 -->
+<div class="fb">
+  <div class="fl">TRANSFORMER 레이어당 FLOPS (정밀 계산, CS336 L2)</div>
+  \[
+    \text{FLOPs/token/layer} \approx
+    \underbrace{8\,d_{\text{model}}^2}_{\text{Attention (QKV+O)}}
+    + \underbrace{16\,d_{\text{model}}^2}_{\text{FFN (4× 확장)}}
+    = 24\,d_{\text{model}}^2
+  \]
+  <div class="fn">
+    \(d_{\text{model}}\): 모델 숨겨진 차원 (LLaMA 3 8B: 4096)<br/>
+    Attention: Q·K·V 투영 (3×2d²) + 출력 투영 (2d²) = 8d²<br/>
+    FFN: 내부 차원 = 4×d_model → 게이트·업·다운 투영 = 16d²<br/>
+    L개 레이어 전체: ≈ 24Ld² × 시퀀스 길이 (어텐션 항 별도 추가)<br/>
+    Arithmetic Intensity = FLOPs ÷ HBM 접근 bytes → 높을수록 GPU 효율↑
+  </div>
+</div>
+
+<h3 class="sub">주요 LLM 학습 비용 비교</h3>
+<table>
+  <tr><th>모델</th><th>파라미터 N</th><th>학습 토큰 D</th><th>총 FLOPs C</th><th>GPU 추정</th></tr>
+  <tr><td>GPT-3</td><td>175B</td><td>300B</td><td>3.1×10²³</td><td>A100 × 1024 × ~100일</td></tr>
+  <tr><td>LLaMA 2 13B</td><td>13B</td><td>2T</td><td>1.6×10²³</td><td>A100 × 512 × ~21일</td></tr>
+  <tr><td>LLaMA 3 8B</td><td>8B</td><td>15T</td><td>7.2×10²³</td><td>H100 × 512 × ~30일</td></tr>
+  <tr><td>LLaMA 3 70B</td><td>70B</td><td>15T</td><td>6.3×10²⁴</td><td>H100 × 2048 × ~60일</td></tr>
+</table>
+
+
+<!-- ── 섹션 3: FlashAttention ── -->
+<h2 class="st"><span class="ic">🚀</span>FlashAttention — I/O 최적화의 혁명</h2>
+
+<p>표준 Self-Attention은 \(N \times N\) 크기의 어텐션 행렬을 HBM(GPU DRAM)에 기록하고 다시 읽어옵니다. 시퀀스 길이 N = 4096이면 이 행렬 크기가 수백 MB에 달해 메모리 접근이 병목이 됩니다. FlashAttention(Dao et al., 2022)은 이 문제를 SRAM 내부 타일링으로 해결합니다.</p>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>표준 Attention — 느림</h5>
+    <p>① Q, K, V를 HBM에서 읽기</p>
+    <p>② S = QKᵀ 계산 → <strong>HBM에 기록</strong></p>
+    <p>③ P = softmax(S) → <strong>HBM에 기록</strong></p>
+    <p>④ O = PV 계산 → HBM에 기록</p>
+    <p style="color:var(--accent5);">HBM 접근: O(N²d) — 느림</p>
+  </div>
+  <div class="col-box">
+    <h5>FlashAttention — 빠름</h5>
+    <p>① Q, K, V를 SRAM 타일 단위로 로드</p>
+    <p>② 타일 내에서 S, P, O를 <strong>SRAM에서만</strong> 계산</p>
+    <p>③ 다음 타일로 이동 (누적값 유지)</p>
+    <p>④ 최종 O만 HBM에 기록</p>
+    <p style="color:var(--accent3);">HBM 접근: O(N²d/M) — 최대 10× 빠름</p>
+  </div>
+</div>
+
+<!-- FORMULA BOX 4 -->
+<div class="fb">
+  <div class="fl">FLASHATTENTION I/O 복잡도 (Dao et al., 2022)</div>
+  \[
+    \text{표준 HBM 접근량:} \; O(N^2 d)
+    \quad\xrightarrow{\text{FlashAttention}}\quad
+    O\!\left(\frac{N^2 d}{M}\right)
+  \]
+  <div class="fn">
+    \(N\): 시퀀스 길이, \(d\): 어텐션 헤드 차원<br/>
+    \(M\): SRAM 크기 (A100: 192KB/SM, 전체 ~30MB)<br/>
+    속도 향상: \(M/d\)배 — d=64이면 최대 수백× I/O 절감<br/>
+    실제 속도: 2~4× 빠름 (다른 연산도 있어서)<br/>
+    FlashAttention2 (2023): 더 효율적인 타일링 → GPU 활용률 50%→70%↑
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>Arithmetic Intensity (산술 강도)</strong>: FLOPs ÷ HBM 접근 bytes. 높을수록 "컴퓨트 바운드" (GPU가 쉬지 않고 계산). MatMul은 ~200 FLOP/byte (컴퓨트 바운드), 표준 Attention은 ~3 FLOP/byte (메모리 바운드). FlashAttention은 타일링으로 Attention을 컴퓨트 바운드에 가깝게 만들어 GPU 효율을 극적으로 높입니다. CS336 L2의 핵심 개념.</p></div>
+</div>
+
+
+<!-- ── 섹션 4: Scaling Laws ── -->
+<h2 class="st"><span class="ic">📈</span>Scaling Laws — 얼마나 키워야 최적인가</h2>
+
+<p>모델을 키우면 성능이 좋아지는 것은 알지만, <em>파라미터를 키워야 하는가 데이터를 늘려야 하는가?</em> 이 질문에 수학적으로 답한 것이 Scaling Laws입니다. Kaplan et al.(2020)의 초기 연구에서 Hoffmann et al.(2022) Chinchilla 논문까지 이어지는 핵심 통찰입니다.</p>
+
+<!-- FORMULA BOX 5 -->
+<div class="fb">
+  <div class="fl">신경 언어 모델 손실 스케일링 (Kaplan et al., 2020)</div>
+  \[
+    L(N,\, D) = \left(\frac{N_c}{N}\right)^{\!\alpha_N} + \left(\frac{D_c}{D}\right)^{\!\alpha_D} + L_\infty
+  \]
+  <div class="fn">
+    \(L(N,D)\): 파라미터 N, 학습 토큰 D에서의 검증 손실 (낮을수록 좋음)<br/>
+    \(\alpha_N \approx 0.076,\; \alpha_D \approx 0.095\): 멱법칙 지수 (데이터 스케일이 약간 더 중요)<br/>
+    \(L_\infty\): 모델·데이터가 무한히 커도 없어지지 않는 하한 (데이터의 엔트로피)<br/>
+    \(N_c,\, D_c\): 스케일링 상수 (데이터로 적합)<br/>
+    해석: N 또는 D를 10배 늘리면 손실이 멱법칙으로 감소
+  </div>
+</div>
+
+<!-- FORMULA BOX 6 -->
+<div class="fb">
+  <div class="fl">CHINCHILLA 최적 스케일링 (Hoffmann et al., 2022)</div>
+  \[
+    N^* = \left(\frac{C}{6a}\right)^{0.5},\quad
+    D^* = \left(\frac{C}{6b}\right)^{0.5}
+    \quad\Rightarrow\quad
+    D^* \approx 20 \cdot N^*
+  \]
+  <div class="fn">
+    \(C = 6ND\): 컴퓨트 예산 (총 FLOPs)<br/>
+    \(a,\, b\): 스케일링 계수 (Hoffmann et al. 논문에서 추정)<br/>
+    <strong>핵심 결론</strong>: 컴퓨트 고정 시 최적 토큰 수 ≈ 파라미터 수 × 20<br/>
+    예시: 7B 파라미터 → 최적 학습 토큰 ≈ 140B (기존 GPT-3는 이보다 훨씬 적음)<br/>
+    LLaMA 3 8B: 15T 토큰 학습 → Chinchilla 비율(160B)보다 훨씬 많음 → 추론 효율 최대화
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 스케일링 법칙의 실전 의미</div>
+  <p>Chinchilla 이후 AI 업계의 학습 전략이 바뀌었습니다. 이전에는 "같은 컴퓨트면 모델을 크게"가 정설이었지만, 이제는 <strong>"추론 비용을 고려하면 작은 모델을 더 오래 학습"</strong>하는 것이 합리적입니다. LLaMA 3, Mistral, Gemma가 Chinchilla 비율보다 훨씬 많은 데이터를 학습하는 이유가 바로 이것입니다 — 학습은 한 번이지만 추론은 수억 번 일어납니다.</p>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>Chinchilla 비율은 "학습 최적"이지 "최종 모델 최적"이 아닙니다</strong>: 실제 배포 모델은 추론 속도가 중요하므로 작은 모델 + 더 많은 데이터 전략을 씁니다. 또한 Chinchilla 지수 자체도 데이터 품질·구성에 따라 달라집니다.</p></div>
+</div>
+
+
+<!-- ════════════════════ [4] FORMULA BOX (추가 — 분산 학습) ════════════════════ -->
+<h2 class="st"><span class="ic">🔀</span>병렬화 — 수천 개 GPU를 어떻게 쓰는가</h2>
+
+<p>LLM 학습에는 수천 개의 GPU가 필요합니다. 이를 효율적으로 사용하려면 세 가지 병렬화 전략을 조합합니다. CS336 L7~L8에서 Tatsu Hashimoto가 상세히 설명합니다.</p>
+
+<table>
+  <tr><th>병렬화 종류</th><th>분할 대상</th><th>특징</th><th>한계</th></tr>
+  <tr><td><strong>데이터 병렬 (DP)</strong></td><td>미니배치</td><td>구현 단순, 선형 스케일</td><td>모델이 GPU 1개에 들어가야 함</td></tr>
+  <tr><td><strong>텐서 병렬 (TP)</strong></td><td>행렬 연산 내부</td><td>대형 모델 가능</td><td>통신 오버헤드 큼, 같은 노드 권장</td></tr>
+  <tr><td><strong>파이프라인 병렬 (PP)</strong></td><td>레이어 단위</td><td>노드 간 통신 최소</td><td>버블(유휴 시간) 발생</td></tr>
+</table>
+
+<!-- FORMULA BOX 7 -->
+<div class="fb">
+  <div class="fl">MFU — 모델 FLOPs 활용률 (CS336 L2)</div>
+  \[
+    \text{MFU} = \frac{\text{실제 달성 FLOPs/s}}{\text{이론 최대 FLOPs/s}}
+    \quad\Rightarrow\quad \text{실효 연산} = \text{GPU 피크} \times \text{MFU}
+  \]
+  <div class="fn">
+    H100 SXM5 피크: 1979 TFLOP/s (BF16 Tensor Core 기준)<br/>
+    실제 LLM 학습 MFU: 보통 35~50% (네트워크·메모리 병목 등)<br/>
+    MFU 50% 달성이 "효율적인 학습"의 기준점으로 여겨짐<br/>
+    FlashAttention, 최적 배치 크기, 그래디언트 체크포인팅이 MFU에 영향
+  </div>
+</div>
+
+
+<!-- ════════════════════ [5] INTERACTIVE ════════════════════ -->
+<div class="calc">
+  <h4>🔢 LLM 학습 비용 계산기 — 파라미터·토큰·GPU</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">파라미터 수와 학습 토큰 수를 조절해서 총 FLOPs와 학습 소요 시간을 계산하세요. Chinchilla 최적 비율도 자동으로 확인할 수 있습니다.</p>
+
+  <div class="cr">
+    <span class="cl">파라미터 수 N (억)</span>
+    <input type="range" id="cs336-n" min="1" max="700" step="1" value="70" oninput="updateCS336()"/>
+    <input type="number" id="cs336-n-v" value="70" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">학습 토큰 D (십억)</span>
+    <input type="range" id="cs336-d" min="1" max="15000" step="10" value="1000" oninput="updateCS336()"/>
+    <input type="number" id="cs336-d-v" value="1000" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">GPU 성능 (TFLOP/s)</span>
+    <input type="range" id="cs336-gpu-flops" min="100" max="3000" step="100" value="1000" oninput="updateCS336()"/>
+    <input type="number" id="cs336-gpu-flops-v" value="1000" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">GPU 수</span>
+    <input type="range" id="cs336-gpu-count" min="1" max="4096" step="1" value="64" oninput="updateCS336()"/>
+    <input type="number" id="cs336-gpu-count-v" value="64" readonly/>
+  </div>
+
+  <div class="cres" id="cs336-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════ [6] QUIZ ════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">FlashAttention이 표준 Attention보다 빠른 핵심 이유는 무엇인가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; Attention 연산량(FLOPs)을 줄여서 계산 자체가 더 적어진다</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; Multi-Head Attention의 헤드 수를 줄여서 병렬 연산을 단순화한다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; BF16 대신 INT8 정밀도를 사용해 연산 속도를 높인다</div>
+  <div class="qo" onclick="ans(this, true)">(d) &nbsp; N×N 어텐션 행렬을 HBM에 저장하지 않고 SRAM 내 타일링으로 I/O를 줄인다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════ [7] NAV BUTTONS ════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch44.html'">← Ch.44 LLM Alignment 이론</button>
+  <button class="btn btn-p" onclick="location.href='../index.html'">홈으로 →</button>
+</div>
+
+
+<!-- ════════════════════ JAVASCRIPT ════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! FlashAttention은 FLOPs를 줄이지 않고 HBM I/O를 줄여 메모리 병목을 해결합니다.'
+    : '❌ 틀렸습니다. FlashAttention은 계산량은 같지만 SRAM 타일링으로 I/O를 줄입니다.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── LLM 학습 비용 계산기 ──
+function updateCS336() {
+  const nB  = parseInt(document.getElementById('cs336-n').value) * 1e8;    // 억 → 개
+  const dB  = parseInt(document.getElementById('cs336-d').value) * 1e9;    // 십억 → 개
+  const gpuFlops = parseInt(document.getElementById('cs336-gpu-flops').value) * 1e12; // TFLOP/s → FLOP/s
+  const gpuCount = parseInt(document.getElementById('cs336-gpu-count').value);
+
+  document.getElementById('cs336-n-v').value   = (nB/1e8).toFixed(0);
+  document.getElementById('cs336-d-v').value   = (dB/1e9).toFixed(0);
+  document.getElementById('cs336-gpu-flops-v').value = (gpuFlops/1e12).toFixed(0);
+  document.getElementById('cs336-gpu-count-v').value = gpuCount;
+
+  const totalFlops   = 6 * nB * dB;
+  const mfu          = 0.35; // 35% MFU 가정
+  const effectiveGpu = gpuFlops * gpuCount * mfu;
+  const trainSecs    = totalFlops / effectiveGpu;
+  const trainDays    = trainSecs / 86400;
+  const trainHours   = trainSecs / 3600;
+
+  // Chinchilla 최적 비율 D* ≈ 20N
+  const chinchillaD = nB * 20;
+  const ratio = dB / chinchillaD;
+  let chinStatus, chinColor;
+  if (ratio < 0.5) {
+    chinStatus = '❌ 데이터 심각하게 부족 (Under-trained)';
+    chinColor  = 'var(--accent5)';
+  } else if (ratio < 0.9) {
+    chinStatus = '⚠️ 데이터 약간 부족';
+    chinColor  = 'var(--accent4)';
+  } else if (ratio <= 1.1) {
+    chinStatus = '✅ Chinchilla 최적 범위';
+    chinColor  = 'var(--accent3)';
+  } else if (ratio <= 5) {
+    chinStatus = '📈 데이터 풍부 — 추론 효율 최적화 전략';
+    chinColor  = 'var(--accent)';
+  } else {
+    chinStatus = '🔁 Chinchilla 비율 대비 매우 많은 데이터 (LLaMA 3 스타일)';
+    chinColor  = 'var(--accent2)';
+  }
+
+  const timeStr = trainDays >= 1
+    ? `<strong style="color:var(--accent3)">${trainDays.toFixed(1)}일</strong>`
+    : `<strong style="color:var(--accent3)">${trainHours.toFixed(1)}시간</strong>`;
+
+  document.getElementById('cs336-res').innerHTML =
+    `총 학습 FLOPs: <strong>${(totalFlops/1e21).toFixed(2)} × 10²¹</strong> (C ≈ 6ND)<br/>
+     유효 연산 속도: ${(effectiveGpu/1e12).toFixed(0)} TFLOP/s × MFU ${(mfu*100).toFixed(0)}% = ${(effectiveGpu/1e12*mfu).toFixed(0)} 실효 TFLOP/s<br/>
+     GPU ${gpuCount}개 학습 시간: ${timeStr}<br/>
+     ────────────────────────<br/>
+     Chinchilla 최적 토큰: <strong>${(chinchillaD/1e9).toFixed(0)}B</strong> (= 파라미터 수 × 20)<br/>
+     현재 토큰: ${(dB/1e9).toFixed(0)}B / ${(chinchillaD/1e9).toFixed(0)}B = ${ratio.toFixed(2)}× →
+     <span style="color:${chinColor}">${chinStatus}</span><br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       MFU 35% 가정 (A100/H100 실제 효율 25~45%). GPU 수↑ → 선형 가속 (데이터 병렬 이상적 가정).
+     </span>`;
+}
+updateCS336();
+</script>
+</body>
+</html>

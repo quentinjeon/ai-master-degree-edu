@@ -23,8 +23,8 @@ window.MathJax = {
 };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<link rel="stylesheet" href="../styles/main.css"/>
-<!-- 또는 인라인 CSS를 사용할 경우: <style>...</style> -->
+<!-- 공통 스타일 — 루트의 style.css 참조 (직접 수정 금지) -->
+<link rel="stylesheet" href="../style.css"/>
 </head>
 ```
 

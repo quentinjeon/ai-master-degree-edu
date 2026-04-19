@@ -797,4 +797,308 @@
 
 ---
 
-**전체 프로젝트 QA 누계**: PASS 36개 / FAIL 0개 (수정 완료 포함) ✅
+## Ch.37 — 선행연구 구조화와 문헌 지도 그리기 (2026-04-19)
+
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재. PLACEHOLDER 없음 |
+| [2] EASY BOX | ✅ | .et, p(strong 포함), ul>li 3개 이상. 마지막 li AI 연결 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개 이상 (문헌 지도 구조, 연구 흐름 분석 등) |
+| [4] FORMULA BOX | ✅ | .fb 블록 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | .calc 존재, input[type=range] + oninput 연결 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this, true) 1개, .qfb 존재 |
+| [7] NAV | ✅ | .nb 존재. ch36.html → ch38.html 정확히 연결 |
+| [8] CSS | ⚠️ | .qo.wrong, .btn-p 일부 하드코딩 — Phase 1/2/3 동일 기준으로 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음 (CSS 하드코딩은 경미하여 PASS 처리)
+
+---
+
+## Ch.38 — 데이터 수집·품질·윤리 관리 (2026-04-19)
+
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재. PLACEHOLDER 없음 |
+| [2] EASY BOX | ✅ | .et, p(strong 포함), ul>li 3개 이상. 마지막 li AI 연결 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개 이상 (데이터 수집, 품질 관리, 윤리 체크리스트) |
+| [4] FORMULA BOX | ✅ | .fb 블록 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | .calc 존재, input[type=range] + oninput 연결 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this, true) 1개, .qfb 존재 |
+| [7] NAV | ✅ | .nb 존재. ch37.html → ch39.html 정확히 연결 |
+| [8] CSS | ⚠️ | .qo.wrong, .btn-p 일부 하드코딩 — Phase 1/2/3 동일 기준으로 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음 (CSS 하드코딩은 경미하여 PASS 처리)
+
+---
+
+## Ch.39 — 방법론 설계·논문 글쓰기 IMRaD (2026-04-19)
+
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재. PLACEHOLDER 없음 |
+| [2] EASY BOX | ✅ | .et, p(strong 포함), ul>li 3개 이상. 마지막 li AI 연결 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개 이상 (IMRaD 구조, Introduction/Method/Result 작성법) |
+| [4] FORMULA BOX | ✅ | .fb 블록 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | .calc 존재, input[type=range] + oninput 연결 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this, true) 1개, .qfb 존재 |
+| [7] NAV | ✅ | .nb 존재. ch38.html → ch40.html 정확히 연결 |
+| [8] CSS | ⚠️ | .qo.wrong, .btn-p 일부 하드코딩 — Phase 1/2/3 동일 기준으로 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음 (CSS 하드코딩은 경미하여 PASS 처리)
+
+---
+
+## Ch.40 — 리뷰 대응·Response Letter·재투고 전략 (2026-04-19)
+
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재. PLACEHOLDER 없음 |
+| [2] EASY BOX | ✅ | .et, p(strong 포함), ul>li 3개 이상. 마지막 li AI 연결 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개 이상 (리뷰 대응 원칙, Response Letter 구조, 재투고 전략) |
+| [4] FORMULA BOX | ✅ | .fb 블록 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | .calc 존재, input[type=range] + oninput 연결 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this, true) 1개, .qfb 존재 |
+| [7] NAV | ✅ | .nb 존재. ch39.html 이전 버튼. 마지막 챕터이므로 다음 버튼 없음 (적절) |
+| [8] CSS | ⚠️ | .qo.wrong, .btn-p 일부 하드코딩 — Phase 1/2/3 동일 기준으로 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음 (CSS 하드코딩은 경미하여 PASS 처리)
+
+---
+
+### Phase 3-C QA 결과 (Ch.37~40)
+
+| 챕터 | 파일 | 결과 | 비고 |
+|------|------|:----:|------|
+| Ch.37 선행연구 구조화·문헌 지도 | ch37.html | ✅ PASS | CSS 경미한 하드코딩 (허용) |
+| Ch.38 데이터 수집·품질·윤리 | ch38.html | ✅ PASS | CSS 경미한 하드코딩 (허용) |
+| Ch.39 방법론 설계·IMRaD 글쓰기 | ch39.html | ✅ PASS | CSS 경미한 하드코딩 (허용) |
+| Ch.40 리뷰 대응·Response Letter | ch40.html | ✅ PASS | CSS 경미한 하드코딩 (허용) |
+
+**Phase 3-C 총계**: PASS 4개 / FAIL 0개 ✅ 전체 통과
+
+---
+
+**전체 프로젝트 QA 누계**: PASS 40개 / FAIL 0개 (수정 완료 포함) ✅
+
+---
+
+## Ch.14C — 학문적 사고력: 연구자의 논리 훈련 (2026-04-19)
+
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재. PLACEHOLDER 없음 |
+| [2] EASY BOX | ✅ | .et, p>strong(탐정 비유), ul>li 3개. 마지막 li AI 연결 |
+| [3] MAIN CONTENT | ✅ | h2.st 5개 (세 층위/인과상관/반례/측정가능주장/Discussion) |
+| [4] FORMULA BOX | ✅ | .fb 2개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | .calc 존재. 주장 분류기(onclick 버튼 기반) — 슬라이더가 아닌 버튼형 인터랙티브 (적절) |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(c번), .qfb 존재 |
+| [7] NAV | ✅ | ch14b.html 이전, ch15.html 다음 — 실제 파일과 일치 |
+| [8] CSS | ⚠️ | .qo.wrong 일부 하드코딩 — 전 챕터 동일 기준으로 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음 (CSS 하드코딩은 경미하여 PASS 처리)
+
+---
+
+## Ch.41 — 구현·재현성 엔지니어링 (2026-04-19)
+
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재. PLACEHOLDER 없음 |
+| [2] EASY BOX | ✅ | .et, p>strong(레시피 비유), ul>li 3개. 마지막 li AI(NeurIPS 재현성) 연결 |
+| [3] MAIN CONTENT | ✅ | h2.st 5개 (PyTorch패턴/Config/Seed/실험로그/논문재현성표준) |
+| [4] FORMULA BOX | ✅ | .fb 3개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | .calc 존재. 체크박스 기반 재현성 점수 진단기 (onchange 연결) |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(b번), .qfb 존재 |
+| [7] NAV | ✅ | ch40.html 이전, ch42.html 다음 — 실제 파일과 일치 |
+| [8] CSS | ⚠️ | .qo.wrong 일부 하드코딩 — 전 챕터 동일 기준으로 허용 |
+| [9] MathJax | ✅ | \[ \] 블록 수식 모두 사용 |
+
+**수정 요청**: 없음 (CSS 하드코딩은 경미하여 PASS 처리)
+
+---
+
+## Ch.42 — 효과크기와 결과 해석 심화 (2026-04-19)
+
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재. PLACEHOLDER 없음 |
+| [2] EASY BOX | ✅ | .et, p>strong(시험점수 비유), ul>li 3개. 마지막 li AI 연결 |
+| [3] MAIN CONTENT | ✅ | h2.st 5개 (효과크기/성능표/케이스분석/비용트레이드오프/일반화가능성) |
+| [4] FORMULA BOX | ✅ | .fb 4개 모두 .fl + 수식 + .fn 완비 (Cohen's d, 개선율, F1비교, 효율지표) |
+| [5] INTERACTIVE | ✅ | .calc 존재. Cohen's d 계산기 — 슬라이더 6개 + oninput + updateEffectSize() 페이지 로드 시 호출 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(d번), .qfb 존재 |
+| [7] NAV | ✅ | ch41.html 이전, 마지막 챕터이므로 다음 버튼 disabled "커리큘럼 완성 🎓" (적절) |
+| [8] CSS | ⚠️ | .qo.wrong 일부 하드코딩 — 전 챕터 동일 기준으로 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음 (CSS 하드코딩은 경미하여 PASS 처리)
+
+---
+
+### 100단계 갭 분석 신규 챕터 QA 결과 (Ch.14C, Ch.41, Ch.42)
+
+| 챕터 | 파일 | 결과 | 비고 |
+|------|------|:----:|------|
+| Ch.14C 학문적 사고력 | ch14c.html | ✅ PASS | 버튼형 인터랙티브 (주장 분류기) — 정상 |
+| Ch.41 구현·재현성 엔지니어링 | ch41.html | ✅ PASS | 체크박스 진단기 — 정상 |
+| Ch.42 효과크기와 결과 해석 | ch42.html | ✅ PASS | Cohen's d 계산기 — 정상 |
+
+**신규 챕터 QA 총계**: PASS 3개 / FAIL 0개 ✅ 전체 통과
+
+**전체 프로젝트 QA 누계**: PASS 43개 / FAIL 0개 ✅
+
+
+---
+
+## 4차 QA 배치 — LLM 심화 시리즈 (2026-04-19)
+
+### Ch.12B — LLM 사전학습·파인튜닝·LoRA (2026-04-19)
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재 |
+| [2] EASY BOX | ✅ | .et, p>strong(요리사 비유), ul>li 4개 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개(사전학습/SFT/LoRA/양자화) |
+| [4] FORMULA BOX | ✅ | .fb 5개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | LoRA 파라미터 절감률 계산기 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(b번), .qfb 존재 |
+| [7] NAV | ✅ | ch12.html ← → ch12c.html |
+| [8] CSS | ⚠️ | .qo.wrong 일부 하드코딩 — 전 챕터 동일 기준으로 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음
+
+---
+
+### Ch.12C — RLHF·선호도 학습·DPO (2026-04-19)
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재 |
+| [2] EASY BOX | ✅ | .et, p>strong(개 훈련 비유), ul>li 4개 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개(정렬/RLHF/DPO/비교) |
+| [4] FORMULA BOX | ✅ | .fb 3개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | DPO β 시뮬레이터 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(a번), .qfb 존재 |
+| [7] NAV | ✅ | ch12b.html ← → ch12d.html |
+| [8] CSS | ✅ | CSS 변수 사용. 경미한 #fff 버튼만 있음 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음
+
+---
+
+### Ch.12D — LLM 추론 심화·CoT·GRPO (2026-04-19)
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재 |
+| [2] EASY BOX | ✅ | .et, p>strong(수학 풀이 비유), ul>li 4개 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개(CoT/Self-Consistency/GRPO/MoE) |
+| [4] FORMULA BOX | ✅ | .fb 5개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | Self-Consistency 다수결 시뮬레이터 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(b번), .qfb 존재 |
+| [7] NAV | ✅ | ch12c.html ← → ch12e.html |
+| [8] CSS | ✅ | 하드코딩 없음 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음
+
+---
+
+### Ch.12E — RAG 검색 증강 생성 (2026-04-19)
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재 |
+| [2] EASY BOX | ✅ | .et, p>strong(오픈북 비유), ul>li 4개 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개(RAG/Dense Retrieval/Advanced RAG/RAGAS) |
+| [4] FORMULA BOX | ✅ | .fb 4개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | RAG 청크·Top-k 최적화 탐색기 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(b번), .qfb 존재 |
+| [7] NAV | ✅ | ch12d.html ← → ch12f.html |
+| [8] CSS | ⚠️ | .qo.wrong 경미한 하드코딩 — 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음
+
+---
+
+### Ch.12F — LLM 평가 방법론 (2026-04-19)
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재 |
+| [2] EASY BOX | ✅ | .et, p>strong(채점 방법 비유), ul>li 4개 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개(BLEU/LLM-Judge/Arena/가이드) |
+| [4] FORMULA BOX | ✅ | .fb 3개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | BLEU vs LLM-Judge 메트릭 비교기 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(b번), .qfb 존재 |
+| [7] NAV | ✅ | ch12e.html ← → ch13.html |
+| [8] CSS | ✅ | 하드코딩 없음 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음
+
+---
+
+### Ch.43 — RAG 수학 기반·Dense Retrieval·FAISS (2026-04-19)
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재 |
+| [2] EASY BOX | ✅ | .et, p>strong(수천만 권 책 비유), ul>li 4개 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개(임베딩기하학/MIPS·FAISS/DPR/Modular RAG) |
+| [4] FORMULA BOX | ✅ | .fb 6개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | FAISS IVF nprobe Trade-off 탐색기 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(b번), .qfb 존재 |
+| [7] NAV | ✅ | ch42.html ← → ch44.html |
+| [8] CSS | ⚠️ | .qo.wrong 경미한 하드코딩 — 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음
+
+---
+
+### Ch.44 — LLM Alignment 이론·RLHF 수학 (2026-04-19)
+**결과**: PASS ✅
+
+| 항목 | 결과 | 비고 |
+|------|------|------|
+| [1] HERO | ✅ | .badge, h1, p 모두 존재 |
+| [2] EASY BOX | ✅ | .et, p>strong(직원 훈련 비유), ul>li 4개 |
+| [3] MAIN CONTENT | ✅ | h2.st 4개(RLHF정식화/Bradley-Terry/Constitutional AI/보상해킹) |
+| [4] FORMULA BOX | ✅ | .fb 5개 모두 .fl + 수식 + .fn 완비 |
+| [5] INTERACTIVE | ✅ | KL-제약 RL 최적 정책 시뮬레이터 |
+| [6] QUIZ | ✅ | .qo 4개, ans(this,true) 정확히 1개(b번), .qfb 존재 |
+| [7] NAV | ✅ | ch43.html ← | 다음 버튼 disabled "커리큘럼 완성" (최종 챕터) |
+| [8] CSS | ⚠️ | .qo.wrong 경미한 하드코딩 — 허용 |
+| [9] MathJax | ✅ | \( \) 인라인, \[ \] 블록 모두 사용 |
+
+**수정 요청**: 없음
+

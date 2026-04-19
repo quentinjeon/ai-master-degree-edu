@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.41 — 구현·재현성 엔지니어링 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.41 · 구현 실전 (Phase 3-D — 실전 역량 1주차)</div>
+  <h1>구현·재현성<br/>엔지니어링</h1>
+  <p>"좋은 실험은 한 번 잘 나온 것이 아니라 누구나 반복할 수 있는 것이다." Seed 고정, Config 관리, 실험 로그, 폴더 구조 — SCI급 논문의 코드 재현성 표준.</p>
+</div>
+
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>요리 레시피가 정확하지 않으면 다른 사람이 똑같이 만들 수 없다. <strong>코드도 마찬가지다 — Seed, 파라미터, 환경이 모두 기록돼야 "재현"이 된다.</strong></p>
+  <ul>
+    <li>Seed 없이 실험: 모델을 새로 학습할 때마다 정확도가 85%, 84%, 86%로 다르다 → 논문에 몇 %를 쓸 것인가?</li>
+    <li>Config 없이 실험: 6개월 뒤 "이때 learning rate가 얼마였지?"를 기억할 수 없다</li>
+    <li>AI에서: NeurIPS 2023부터 코드 공개 + 재현성 체크리스트를 의무화한 학회가 늘고 있다</li>
+  </ul>
+</div>
+
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1 -->
+<h2 class="st"><span class="ic">🔥</span>PyTorch 핵심 패턴 — 실험 구현의 최소 단위</h2>
+<p>PyTorch는 연구 구현의 사실상 표준입니다. 전체 라이브러리를 다 알 필요는 없습니다. 논문 실험을 구현하는 데 필요한 핵심 5개 패턴만 익히면 됩니다.</p>
+
+<h3 class="sub">PyTorch 핵심 5패턴</h3>
+<table>
+  <tr><th>패턴</th><th>역할</th><th>핵심 코드</th></tr>
+  <tr><td>Dataset + DataLoader</td><td>데이터 로딩 파이프라인</td><td><code>DataLoader(dataset, batch_size=32, shuffle=True)</code></td></tr>
+  <tr><td>nn.Module</td><td>모델 정의</td><td><code>class Model(nn.Module): def forward(self, x): ...</code></td></tr>
+  <tr><td>Optimizer + Loss</td><td>학습 루프</td><td><code>loss.backward(); optimizer.step()</code></td></tr>
+  <tr><td>Checkpoint 저장</td><td>모델 저장·불러오기</td><td><code>torch.save({'state': model.state_dict()}, path)</code></td></tr>
+  <tr><td>device 관리</td><td>GPU/CPU 자동화</td><td><code>device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')</code></td></tr>
+</table>
+
+<!-- [4] FORMULA BOX -->
+<div class="fb">
+  <div class="fl">PyTorch 학습 루프 — 수식과 코드의 대응</div>
+  \[
+  \theta_{t+1} = \theta_t - \eta \cdot \nabla_\theta \mathcal{L}(\theta_t;\, \mathcal{B}_t)
+  \]
+  <div class="fn">
+    \(\eta\): 학습률 (learning rate) → <code>config.yaml: lr: 0.001</code><br/>
+    \(\nabla_\theta \mathcal{L}\): 손실 그라디언트 → <code>loss.backward()</code><br/>
+    \(\theta_{t+1} = \theta_t - \eta\nabla\mathcal{L}\): 파라미터 업데이트 → <code>optimizer.step()</code><br/>
+    \(\mathcal{B}_t\): 미니배치 → <code>DataLoader</code>가 자동으로 제공<br/>
+    이 한 줄의 수식이 PyTorch 학습 루프 전체를 표현한다
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>Dataset 클래스를 먼저 분리하라.</strong> 전처리 로직이 모델 코드와 섞이면 나중에 데이터를 바꿀 때 코드 전체를 수정해야 한다. <code>class MyDataset(Dataset)</code>으로 독립 파일을 만드는 것이 재현성의 시작이다.</p></div>
+</div>
+
+
+<!-- 섹션 2 -->
+<h2 class="st"><span class="ic">⚙</span>Config 파일 — 하드코딩을 없앤다</h2>
+<p>코드에 숫자를 직접 쓰는 것(하드코딩)은 실험 관리의 최대 실수입니다. Learning rate, batch size, epoch 수 등 모든 파라미터는 config 파일에서 관리해야 합니다.</p>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>❌ 하드코딩</h5>
+    <ul>
+      <li><code>lr = 0.001</code> (코드 내부)</li>
+      <li><code>for i in range(100):</code></li>
+      <li>파라미터 파악이 불가</li>
+      <li>코드 수정 → 다시 실행 필요</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>✅ Config 관리</h5>
+    <ul>
+      <li><code>config.yaml: lr: 0.001</code></li>
+      <li><code>config.yaml: epochs: 100</code></li>
+      <li>config 파일 하나로 실험 복원</li>
+      <li>config만 바꾸고 실행</li>
+    </ul>
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">Config YAML 표준 구조</div>
+  \[
+  \texttt{config.yaml:} \quad
+  \begin{cases}
+  \texttt{model: \{ hidden\_dim: 256,\ num\_layers: 4 \}} \\
+  \texttt{train: \{ lr: 0.001,\ epochs: 100,\ batch\_size: 32 \}} \\
+  \texttt{seed: 42} \\
+  \texttt{data: \{ dataset: "squad",\ split: 0.8 \}}
+  \end{cases}
+  \]
+  <div class="fn">
+    Python에서 <code>import yaml; cfg = yaml.safe_load(open('config.yaml'))</code> 로 dict로 읽음<br/>
+    각 실험은 별도 config 파일로 → <code>exp01.yaml</code>, <code>exp02.yaml</code><br/>
+    논문 Experiment Setting 섹션 = config 파일의 핵심 파라미터 목록<br/>
+    Git에 config 파일을 커밋하면 실험 이력이 자동 기록됨
+  </div>
+</div>
+
+
+<!-- 섹션 3 -->
+<h2 class="st"><span class="ic">🌱</span>Seed 고정 — 재현 가능한 결과의 기초</h2>
+<p>딥러닝 실험은 가중치 초기화, 데이터 셔플, 드롭아웃 등에서 난수를 사용합니다. Seed를 고정하지 않으면 같은 코드로도 매번 다른 결과가 나옵니다. SCI 논문은 "동일 seed에서 재현 가능"해야 합니다.</p>
+
+<div class="fb">
+  <div class="fl">Seed 고정 표준 코드 패턴</div>
+  \[
+  \texttt{seed\_everything}(42): \quad
+  \begin{aligned}
+  &\texttt{random.seed}(42) \\
+  &\texttt{np.random.seed}(42) \\
+  &\texttt{torch.manual\_seed}(42) \\
+  &\texttt{torch.cuda.manual\_seed\_all}(42) \\
+  &\texttt{torch.backends.cudnn.deterministic = True}
+  \end{aligned}
+  \]
+  <div class="fn">
+    Seed 42: 관습적으로 가장 많이 쓰이는 값 (통계적 의미는 없음)<br/>
+    논문에서 "We use seed 42 for reproducibility"처럼 반드시 명시<br/>
+    단일 seed보다 여러 seed 평균이 더 신뢰도 높음: seed [42, 123, 456] 3회 실험<br/>
+    논문 보고 형식: "85.3 ± 0.4%" (평균 ± 표준편차)
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>Seed 고정만으로 완전한 재현성이 보장되지 않는다.</strong> CUDA 비결정론적 연산, 병렬 처리 순서, 라이브러리 버전 차이 등이 결과에 영향을 줄 수 있다. 논문에서는 seed + 환경(Python/PyTorch/CUDA 버전)을 함께 공개하는 것이 표준이다.</p></div>
+</div>
+
+
+<!-- 섹션 4 -->
+<h2 class="st"><span class="ic">📁</span>실험 로그와 폴더 구조</h2>
+<p>실험이 쌓일수록 "어느 실험이 어느 결과였지?"를 찾는 데 시간을 낭비하게 됩니다. 처음부터 실험 로그와 폴더 구조를 정리하는 습관이 논문 완성 속도를 결정합니다.</p>
+
+<h3 class="sub">권장 폴더 구조</h3>
+<table>
+  <tr><th>폴더/파일</th><th>역할</th></tr>
+  <tr><td><code>src/</code></td><td>핵심 소스 코드 (model.py, dataset.py, trainer.py)</td></tr>
+  <tr><td><code>configs/</code></td><td>실험별 YAML config 파일</td></tr>
+  <tr><td><code>experiments/exp_001/</code></td><td>checkpoint/, logs/, config.yaml, results.json</td></tr>
+  <tr><td><code>notebooks/</code></td><td>분석용 Jupyter 노트북 (실험 코드 아님)</td></tr>
+  <tr><td><code>requirements.txt</code></td><td>라이브러리 버전 고정 (<code>pip freeze &gt; requirements.txt</code>)</td></tr>
+  <tr><td><code>README.md</code></td><td>설치 방법, 실험 재현 명령어</td></tr>
+</table>
+
+<h3 class="sub">실험 로그 최소 기록 항목</h3>
+<table>
+  <tr><th>기록 항목</th><th>이유</th></tr>
+  <tr><td>실험 날짜·시간</td><td>어느 실험이 먼저인지 파악</td></tr>
+  <tr><td>Config 파라미터 전체</td><td>재현에 필요한 모든 설정</td></tr>
+  <tr><td>에포크별 train/val loss</td><td>과적합 시점 파악</td></tr>
+  <tr><td>최종 test metric (평균 ± 표준편차)</td><td>논문 Table 직접 사용</td></tr>
+  <tr><td>소요 시간, GPU 메모리</td><td>논문 Appendix: 계산 비용</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">ℹ️</div>
+  <div class="cb"><p><strong>Weights &amp; Biases (wandb), MLflow, TensorBoard</strong> 중 하나를 선택해 자동 로그를 강력히 권장한다. <code>wandb.log({'train_loss': loss, 'val_acc': acc})</code>만으로 모든 실험이 웹에서 비교 가능해진다. SCI 논문 저자의 70% 이상이 wandb 또는 유사 도구를 사용한다.</p></div>
+</div>
+
+
+<!-- 섹션 5 -->
+<h2 class="st"><span class="ic">📋</span>논문 재현성 표준 — 학회 요구사항</h2>
+<p>최근 주요 학회들은 논문 제출 시 재현성 체크리스트를 요구합니다. 이를 미리 알고 실험을 설계하면 나중에 재실험할 필요가 없습니다.</p>
+
+<table>
+  <tr><th>항목</th><th>설명</th><th>논문에서의 위치</th></tr>
+  <tr><td>✅ 모든 hyperparameter 공개</td><td>실험에 사용된 모든 파라미터</td><td>Appendix: Experimental Details</td></tr>
+  <tr><td>✅ Seed 명시</td><td>사용한 random seed 값</td><td>Experimental Setup</td></tr>
+  <tr><td>✅ 환경 공개</td><td>Python, PyTorch, CUDA, GPU 사양</td><td>Appendix</td></tr>
+  <tr><td>✅ 데이터셋 버전</td><td>사용한 데이터셋 버전 및 전처리</td><td>Experimental Setup</td></tr>
+  <tr><td>✅ 코드 공개 URL</td><td>GitHub 링크</td><td>Abstract 또는 Footnote</td></tr>
+  <tr><td>✅ 통계적 유의성</td><td>여러 seed 결과 ± 표준편차</td><td>Results Table</td></tr>
+</table>
+
+
+<!-- [5] INTERACTIVE — 재현성 점수 진단기 -->
+<div class="calc">
+  <h4>🔢 재현성 점수 진단기 — 내 실험은 재현 가능한가?</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;">해당하는 항목을 체크하세요. 80점 이상이면 NeurIPS/ICML 제출 가능 수준입니다.</p>
+
+  <div class="check-item">
+    <input type="checkbox" id="c1" onchange="calcReproScore()"/>
+    <label for="c1">Seed를 고정하고 코드에 명시했다</label>
+    <span class="check-score">15점</span>
+  </div>
+  <div class="check-item">
+    <input type="checkbox" id="c2" onchange="calcReproScore()"/>
+    <label for="c2">Config 파일로 모든 파라미터를 관리한다</label>
+    <span class="check-score">15점</span>
+  </div>
+  <div class="check-item">
+    <input type="checkbox" id="c3" onchange="calcReproScore()"/>
+    <label for="c3">실험 결과를 날짜와 함께 폴더별로 저장한다</label>
+    <span class="check-score">10점</span>
+  </div>
+  <div class="check-item">
+    <input type="checkbox" id="c4" onchange="calcReproScore()"/>
+    <label for="c4">에포크별 loss를 로그로 남긴다</label>
+    <span class="check-score">10점</span>
+  </div>
+  <div class="check-item">
+    <input type="checkbox" id="c5" onchange="calcReproScore()"/>
+    <label for="c5">requirements.txt 또는 conda env 파일이 있다</label>
+    <span class="check-score">10점</span>
+  </div>
+  <div class="check-item">
+    <input type="checkbox" id="c6" onchange="calcReproScore()"/>
+    <label for="c6">여러 seed에서 실험하고 평균 ± 표준편차를 계산한다</label>
+    <span class="check-score">15점</span>
+  </div>
+  <div class="check-item">
+    <input type="checkbox" id="c7" onchange="calcReproScore()"/>
+    <label for="c7">GPU/CPU 환경을 문서화했다</label>
+    <span class="check-score">5점</span>
+  </div>
+  <div class="check-item">
+    <input type="checkbox" id="c8" onchange="calcReproScore()"/>
+    <label for="c8">데이터셋 버전과 전처리 과정을 기록했다</label>
+    <span class="check-score">10점</span>
+  </div>
+  <div class="check-item">
+    <input type="checkbox" id="c9" onchange="calcReproScore()"/>
+    <label for="c9">GitHub에 코드를 공개하거나 공개 계획이 있다</label>
+    <span class="check-score">10점</span>
+  </div>
+
+  <div class="cres" id="repro-res">위 항목을 체크해서 재현성 점수를 확인하세요.</div>
+</div>
+
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">SCI 논문에서 "실험 결과 정확도 87.3% ± 0.4%"처럼 쓰는 이유는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 소수점을 더 쓸수록 논문이 정확해 보이기 때문에</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 여러 seed에서 실험한 결과의 평균과 표준편차로, 결과의 통계적 안정성을 보여주기 위해</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 학회마다 소수점 자리 형식이 다르기 때문에</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; GPU 성능에 따른 오차 범위를 표시하기 때문에</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch40.html'">← Ch.40 리뷰 대응·Response Letter</button>
+  <button class="btn btn-p" onclick="location.href='ch42.html'">Ch.42 효과크기와 결과 해석 →</button>
+</div>
+
+
+<script>
+// ── 퀴즈 공통 함수 ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! ± 표준편차는 여러 seed 실험의 안정성을 증명합니다.'
+    : '❌ 틀렸습니다. ± 표기는 여러 seed에서 반복 실험한 평균과 표준편차입니다.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── 재현성 점수 계산기 ──
+const weights = { c1:15, c2:15, c3:10, c4:10, c5:10, c6:15, c7:5, c8:10, c9:10 };
+
+function calcReproScore() {
+  let total = 0;
+  for (const [id, w] of Object.entries(weights)) {
+    if (document.getElementById(id).checked) total += w;
+  }
+
+  const level = total >= 80 ? '🏆 NeurIPS/ICML 제출 가능 수준' :
+                total >= 60 ? '🟡 학회 제출 전 보완 필요 (2~3개 항목 더 구현)' :
+                total >= 40 ? '🟠 실험 로그·Seed 관리부터 시작하세요' :
+                              '🔴 기초 재현성 설정이 필요합니다 (c1, c2, c6 우선)';
+
+  const res = document.getElementById('repro-res');
+  res.style.color = total >= 80 ? 'var(--accent3)' :
+                    total >= 60 ? 'var(--accent4)' : 'var(--accent5)';
+  res.innerHTML =
+    `재현성 점수: <strong>${total}/100</strong><br/>
+     ${level}<br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       각 체크 항목을 구현할수록 논문의 신뢰도가 올라갑니다.<br/>
+       NeurIPS 2024부터 재현성 체크리스트가 필수화됐습니다.
+     </span>`;
+}
+</script>
+</body>
+</html>

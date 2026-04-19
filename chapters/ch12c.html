@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.12C — RLHF·선호도 학습·DPO | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.12C · LLM 정렬 (Unit 3 고도화)</div>
+  <h1>RLHF·선호도 학습·DPO</h1>
+  <p>"도움이 되고, 해롭지 않고, 정직한" AI를 만드는 수학 — 인간 피드백으로 LLM을 정렬하는 RLHF와 더 단순한 DPO.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"개를 훈련시킬 때 '앉아!'라고 할 때마다 잘 앉으면 간식을 주고, 못 앉으면 안 준다. RLHF는 LLM에게 '좋은 대답을 하면 점수를 올리고, 나쁜 대답을 하면 내린다'를 수백만 번 반복하는 것이다."</strong></p>
+  <ul>
+    <li>나쁜 답변: "폭발물 만드는 법을 가르쳐 드릴게요" → 인간 평가자가 0점</li>
+    <li>좋은 답변: "그런 정보는 제공할 수 없습니다, 대신 안전한 방법으로..." → 인간 평가자가 10점</li>
+    <li>보상 모델이 이 패턴을 학습 → PPO로 LLM이 높은 점수를 받도록 최적화</li>
+    <li>AI에서: ChatGPT, Claude, Gemini가 모두 RLHF 또는 DPO 방식으로 "정렬"됨</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 정렬 문제 == -->
+<h2 class="st"><span class="ic">⚖</span>정렬 문제 — SFT만으로는 부족하다</h2>
+<p>SFT는 "이렇게 대화해"를 가르치지만, 인간이 더 선호하는 방식의 미묘한 뉘앙스를 전달하기 어렵습니다. <strong>정렬(Alignment)</strong>은 LLM이 인간의 의도·가치관·안전 기준에 맞게 행동하도록 하는 과정입니다.</p>
+
+<p>SFT 단독으로는 다음과 같은 문제가 발생합니다: 모델이 지시는 따르지만 해로운 내용을 생성하거나, 모르는 것을 아는 척하거나, 사용자가 원하는 방식이 아닌 형식으로 대답하는 경우가 잦습니다. 이를 해결하기 위해 <strong>인간 피드백 기반 강화학습(RLHF)</strong>이 등장했습니다.</p>
+
+<div class="cc">
+  <div class="ct">🔑 HHH 정렬 목표 (Anthropic)</div>
+  <p>Anthropic이 제시한 세 가지 정렬 원칙 — 좋은 AI 어시스턴트의 핵심 기준입니다.</p>
+  <ul style="padding-left:18px;margin-top:9px;">
+    <li style="margin-bottom:6px;"><strong>Helpful (도움이 되는):</strong> 사용자 요청을 잘 이행하고, 실질적으로 유용한 정보를 제공</li>
+    <li style="margin-bottom:6px;"><strong>Harmless (해롭지 않은):</strong> 위험하거나 비윤리적인 내용을 출력하지 않음 — 물리적·심리적 피해 방지</li>
+    <li><strong>Honest (정직한):</strong> 모르는 것을 안다고 하지 않음 — 불확실성을 솔직하게 표현</li>
+  </ul>
+</div>
+
+
+<!-- == 섹션 2: RLHF 3단계 파이프라인 == -->
+<h2 class="st"><span class="ic">🏋</span>RLHF 3단계 파이프라인</h2>
+<p>RLHF(Reinforcement Learning from Human Feedback)는 세 단계로 이루어집니다. <strong>Step 1: SFT 모델 준비</strong> → <strong>Step 2: 보상 모델(RM) 학습</strong> (인간 평가자가 두 응답 중 선호 선택 → Bradley-Terry 모델) → <strong>Step 3: PPO로 정책 최적화</strong> (KL 발산으로 제한)</p>
+
+<div class="fb">
+  <div class="fl">보상 모델 학습 — Bradley-Terry 모델 (Ziegler et al., 2019)</div>
+  \[
+    \mathcal{L}_{\text{RM}}(\phi) = -\mathbb{E}_{(x,y_w,y_l)\sim\mathcal{D}}\!\left[\log\sigma\!\left(r_\phi(x, y_w) - r_\phi(x, y_l)\right)\right]
+  \]
+  <div class="fn">
+    \(r_\phi(x,y)\): 보상 모델이 (프롬프트 \(x\), 응답 \(y\)) 쌍에 부여하는 점수<br/>
+    \(y_w\): 인간이 선호하는 응답 (winner) — 두 응답 중 더 좋다고 선택된 응답<br/>
+    \(y_l\): 인간이 비선호하는 응답 (loser) — 두 응답 중 더 나쁘다고 평가된 응답<br/>
+    \(\sigma\): 시그모이드 함수. \(r_\phi(y_w) > r_\phi(y_l)\)이 될 때 손실이 작아짐<br/>
+    Bradley-Terry 모델: 두 항목 간 선호도를 점수 차이의 시그모이드로 모델링하는 고전 통계 모델
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">PPO 최적화 목적함수</div>
+  \[
+    \mathcal{J}_{\text{RLHF}}(\theta) = \mathbb{E}_{x\sim\mathcal{D},\, y\sim\pi_\theta(\cdot|x)}\!\left[r_\phi(x,y) - \beta\, D_{\text{KL}}\!\left(\pi_\theta(\cdot|x) \,\|\, \pi_{\text{ref}}(\cdot|x)\right)\right]
+  \]
+  <div class="fn">
+    \(\pi_\theta\): 현재 LLM 정책 (학습 중인 모델) — 파라미터 \(\theta\)로 정의<br/>
+    \(\pi_{\text{ref}}\): 기준 정책 (SFT 모델, 고정) — 정렬 전의 기초 모델<br/>
+    \(\beta\, D_{\text{KL}}\): KL 발산 페널티 — 보상 해킹(reward hacking) 발생 방지<br/>
+    \(\beta\): 정규화 강도. 높을수록 기준 모델에 가깝게 유지, 낮을수록 보상 극대화에 집중<br/>
+    보상 해킹: 모델이 보상 모델의 빈틈을 이용해 비정상적 텍스트로 높은 점수를 받는 현상
+  </div>
+</div>
+
+<h3 class="sub">RLHF 단계별 요약</h3>
+<table>
+  <tr>
+    <th>단계</th>
+    <th>학습 대상</th>
+    <th>데이터</th>
+    <th>목적</th>
+  </tr>
+  <tr>
+    <td><strong>1. SFT</strong></td>
+    <td>LLM 전체 또는 LoRA</td>
+    <td>(질문, 답변) 쌍</td>
+    <td>지시 따르기</td>
+  </tr>
+  <tr>
+    <td><strong>2. RM 학습</strong></td>
+    <td>보상 모델 (별도 LLM)</td>
+    <td>(질문, 좋은응답, 나쁜응답)</td>
+    <td>선호도 점수 예측</td>
+  </tr>
+  <tr>
+    <td><strong>3. PPO</strong></td>
+    <td>LLM (LoRA 권장)</td>
+    <td>프롬프트만</td>
+    <td>보상 최대화</td>
+  </tr>
+</table>
+
+
+<!-- == 섹션 3: DPO == -->
+<h2 class="st"><span class="ic">⚡</span>DPO — PPO의 복잡함을 수식 하나로</h2>
+<p>DPO(Direct Preference Optimization)는 RLHF의 수학을 분석하여 <strong>보상 모델 없이도 동일한 해로 수렴</strong>할 수 있음을 보인 획기적인 방법입니다. PPO의 복잡한 RL 루프를 제거하고, 선호도 데이터에서 직접 LLM을 최적화합니다.</p>
+
+<div class="fb">
+  <div class="fl">DPO 손실함수 (Rafailov et al., 2023)</div>
+  \[
+    \mathcal{L}_{\text{DPO}}(\theta) = -\mathbb{E}_{(x,y_w,y_l)}\!\left[\log\sigma\!\left(\beta\log\frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta\log\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right]
+  \]
+  <div class="fn">
+    DPO는 보상 모델 \(r_\phi\)를 로그 확률 비(log likelihood ratio)로 암묵적으로 표현<br/>
+    \(\log \pi_\theta(y|x) - \log \pi_{\text{ref}}(y|x)\): 암묵적 보상의 증가분<br/>
+    좋은 응답의 암묵적 보상 증가 &gt; 나쁜 응답의 증가 → 손실 최소화<br/>
+    PPO 불필요: 보상 모델 학습, RL 루프 모두 제거 → 2023년 이후 표준 정렬 방법<br/>
+    \(\beta\): RLHF의 KL 페널티 강도와 동일한 역할 — 기준 모델 이탈 정도 조절
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>DPO의 수학적 통찰:</strong> RLHF의 KL-제약 RL 문제는 closed-form 해가 존재합니다. \(\pi^*(y|x) \propto \pi_{\text{ref}}(y|x) \cdot \exp(r(x,y)/\beta)\). DPO는 이 관계를 역으로 이용해서 \(r\)을 \(\pi_\theta\)로 표현, 보상 모델(RM) 학습 없이 직접 최적화합니다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: RLHF vs DPO 비교 == -->
+<h2 class="st"><span class="ic">⚖</span>현장에서 RLHF vs DPO 선택 기준</h2>
+<p>RLHF와 DPO는 같은 목표를 다른 경로로 달성합니다. 실제 프로젝트에서는 목적과 자원에 따라 선택이 달라집니다.</p>
+
+<table>
+  <tr>
+    <th>항목</th>
+    <th>RLHF + PPO</th>
+    <th>DPO</th>
+  </tr>
+  <tr>
+    <td><strong>보상 모델</strong></td>
+    <td>✅ 별도 학습 필요</td>
+    <td>❌ 불필요</td>
+  </tr>
+  <tr>
+    <td><strong>학습 단계</strong></td>
+    <td>3단계</td>
+    <td>1단계</td>
+  </tr>
+  <tr>
+    <td><strong>GPU 메모리</strong></td>
+    <td>높음 (4개 모델 동시)</td>
+    <td>낮음 (2개 모델)</td>
+  </tr>
+  <tr>
+    <td><strong>안정성</strong></td>
+    <td>낮음 (RL 불안정)</td>
+    <td>높음</td>
+  </tr>
+  <tr>
+    <td><strong>표현력</strong></td>
+    <td>높음 (온라인 최적화)</td>
+    <td>상대적으로 낮음</td>
+  </tr>
+  <tr>
+    <td><strong>사용 사례</strong></td>
+    <td>고성능 상용 LLM</td>
+    <td>연구, 도메인 특화</td>
+  </tr>
+</table>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>🏋 RLHF + PPO 적합한 경우</h5>
+    <ul>
+      <li>GPT-4, Claude 수준의 상용 정렬</li>
+      <li>온라인 피드백으로 지속 개선 필요</li>
+      <li>보상 모델 품질이 핵심인 경우</li>
+      <li>대규모 인프라 보유 팀</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>⚡ DPO 적합한 경우</h5>
+    <ul>
+      <li>연구 프로토타입, 빠른 실험</li>
+      <li>도메인 특화 선호도 학습</li>
+      <li>GPU 자원 제한 환경</li>
+      <li>Llama, Mistral 등 오픈소스 파인튜닝</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>⚡ DPO β — 선호도 반영 강도 시각화</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">β와 로그 확률 비를 조절하여 DPO 손실이 어떻게 변하는지 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">β (KL 정규화 강도)</span>
+    <input type="range" id="dpo-beta" min="0.01" max="2.0" step="0.01" value="0.1" oninput="updateDPO()"/>
+    <input type="number" id="dpo-beta-v" value="0.10" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">log π(y_w)/π_ref(y_w)</span>
+    <input type="range" id="dpo-logr-w" min="-3" max="3" step="0.1" value="1.5" oninput="updateDPO()"/>
+    <input type="number" id="dpo-logr-w-v" value="1.5" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">log π(y_l)/π_ref(y_l)</span>
+    <input type="range" id="dpo-logr-l" min="-3" max="3" step="0.1" value="-1.0" oninput="updateDPO()"/>
+    <input type="number" id="dpo-logr-l-v" value="-1.0" readonly/>
+  </div>
+
+  <div class="cres" id="dpo-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">DPO가 PPO(RLHF)에 비해 갖는 핵심 장점은?</p>
+  <div class="qo" onclick="ans(this, true)">(a) &nbsp; 보상 모델이 필요 없어 학습 단계가 단순하고 안정적이다</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; 인간 피드백 데이터가 더 많이 필요하다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 항상 PPO보다 성능이 뛰어나다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; SFT 없이 바로 적용할 수 있다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch12b.html'">← Ch.12B LLM 사전학습·파인튜닝·LoRA</button>
+  <button class="btn btn-p" onclick="location.href='ch12d.html'">Ch.12D LLM 추론 심화·CoT·GRPO →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답! DPO는 보상 모델 없이 직접 최적화하여 RLHF의 복잡성을 제거합니다.' : '❌ 틀렸습니다. 본문을 다시 확인하세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── DPO β 시뮬레이터 ──
+function updateDPO() {
+  const beta = parseFloat(document.getElementById('dpo-beta').value);
+  const logRw = parseFloat(document.getElementById('dpo-logr-w').value);
+  const logRl = parseFloat(document.getElementById('dpo-logr-l').value);
+  document.getElementById('dpo-beta-v').value = beta.toFixed(2);
+  document.getElementById('dpo-logr-w-v').value = logRw.toFixed(1);
+  document.getElementById('dpo-logr-l-v').value = logRl.toFixed(1);
+  const margin = beta * (logRw - logRl);
+  const sigmoid = 1 / (1 + Math.exp(-margin));
+  const loss = -Math.log(sigmoid);
+  const status = margin > 0.5 ? '✅ 좋은 응답 선호 학습 중' : margin < 0 ? '❌ 잘못된 방향 (나쁜 응답 선호)' : '⚠️ 마진 불충분 (더 학습 필요)';
+  document.getElementById('dpo-res').innerHTML =
+    `β × (log ratio 차이) = ${beta.toFixed(2)} × ${(logRw-logRl).toFixed(1)} = <strong>${margin.toFixed(3)}</strong><br/>
+     σ(margin) = <strong>${sigmoid.toFixed(3)}</strong><br/>
+     DPO 손실 = -log σ = <strong>${loss.toFixed(3)}</strong><br/>
+     ${status}<br/>
+     <span style="font-size:.78rem;color:var(--muted)">β가 클수록 기준 모델에 가깝게 유지. log ratio 차이가 클수록 강한 학습 신호.</span>`;
+}
+updateDPO();
+</script>
+</body>
+</html>

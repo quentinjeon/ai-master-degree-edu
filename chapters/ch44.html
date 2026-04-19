@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.44 — LLM Alignment 이론 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="../style.css"/>
+
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.44 · LLM Alignment 이론 (Phase 3-D)</div>
+  <h1>LLM Alignment 이론 — RLHF 수학과 DPO 도출</h1>
+  <p>RLHF의 수학적 정식화 완전 유도 — Bradley-Terry 보상 모델, KL 발산 정규화 RL의 Closed-Form 해, 그리고 DPO가 왜 RLHF와 동치인지. NeurIPS/ICML 수준 Alignment 논문 독해를 위한 필수 이론.</p>
+</div>
+
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>새 직원을 훈련시킬 때, '하루 일당을 주는 대신 계속 일하게 하면 무조건 나쁜 짓도 한다.' <strong>RLHF는 '좋은 행동에 보너스, 나쁜 행동에 패널티'를 주되, '원래 성격(기준 모델)에서 너무 멀어지면 안 된다'는 KL 제약을 건다. DPO는 이 최적해가 수식으로 표현되므로, 보상 모델 없이 직접 그 해로 가는 길이다.</strong></p>
+  <ul>
+    <li>KL 발산 없이 보상만 최대화: 점수가 높은 "완벽한 문장" 하나를 무한 반복 출력 (보상 해킹)</li>
+    <li>KL 제약 추가: 기준 모델과 비슷하게 유지하면서 보상 최대화 → 균형 잡힌 최적화</li>
+    <li>DPO의 통찰: KL-제약 RL의 해 \(\pi^*(y|x) \propto \pi_\text{ref}(y|x)\cdot\exp(r(x,y)/\beta)\) → 이를 역이용</li>
+    <li>AI에서: Claude (Constitutional AI), InstructGPT, LLaMA 2 Chat 모두 이 이론 기반</li>
+  </ul>
+</div>
+
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- == 섹션 1: RLHF 수학적 정식화 == -->
+<h2 class="st"><span class="ic">📐</span>KL-제약 강화학습 — 완전 수학적 정식화</h2>
+<p>RLHF는 다음의 최적화 문제로 정식화됩니다: 보상 함수를 최대화하되, 기준 정책(reference policy)과의 KL 발산을 \(\beta\)로 제한합니다.</p>
+
+<!-- [4] FORMULA BOX 1 -->
+<div class="fb">
+  <div class="fl">RLHF 최적화 문제 (KL-제약 RL)</div>
+  \[\pi^* = \arg\max_{\pi} \mathbb{E}_{x\sim\mathcal{D},\, y\sim\pi(\cdot|x)}\!\left[r(x,y)\right] - \beta\, \mathbb{E}_{x\sim\mathcal{D}}\!\left[D_{\text{KL}}\!\left(\pi(\cdot|x) \,\|\, \pi_{\text{ref}}(\cdot|x)\right)\right]\]
+  <div class="fn">
+    \(r(x,y)\): 보상 함수 — 보상 모델이 출력하는 점수<br/>
+    \(\pi_\text{ref}\): 기준 정책 — SFT(Supervised Fine-Tuning) 모델<br/>
+    \(\beta\): KL 패널티 강도. \(\beta=0\)이면 보상만 최대화(보상 해킹 위험), \(\beta\to\infty\)이면 \(\pi\to\pi_\text{ref}\)<br/>
+    Constrained MDP의 특수 케이스
+  </div>
+</div>
+
+<!-- [4] FORMULA BOX 2 -->
+<div class="fb">
+  <div class="fl">KL-제약 RL의 Closed-Form 최적해 (완전 유도)</div>
+  \[\pi^*(y \mid x) = \frac{\pi_{\text{ref}}(y \mid x) \cdot \exp\!\left(r(x,y)/\beta\right)}{Z(x)} \quad\text{where}\quad Z(x) = \sum_y \pi_{\text{ref}}(y \mid x)\cdot e^{r(x,y)/\beta}\]
+  <div class="fn">
+    유도: 목적함수에 \(\partial/\partial\pi = 0\) → 라그랑주 승수법으로 직접 해 도출<br/>
+    \(Z(x)\): 정규화 상수(분배 함수). 직접 계산 불가능(모든 \(y\)에 대한 합)<br/>
+    해석: 보상이 높은 응답은 기준 정책 확률보다 \(\exp(r/\beta)\)배 높아짐<br/>
+    이 해가 존재한다는 것 = RLHF 문제의 해가 항상 이 형태
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>DPO의 핵심 통찰:</strong> 위 최적해를 역으로 표현하면 \(r(x,y) = \beta\cdot\log[\pi^*(y|x)/\pi_\text{ref}(y|x)] + \beta\cdot\log Z(x)\). 보상 \(r(x,y)\)를 \(\pi^*\)의 함수로 표현할 수 있다! 이 관계를 Bradley-Terry 손실에 대입하면 보상 모델 없이 \(\pi\)를 직접 최적화하는 DPO가 도출됩니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: Bradley-Terry 보상 모델 == -->
+<h2 class="st"><span class="ic">⚖️</span>쌍대 선호도에서 보상 점수 학습하기</h2>
+<p>인간이 "A보다 B가 더 좋다"고 말할 때, 이 선호도를 확률 모델로 표현한 것이 Bradley-Terry 모델입니다.</p>
+
+<!-- [4] FORMULA BOX 3 -->
+<div class="fb">
+  <div class="fl">Bradley-Terry 선호 모델</div>
+  \[P(y_w \succ y_l \mid x) = \sigma(r(x, y_w) - r(x, y_l)) = \frac{e^{r(x,y_w)}}{e^{r(x,y_w)} + e^{r(x,y_l)}}\]
+  <div class="fn">
+    \(y_w \succ y_l\): "\(y_w\)가 \(y_l\)보다 선호됨" (인간이 선택)<br/>
+    \(\sigma\): 시그모이드 함수. \(r\) 차이가 클수록 확률이 1에 가까워짐<br/>
+    보상 모델 학습 = 이 확률을 최대화하는 MLE = 이진 교차 엔트로피<br/>
+    확률적 선호(deterministic 아님): 같은 비교에서도 노이즈 존재
+  </div>
+</div>
+
+<!-- [4] FORMULA BOX 4 -->
+<div class="fb">
+  <div class="fl">DPO 완전 도출 — 보상을 π로 치환</div>
+  \[\mathcal{L}_{\text{DPO}} = -\mathbb{E}\!\left[\log\sigma\!\left(\beta\log\frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta\log\frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right]\]
+  <div class="fn">
+    핵심 치환: \(r(x,y) = \beta\cdot\log[\pi_\theta(y|x)/\pi_\text{ref}(y|x)] + \beta\cdot\log Z(x)\)<br/>
+    \(\log Z(x)\)는 \(y_w\), \(y_l\) 비교에서 동일하게 상쇄 → 사라짐<br/>
+    결과: 보상 모델 \(r_\phi\) 없이 \(\pi_\theta\)만으로 DPO 학습 가능<br/>
+    이것이 DPO가 "보상 모델 없이 RLHF와 동치"인 수학적 이유
+  </div>
+</div>
+
+
+<!-- == 섹션 3: Constitutional AI == -->
+<h2 class="st"><span class="ic">📜</span>Constitutional AI — 규칙으로 정렬하기</h2>
+<p>Anthropic의 Constitutional AI(CAI)는 인간 피드백 대신 미리 정의한 원칙(Constitution)을 사용해 AI를 스스로 비판하고 개선하게 합니다.</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><p><strong>SL-CAI</strong>: LLM이 원칙 목록을 보고 자신의 응답을 비판 → 개선 → (비판, 개선된 응답) 쌍으로 SFT</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><p><strong>RLAIF</strong>: AI 헌법 기준으로 다른 LLM이 쌍대 선호도 생성 → 보상 모델 학습 → RLHF와 동일하지만 인간 피드백 없음</p></div>
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>RLAIF vs RLHF:</strong> Lee et al., 2023에서 RLAIF가 RLHF와 비슷한 성능을 내면서 인간 어노테이션 없이 확장 가능함을 보임. 현재 대부분의 대형 AI 기업이 활용.</p></div>
+</div>
+
+
+<!-- == 섹션 4: 보상 해킹과 실패 모드 == -->
+<h2 class="st"><span class="ic">⚠️</span>보상 해킹과 Goodhart's Law</h2>
+<p>"보상 측정 지표가 목표가 되는 순간, 그것은 더 이상 좋은 측정 지표가 아니다" — Goodhart's Law. RLHF에서도 동일한 문제가 발생합니다.</p>
+
+<!-- [4] FORMULA BOX 5 -->
+<div class="fb">
+  <div class="fl">보상 해킹의 수학적 이해</div>
+  \[\mathbb{E}[r_{\text{true}}] \leq \mathbb{E}[r_{\hat{\phi}}] \quad\text{단,}\quad \mathbb{E}[r_{\hat{\phi}}] \nearrow \text{ as training} \nearrow\]
+  <div class="fn">
+    \(r_\text{true}\): 진짜 인간의 선호, \(r_{\hat{\phi}}\): 학습된 보상 모델의 점수<br/>
+    보상 모델은 훈련 데이터 분포 밖에서 오버핏 → 진짜 보상과 분리됨<br/>
+    학습이 길어질수록 보상 모델 점수는 오르지만 실제 품질은 떨어질 수 있음<br/>
+    해결: KL 제약(\(\beta\)), 더 많은 인간 피드백, 보상 앙상블
+  </div>
+</div>
+
+<h3 class="sub">RLHF 실패 모드와 해결책</h3>
+<table>
+  <tr><th>실패 모드</th><th>원인</th><th>해결책</th></tr>
+  <tr><td>보상 해킹</td><td>보상 모델 과신</td><td>KL 제약 강화, 보상 앙상블</td></tr>
+  <tr><td>응답 길이 편향</td><td>긴 응답 = 높은 점수</td><td>길이 패널티, 길이 정규화</td></tr>
+  <tr><td>아첨 (Sycophancy)</td><td>인간 평가자 편향</td><td>다양한 평가자, 더 객관적 기준</td></tr>
+  <tr><td>훈련 불안정</td><td>PPO의 높은 민감도</td><td>DPO로 전환, 더 낮은 학습률</td></tr>
+</table>
+
+
+<!-- [5] INTERACTIVE -->
+<div class="calc">
+  <h4>📐 KL 제약이 최적 정책에 미치는 영향</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">두 응답(y1, y2)에 대한 기준 정책이 50/50일 때, β와 보상값에 따라 최적 정책 π*가 어떻게 결정되는지 확인합니다.</p>
+
+  <div class="cr">
+    <span class="cl">\(\beta\) (KL 제약 강도)</span>
+    <input type="range" id="align-beta" min="0.01" max="5.0" step="0.01" value="0.5" oninput="updateAlign()"/>
+    <input type="number" id="align-beta-v" value="0.50" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">응답 A 보상 \(r(y_1)\)</span>
+    <input type="range" id="align-r1" min="-2" max="5" step="0.1" value="3.0" oninput="updateAlign()"/>
+    <input type="number" id="align-r1-v" value="3.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">응답 B 보상 \(r(y_2)\)</span>
+    <input type="range" id="align-r2" min="-2" max="5" step="0.1" value="1.0" oninput="updateAlign()"/>
+    <input type="number" id="align-r2-v" value="1.0" readonly/>
+  </div>
+
+  <div class="cres" id="align-res">계산 중...</div>
+</div>
+
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">DPO 수식에서 \(\log Z(x)\) 항이 사라지는 이유는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(Z(x)\)가 항상 1이기 때문에</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(y_w\)와 \(y_l\) 두 응답에 대한 \(Z(x)\)가 동일하므로 차이에서 상쇄되기 때문에</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 보상 모델을 사용하지 않기 때문에</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; KL 발산 항이 \(Z(x)\)를 흡수하기 때문에</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch43.html'">← Ch.43 RAG 수학 기반</button>
+  <button class="btn btn-p" disabled>커리큘럼 완성 🎓</button>
+</div>
+
+
+<!-- JAVASCRIPT -->
+<script>
+function updateAlign() {
+  const beta = parseFloat(document.getElementById('align-beta').value);
+  const r1 = parseFloat(document.getElementById('align-r1').value);
+  const r2 = parseFloat(document.getElementById('align-r2').value);
+  document.getElementById('align-beta-v').value = beta.toFixed(2);
+  document.getElementById('align-r1-v').value = r1.toFixed(1);
+  document.getElementById('align-r2-v').value = r2.toFixed(1);
+  const pRef1 = 0.5, pRef2 = 0.5;
+  const unnorm1 = pRef1 * Math.exp(r1 / beta);
+  const unnorm2 = pRef2 * Math.exp(r2 / beta);
+  const Z = unnorm1 + unnorm2;
+  const pi1 = unnorm1 / Z;
+  const pi2 = unnorm2 / Z;
+  const kl = pi1 * Math.log(pi1 / pRef1) + pi2 * Math.log(pi2 / pRef2);
+  const expectedReward = pi1 * r1 + pi2 * r2;
+  const objective = expectedReward - beta * kl;
+  document.getElementById('align-res').innerHTML =
+    `최적 정책 π*(y1): <strong>${(pi1*100).toFixed(1)}%</strong> | π*(y2): <strong>${(pi2*100).toFixed(1)}%</strong><br/>
+     기준 정책: π_ref(y1) = 50% | π_ref(y2) = 50%<br/>
+     KL(π*‖π_ref): <strong>${kl.toFixed(3)}</strong><br/>
+     기대 보상: ${expectedReward.toFixed(3)}<br/>
+     목적함수 값: <strong>${objective.toFixed(3)}</strong><br/>
+     <span style="font-size:.78rem;color:var(--muted)">β가 작을수록 보상이 높은 y1에 집중(보상 해킹 위험). β가 클수록 기준 정책(50/50)에 가까워짐.</span>`;
+}
+updateAlign();
+
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct ? '✅ 정답! Z(x)는 y_w와 y_l 두 항에서 동일하므로 차이를 취할 때 상쇄됩니다.' : '❌ 틀렸습니다. 본문을 다시 확인하세요.';
+}
+
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+</script>
+</body>
+</html>
