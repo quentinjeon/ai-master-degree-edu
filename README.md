@@ -9,6 +9,53 @@
 
 ---
 
+## 미리보기
+
+<table>
+<tr>
+<td width="50%">
+<img src="assets/screenshots/00a_log.png" alt="Ch.00A 로그와 지수함수"/>
+<p align="center"><b>Ch.00A</b> 로그와 지수함수</p>
+</td>
+<td width="50%">
+<img src="assets/screenshots/01_sets.png" alt="Ch.01 집합과 함수"/>
+<p align="center"><b>Ch.01</b> 집합과 함수</p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="assets/screenshots/02_diff.png" alt="Ch.02 미분과 최적화"/>
+<p align="center"><b>Ch.02</b> 미분과 최적화 (경사하강법 시뮬레이터 포함)</p>
+</td>
+<td width="50%">
+<img src="assets/screenshots/04_bayes.png" alt="Ch.04 확률론·베이즈"/>
+<p align="center"><b>Ch.04</b> 확률론 기초 & 베이즈 정리</p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="assets/screenshots/05_dist.png" alt="Ch.05 확률변수·분포"/>
+<p align="center"><b>Ch.05</b> 확률변수 & 확률분포</p>
+</td>
+<td width="50%">
+<img src="assets/screenshots/07_mle.png" alt="Ch.07 표본·MLE"/>
+<p align="center"><b>Ch.07</b> 표본 & 최대우도추정 (MLE)</p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="assets/screenshots/11_info.png" alt="Ch.11 정보이론"/>
+<p align="center"><b>Ch.11</b> 정보이론 (Entropy & KL Divergence)</p>
+</td>
+<td width="50%">
+<img src="assets/screenshots/12_llm.png" alt="Ch.12 딥러닝·LLM"/>
+<p align="center"><b>Ch.12</b> 딥러닝 & LLM (Attention/Transformer)</p>
+</td>
+</tr>
+</table>
+
+---
+
 ## 개요
 
 이 프로젝트는 **AI 논문을 읽고 쓰기 위해 필요한 기초 수학·확률·통계·정보이론**을 단계별로 익히는 인터랙티브 HTML 교재입니다.
