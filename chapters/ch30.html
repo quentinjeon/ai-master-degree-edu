@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.30 — 딥러닝 일반화 미스터리 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.30 · 통계적 학습 이론 (Phase 3 — 4주차)</div>
+  <h1>딥러닝 일반화 미스터리 — Double Descent·NTK</h1>
+  <p>VC 이론이 예측하지 못한 딥러닝의 일반화. Double Descent 현상, 암묵적 정규화, NTK. 최신 연구의 핵심 질문.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>고전 이론은 <strong>"모델이 클수록 과적합"이라 예측하지만, GPT-4는 수천억 파라미터를 가지면서도 일반화가 잘 된다 — 이것이 딥러닝의 가장 큰 수수께끼</strong>입니다.</p>
+  <ul>
+    <li><strong>전통 이론:</strong> 파라미터 수 &gt; 데이터 수이면 완전 암기(overfitting) → 일반화 실패</li>
+    <li><strong>실제:</strong> 매우 큰 신경망은 오히려 더 잘 일반화된다 (Double Descent의 두 번째 하강)</li>
+    <li><strong>AI에서:</strong> 이 현상을 설명하는 최신 이론 — 암묵적 정규화, NTK, benign overfitting — 이 세 개가 최신 ML 이론 논문의 핵심</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 고전 Bias-Variance Tradeoff의 한계 == -->
+<h2 class="st"><span class="ic">⚖</span>고전 Bias-Variance Tradeoff의 한계</h2>
+<p>고전적인 편향-분산 트레이드오프는 "어딘가 최적 복잡도가 있다"고 예측합니다. 모델이 너무 단순하면 편향이 높아 과소적합, 너무 복잡하면 분산이 높아 과적합이 발생한다는 고전적 U자 곡선입니다. 하지만 딥러닝의 <strong>과파라미터화 영역</strong>에서는 이 이론이 틀립니다.</p>
+
+<div class="fb">
+  <div class="fl">BIAS-VARIANCE DECOMPOSITION</div>
+  \[
+    \mathbb{E}\!\left[(f(x)-\hat{f}(x))^2\right]
+    = \underbrace{(f(x)-\bar{f}(x))^2}_{\text{Bias}^2}
+    + \underbrace{\mathbb{E}\!\left[(\hat{f}(x)-\bar{f}(x))^2\right]}_{\text{Variance}}
+    + \sigma^2
+  \]
+  <div class="fn">
+    \(f(x)\): 진짜 함수 (알 수 없는 실제 목표)<br/>
+    \(\hat{f}(x)\): 학습된 모델의 예측값<br/>
+    \(\bar{f}(x) = \mathbb{E}[\hat{f}(x)]\): 기대 예측값 (여러 훈련 집합 평균)<br/>
+    \(\sigma^2\): 데이터 노이즈 — 어떤 모델로도 줄일 수 없는 비환원 오차<br/>
+    고전 이론: 복잡도↑ → Bias↓, Variance↑ → test error가 U자 형태<br/>
+    딥러닝: 과파라미터화 영역에서 Variance가 다시 감소 → Double Descent 현상 발생
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>고전 이론의 예측 실패:</strong> 고전 통계학에서 파라미터 수 \(p\)가 데이터 수 \(n\)을 초과하면 과적합이 발생한다고 배웁니다. 그러나 실제 딥러닝 모델(ResNet, GPT 등)은 \(p \gg n\) 환경에서도 뛰어난 일반화를 보여줍니다. 이것이 현대 ML 이론의 핵심 연구 주제입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: Double Descent 현상 == -->
+<h2 class="st"><span class="ic">〽</span>Double Descent 현상</h2>
+<p>2019년 Belkin 등이 체계적으로 관찰한 <strong>Double Descent</strong> 현상: 모델 복잡도(파라미터 수)가 증가할 때, test error가 고전적 U자 곡선 이후 한 번 더 상승했다가 다시 감소합니다. 마치 두 번의 하강이 나타나는 이 현상은 딥러닝 일반화의 핵심 수수께끼입니다.</p>
+
+<div class="fb">
+  <div class="fl">INTERPOLATION THRESHOLD</div>
+  \[
+    \text{보간 임계값 (interpolation threshold):}\quad n_{\text{crit}} \approx n \cdot d_{\text{eff}}
+  \]
+  <div class="fn">
+    \(n_{\text{crit}}\): 파라미터 수가 데이터 수와 같아지는 임계 지점 — 여기서 test error가 발산(spike)<br/>
+    \(n\): 훈련 데이터 수<br/>
+    \(d_{\text{eff}}\): 유효 차원 (effective dimension)<br/>
+    임계값 이전: 고전적 bias-variance tradeoff 영역 — 모델이 클수록 test error 증가<br/>
+    임계값 이후: "현대 영역" — 모델이 클수록 test error가 오히려 감소<br/>
+    \(n_{\text{crit}}\) 부근에서 최악의 일반화 성능이 관찰됨
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 Double Descent의 세 가지 형태</div>
+  <p>Double Descent는 단일 현상이 아닌 여러 맥락에서 관찰됩니다:</p>
+  <ul style="padding-left:18px;margin-top:9px;">
+    <li style="margin-bottom:6px;"><strong>모델 크기 Double Descent:</strong> 파라미터 수 증가 → test error 두 번 감소 (고전 영역 → spike → 현대 영역)</li>
+    <li style="margin-bottom:6px;"><strong>에포크 Double Descent:</strong> 훈련 시간이 길어질수록 test error가 처음 오르다가 다시 감소</li>
+    <li style="margin-bottom:6px;"><strong>표본 크기 Double Descent:</strong> 데이터가 늘어날 때도 유사한 비단조 패턴 존재</li>
+    <li><strong>공통 원인:</strong> 과파라미터화 모델이 "최소 놈(minimum norm)" 해를 선택 → 암묵적 정규화 효과</li>
+  </ul>
+</div>
+
+
+<!-- == 섹션 3: 암묵적 정규화 == -->
+<h2 class="st"><span class="ic">∇</span>암묵적 정규화</h2>
+<p>과파라미터화 모델에는 훈련 오차 0을 달성하는 해가 <strong>무한히 많습니다</strong>. 어떤 해를 선택하느냐가 일반화 성능을 결정합니다. SGD는 명시적 정규화 없이도 최소 Frobenius 놈을 가진 해를 선택하는 경향이 있습니다 — 이것이 바로 <strong>암묵적 정규화(implicit regularization)</strong>입니다.</p>
+
+<div class="fb">
+  <div class="fl">MINIMUM NORM SOLUTION</div>
+  \[
+    \min_W \|W\|_F^2 \quad\text{s.t.}\quad XW=Y
+    \quad\Rightarrow\quad
+    \hat{W} = X^\dagger Y = X^\top(XX^\top)^{-1}Y
+  \]
+  <div class="fn">
+    \(X^\dagger\): Moore-Penrose pseudoinverse — 최소 놈 해를 구해주는 연산자<br/>
+    \(\|W\|_F^2\): Frobenius 놈 제곱 — 행렬 원소 제곱합<br/>
+    \(XW = Y\): 훈련 데이터를 완전히 보간(interpolation)하는 조건<br/>
+    SGD는 제로 초기화에서 시작할 때 이 최소 놈 해로 수렴 (선형 모델에서 증명됨)<br/>
+    최소 놈 해 ≈ 암묵적 L2 정규화 ≈ Ridge regression과 유사한 효과<br/>
+    비선형 딥러닝에서도 유사한 편향이 실험적으로 관찰됨
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p><strong>NeurIPS 2022 Best Paper:</strong> "Why neural networks find flat minima" — SGD는 loss landscape에서 더 "평평한(flat)" 최솟값을 선택하는 경향이 있고, 이것이 더 좋은 일반화로 이어진다는 이론. Sharp minima보다 flat minima에서 학습된 모델이 분포 변화에 더 강인합니다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: Neural Tangent Kernel (NTK) == -->
+<h2 class="st"><span class="ic">K</span>Neural Tangent Kernel (NTK)</h2>
+<p>2018년 Jacot 등이 제안한 <strong>NTK(Neural Tangent Kernel)</strong>: 신경망이 매우 넓어질수록(width→∞) 학습 역학이 커널 방법과 동치가 됩니다. 이를 통해 무한 너비 신경망의 학습을 선형 방정식으로 분석할 수 있게 되었습니다.</p>
+
+<div class="fb">
+  <div class="fl">NEURAL TANGENT KERNEL</div>
+  \[
+    K_\theta(x,x') = \nabla_\theta f(x;\theta)^\top \nabla_\theta f(x';\theta)
+    \quad\Rightarrow\quad
+    \frac{d\theta}{dt} = -\eta\, K_\theta(X,X)^{-1}(f(X;\theta)-y)
+  \]
+  <div class="fn">
+    \(K_\theta(x,x')\): NTK — 두 데이터 포인트의 그라디언트 내적으로 정의되는 커널 함수<br/>
+    \(\nabla_\theta f(x;\theta)\): 파라미터 \(\theta\)에 대한 네트워크 출력의 그라디언트<br/>
+    \(\frac{d\theta}{dt}\): 연속 시간 경사하강법 (gradient flow)에서 파라미터 변화<br/>
+    무한 너비 극한에서 \(K_\theta \approx K_\infty\) — 상수, 학습 중 변하지 않음<br/>
+    이 경우 학습 역학이 선형화되어 수렴 속도와 일반화를 분석적으로 계산 가능<br/>
+    한계: 유한 너비(실제 딥러닝)에서 NTK는 학습 중 변함 — "feature learning" 설명 어려움
+  </div>
+</div>
+
+<h3 class="sub">딥러닝 일반화 이론 비교</h3>
+<table>
+  <tr>
+    <th>이론</th>
+    <th>핵심 주장</th>
+    <th>한계</th>
+  </tr>
+  <tr>
+    <td><strong>VC 이론</strong></td>
+    <td>\(n = O\!\left(\frac{W \log W}{\varepsilon^2}\right)\) 필요</td>
+    <td>실제보다 훨씬 큰 \(n\) 요구 — 딥러닝 실용성 설명 불가</td>
+  </tr>
+  <tr>
+    <td><strong>PAC-Bayes</strong></td>
+    <td>가중치 분포를 통해 일반화 경계 유도</td>
+    <td>경계가 여전히 느슨함 — 실제 오차보다 수백 배 큰 bound</td>
+  </tr>
+  <tr>
+    <td><strong>NTK</strong></td>
+    <td>무한 너비 → 커널 방법과 동치</td>
+    <td>유한 너비 설명 어려움 — feature learning 설명 불가</td>
+  </tr>
+  <tr>
+    <td><strong>Uniform stability</strong></td>
+    <td>SGD가 안정적이면 일반화</td>
+    <td>딥러닝의 안정성 증명 어려움</td>
+  </tr>
+  <tr>
+    <td><strong>Benign overfitting</strong></td>
+    <td>최소 놈 보간이 잘 작동</td>
+    <td>비선형 네트워크로의 확장 어려움</td>
+  </tr>
+</table>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>📌 현재까지 알려진 것</h5>
+    <ul>
+      <li>과파라미터화 모델이 훈련 오차 0을 달성하면서도 일반화 가능</li>
+      <li>SGD는 최소 놈 해 방향으로 수렴하는 경향</li>
+      <li>무한 너비 네트워크는 NTK로 분석 가능</li>
+      <li>Double Descent는 이론·실험 모두에서 확인됨</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>❓ 아직 열린 문제</h5>
+    <ul>
+      <li>유한 너비, 비선형 네트워크의 일반화 완전한 설명</li>
+      <li>왜 SGD가 특히 좋은 해를 찾는가</li>
+      <li>Flat minima와 일반화의 정확한 관계</li>
+      <li>실제 신경망에서 NTK가 언제 성립하는가</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 모델 복잡도 vs 테스트 오차 — Double Descent 관찰</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">파라미터 수 \(p\)와 데이터 수 \(n\)의 비율을 조절하여 Double Descent의 세 구역을 직접 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">파라미터 수 \(p\)</span>
+    <input type="range" id="dd-p" min="1" max="200" step="1" value="50" oninput="updateDD()"/>
+    <input type="number" id="dd-p-v" value="50" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">데이터 수 \(n\)</span>
+    <input type="range" id="dd-n" min="10" max="100" step="1" value="50" oninput="updateDD()"/>
+    <input type="number" id="dd-n-v" value="50" readonly/>
+  </div>
+
+  <div class="cres" id="dd-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">"딥러닝 일반화 미스터리"에서 고전 이론이 예측하지 못한 현상은 무엇인가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 파라미터 수가 많을수록 항상 과적합된다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 과파라미터화된 모델이 훈련 오차 0을 달성하면서도 좋은 일반화를 보인다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 학습률이 작을수록 항상 수렴이 빠르다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 데이터가 많을수록 모델이 단순해진다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch29.html'">← Ch.29 VC 차원·Rademacher</button>
+  <button class="btn btn-p" onclick="location.href='ch31.html'">Ch.31 Transformer Attention 완전 유도 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 과파라미터화된 딥러닝 모델이 훈련 오차 0을 달성하면서도 일반화가 가능한 현상이 Double Descent이며, 이것이 고전 bias-variance 이론으로는 설명되지 않는 핵심 미스터리입니다.'
+    : '❌ 틀렸습니다. 본문의 Double Descent 섹션과 고전 이론의 한계를 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Double Descent 시뮬레이터 ──
+function updateDD() {
+  const p = parseInt(document.getElementById('dd-p').value);
+  const n = parseInt(document.getElementById('dd-n').value);
+  document.getElementById('dd-p-v').value = p;
+  document.getElementById('dd-n-v').value = n;
+
+  const ratio = p / n;
+  let testError;
+
+  if (ratio < 0.9) {
+    const optRatio = 0.5;
+    testError = 0.1 + 0.8 * Math.pow(ratio - optRatio, 2) + 0.05;
+  } else if (ratio < 1.1) {
+    testError = 0.5 + 2.0 * Math.exp(-50 * Math.pow(ratio - 1.0, 2));
+  } else {
+    testError = 0.08 + 0.3 * Math.exp(-0.5 * (ratio - 1.1)) + 0.05;
+  }
+
+  const region = ratio < 0.9 ? '📈 과소파라미터화 (고전 영역)' :
+                 ratio < 1.1 ? '⚠️ 보간 임계값 (최악 지점)' :
+                               '📉 과파라미터화 (현대 영역)';
+
+  document.getElementById('dd-res').innerHTML =
+    `p/n 비율 = ${ratio.toFixed(2)} &nbsp;${region}<br/>
+     (단순화된) 테스트 오차 ≈ <strong>${testError.toFixed(3)}</strong><br/>
+     훈련 오차: ${ratio >= 1.0 ? '≈ 0 (완전 보간)' : '> 0 (보간 못함)'}<br/>
+     <span style="font-size:.78rem;color:var(--muted)">p/n을 조절해서 Double Descent의 세 구역을 확인하세요.<br/>실제 딥러닝은 p >> n에서도 잘 일반화됩니다.</span>`;
+}
+
+updateDD();
+</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.00F — ML 실습 입문 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CODE BLOCK ══ */
+.codeblock{background:var(--code);border:1px solid var(--border);border-radius:8px;
+  padding:16px 20px;margin:14px 0;overflow-x:auto;}
+.codeblock pre{font-family:'Fira Code','Consolas','Courier New',monospace;font-size:.83rem;
+  color:var(--accent3);line-height:1.7;white-space:pre;}
+.codeblock .cm{color:var(--muted);}
+.codeblock .ck{color:var(--accent);}
+.codeblock .cs{color:var(--accent4);}
+.codeblock .cf{color:var(--accent2);}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ TWO COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.9;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.00F · 브릿지 (Level 0→1 · 실습 편)</div>
+  <h1>ML 실습 입문 — scikit-learn으로 첫 모델 학습</h1>
+  <p>"w를 직접 설정"에서 "컴퓨터가 w를 찾는" 단계로. Phase 1에서 배울 수식이 실제 코드로 어떻게 동작하는지 먼저 경험합니다.</p>
+</div>
+
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 쉽게 이해하기</div>
+  <p>ML 학습이란 <strong>"악기를 연주하기 전에 악기가 어떤 소리를 내는지 한 번 들어보는 것"</strong>이다.</p>
+  <ul>
+    <li><strong>Level 0 방식</strong>: "키 170이면 w×170+b = 65로 예측" — w를 내가 직접 골랐다.</li>
+    <li><strong>학습이란</strong>: 데이터를 보고 컴퓨터가 가장 좋은 w를 자동으로 찾는 것. 악보를 보며 손가락 위치를 자동으로 찾는 것처럼.</li>
+    <li><strong>이 챕터</strong>: scikit-learn으로 학습 버튼 한 번 눌러보기. Phase 1 (Ch.07 MLE~)에서 "왜 이 w가 최적인가"를 수식으로 이해한다.</li>
+    <li><strong>AI에서</strong>: 논문의 "We trained a model on 60K samples..."가 바로 이 과정이다. <code>model.fit(X, y)</code> 한 줄이 그 모든 수학을 실행한다.</li>
+  </ul>
+</div>
+
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1: 학습이란 무엇인가 -->
+<h2 class="st"><span class="ic">🎯</span>"학습" = 데이터를 보고 w를 자동으로 찾는 과정</h2>
+<p>Level 0에서 <code>w = 0.5, b = 10</code>으로 직접 설정했습니다. 하지만 실제 AI는 이 값을 데이터에서 자동으로 찾습니다. 이것이 "학습(training)"입니다.</p>
+
+<h3 class="sub">Level 0 방식 vs ML 학습 방식</h3>
+<table>
+  <thead>
+    <tr><th>단계</th><th>Level 0 방식</th><th>ML 학습 방식</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>파라미터 설정</td><td>w, b를 직접 설정</td><td>데이터에서 자동으로 추정</td></tr>
+    <tr><td>평가 방법</td><td>눈으로 확인</td><td>정확도/오차로 수치 평가</td></tr>
+    <tr><td>새 데이터 처리</td><td>코드를 수정해야 함</td><td>학습된 모델로 바로 예측</td></tr>
+    <tr><td>개선 방법</td><td>w를 직접 바꿔봄</td><td>더 많은 데이터, 더 좋은 알고리즘</td></tr>
+  </tbody>
+</table>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>다음 단계 예고:</strong> Phase 1의 Ch.07 (MLE)는 "어떻게 w를 자동으로 찾는가"의 수학적 이유를 다룬다. 이 챕터에서는 그 결과를 먼저 경험하고, Phase 1에서 왜 그렇게 되는지 이해하는 순서다.</p></div>
+</div>
+
+
+<!-- 섹션 2: 훈련/테스트 분할 -->
+<h2 class="st"><span class="ic">✂️</span>훈련 세트 vs 테스트 세트 — 왜 나눠야 하나</h2>
+<p>"내가 외운 문제만 나오면 100점 받는다". 학습한 데이터로 점수를 매기면 진짜 실력이 아닙니다. 새로운 데이터에서 얼마나 잘 예측하는지 보는 것이 진짜 평가입니다.</p>
+
+<h3 class="sub">데이터 분할 용어</h3>
+<table>
+  <thead>
+    <tr><th>용어</th><th>역할</th><th>비유</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>훈련 세트 (Training set)</td><td>모델이 보고 학습하는 데이터</td><td>교과서로 공부</td></tr>
+    <tr><td>테스트 세트 (Test set)</td><td>학습 후 평가하는 데이터</td><td>시험 문제 (처음 보는 것)</td></tr>
+    <tr><td>검증 세트 (Validation set)</td><td>학습 중 성능 확인</td><td>모의고사</td></tr>
+  </tbody>
+</table>
+
+<h3 class="sub">코드 예시 — train_test_split</h3>
+<div class="codeblock"><pre><span class="ck">from</span> sklearn.model_selection <span class="ck">import</span> train_test_split
+
+X = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  <span class="cm"># 공부 시간</span>
+y = [50, 55, 60, 65, 70, 75, 80, 85, 90, 95]  <span class="cm"># 점수</span>
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, <span class="cs">test_size</span>=0.3, <span class="cs">random_state</span>=42
+)
+<span class="cm"># X_train: 7개, X_test: 3개 (30% 테스트로 사용)</span></pre></div>
+
+
+<!-- [4] FORMULA BOX — Accuracy -->
+<div class="fb">
+  <div class="fl">모델 평가 — 정확도 (Accuracy)</div>
+  \[
+    \text{Accuracy} = \frac{\text{맞게 예측한 수}}{\text{전체 예측 수}}
+    = \frac{1}{n}\sum_{i=1}^{n} \mathbf{1}[\hat{y}_i = y_i]
+  \]
+  <div class="fn">
+    \(\hat{y}_i\) (y-hat): 모델의 예측값<br/>
+    \(y_i\): 실제 정답 레이블<br/>
+    \(\mathbf{1}[\cdot]\): 지시함수 — 조건이 참이면 1, 거짓이면 0<br/>
+    정확도 = 맞은 개수 / 전체 개수. 값 범위: 0 (최악) ~ 1 (완벽)
+  </div>
+</div>
+
+
+<!-- 섹션 3: scikit-learn fit/predict/score -->
+<h2 class="st"><span class="ic">🤖</span>scikit-learn — fit, predict, score 세 단어로 ML 완성</h2>
+<p>scikit-learn은 Python의 대표 ML 라이브러리입니다. 모든 모델이 같은 인터페이스를 씁니다: <code>fit()</code> (학습), <code>predict()</code> (예측), <code>score()</code> (평가).</p>
+
+<h3 class="sub">코드 예시 1 — 선형 회귀 (공부 시간 → 점수)</h3>
+<div class="codeblock"><pre><span class="ck">from</span> sklearn.linear_model <span class="ck">import</span> LinearRegression
+<span class="ck">from</span> sklearn.model_selection <span class="ck">import</span> train_test_split
+<span class="ck">import</span> numpy <span class="ck">as</span> np
+
+<span class="cm"># 공부 시간 → 점수 데이터</span>
+hours = np.array([[1], [2], [3], [4], [5], [6], [7], [8]])
+scores = np.array([55, 60, 65, 70, 75, 80, 85, 90])
+
+X_train, X_test, y_train, y_test = train_test_split(
+    hours, scores, <span class="cs">test_size</span>=0.25, <span class="cs">random_state</span>=0
+)
+
+model = LinearRegression()
+model.<span class="cf">fit</span>(X_train, y_train)      <span class="cm"># 학습: w, b를 자동으로 찾음</span>
+
+<span class="cf">print</span>(f<span class="cs">"w = {model.coef_[0]:.2f}"</span>)      <span class="cm"># 기울기 (가중치)</span>
+<span class="cf">print</span>(f<span class="cs">"b = {model.intercept_:.2f}"</span>)    <span class="cm"># 절편 (편향)</span>
+
+y_pred = model.<span class="cf">predict</span>(X_test)   <span class="cm"># 예측</span>
+<span class="cf">print</span>(f<span class="cs">"예측: {y_pred}"</span>)
+<span class="cf">print</span>(f<span class="cs">"정답: {y_test}"</span>)</pre></div>
+
+<h3 class="sub">코드 예시 2 — 분류 (Level 0의 동물 분류기 ML 버전)</h3>
+<div class="codeblock"><pre><span class="ck">from</span> sklearn.neighbors <span class="ck">import</span> KNeighborsClassifier
+
+<span class="cm"># 크기, 무게 → 동물 종류</span>
+X = [[10, 5], [80, 40], [15, 8], [90, 50], [5, 2]]
+y = [<span class="cs">"고양이"</span>, <span class="cs">"개"</span>, <span class="cs">"고양이"</span>, <span class="cs">"개"</span>, <span class="cs">"고양이"</span>]
+
+model = KNeighborsClassifier(<span class="cs">n_neighbors</span>=1)
+model.<span class="cf">fit</span>(X, y)
+
+<span class="cm"># 새 동물 예측 (크기=70, 무게=35)</span>
+result = model.<span class="cf">predict</span>([[70, 35]])
+<span class="cf">print</span>(f<span class="cs">"예측: {result[0]}"</span>)  <span class="cm"># "개"</span></pre></div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>핵심 포인트:</strong> <code>model.fit(X, y)</code> 한 줄이 Phase 1에서 배울 MLE, 경사하강법, 정규방정식 등의 수학을 모두 내부에서 실행한다. 이 챕터에서는 결과를 먼저 경험하고, Phase 1에서 "왜 이 결과가 나오는가"를 수식으로 이해한다.</p></div>
+</div>
+
+
+<!-- 섹션 4: 평가 지표 맛보기 -->
+<h2 class="st"><span class="ic">📏</span>정확도만으로는 부족하다 — 다른 평가 지표들</h2>
+<p>정확도가 높다고 항상 좋은 모델이 아닙니다. 예를 들어 암 진단 모델에서 "항상 음성"이라고 하면 정확도가 99%여도 쓸모없습니다.</p>
+
+<h3 class="sub">자주 쓰는 평가 지표 — 맛보기</h3>
+<table>
+  <thead>
+    <tr><th>지표</th><th>계산</th><th>언제 중요한가</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>정확도 (Accuracy)</td><td>맞은 수 / 전체 수</td><td>클래스 비율이 균등할 때</td></tr>
+    <tr><td>정밀도 (Precision)</td><td>양성 예측 중 진짜 양성</td><td>거짓 양성이 치명적일 때 (스팸 필터)</td></tr>
+    <tr><td>재현율 (Recall)</td><td>실제 양성 중 맞춘 수</td><td>놓치면 안 될 때 (암 진단)</td></tr>
+    <tr><td>MSE</td><td>오차² 의 평균</td><td>회귀 모델 평가</td></tr>
+  </tbody>
+</table>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>다음에서 자세히:</strong> Phase 1의 Ch.09B (모델 평가지표)에서 이 내용을 수식으로 상세히 다룬다. 이 챕터에서는 "지표가 여러 개 있고, 상황에 따라 다른 것을 쓴다"는 감각만 익힌다.</p></div>
+</div>
+
+
+<!-- [5] INTERACTIVE — 훈련/테스트 분할 시뮬레이터 -->
+<div class="calc">
+  <h4>🔢 테스트 비율에 따른 평가 — 몇 %를 테스트로 써야 할까?</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">슬라이더를 조절해 훈련/테스트 데이터 분할 결과를 실시간으로 확인해보세요.</p>
+
+  <div class="cr">
+    <span class="cl">테스트 비율 (%)</span>
+    <input type="range" id="test_ratio" min="10" max="50" step="5" value="20" oninput="updateSplit()"/>
+    <input type="number" id="test_ratio-v" value="20" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">전체 데이터 수</span>
+    <input type="range" id="total_data" min="10" max="200" step="10" value="100" oninput="updateSplit()"/>
+    <input type="number" id="total_data-v" value="100" readonly/>
+  </div>
+
+  <div class="cres" id="split-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">학습한 데이터로 모델을 평가했더니 정확도 98%가 나왔다. 이 모델에 대한 올바른 판단은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 아주 좋은 모델이다 — 98%면 충분하다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 의미 없다 — 학습 데이터로 평가하면 "외운 것"을 테스트하는 것이다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 테스트 세트가 없으므로 판단 불가하지만 좋아 보인다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 정확도가 너무 높으면 오히려 나쁜 모델이다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch00e.html'">← Ch.00E 수학 브릿지</button>
+  <button class="btn btn-p" onclick="location.href='ch00a.html'">Ch.00A 로그와 지수함수 →</button>
+</div>
+
+
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 학습 데이터로 평가하는 것은 "시험 문제를 미리 보고 시험 보는 것"과 같습니다. 반드시 한 번도 보지 않은 테스트 세트로 평가해야 진짜 성능을 알 수 있습니다. 이것이 Phase 1 Ch.08 (Bias-Variance)에서 다루는 "과적합(overfitting)"의 핵심입니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요. — 학습 데이터와 테스트 데이터를 반드시 분리해야 합니다.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용) ──
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// ── 훈련/테스트 분할 시뮬레이터 ──
+function updateSplit() {
+  const ratio = parseInt(document.getElementById('test_ratio').value);
+  const total = parseInt(document.getElementById('total_data').value);
+  document.getElementById('test_ratio-v').value = ratio;
+  document.getElementById('total_data-v').value = total;
+
+  const testN = Math.round(total * ratio / 100);
+  const trainN = total - testN;
+
+  const trainBar = '█'.repeat(Math.round(trainN / total * 20));
+  const testBar = '░'.repeat(Math.round(testN / total * 20));
+
+  let warning = '';
+  if (testN < 5) warning = '⚠️ 테스트 데이터가 너무 적습니다 (평가 신뢰도 낮음)';
+  else if (trainN < 10) warning = '⚠️ 훈련 데이터가 너무 적습니다 (모델이 잘 학습 못할 수 있음)';
+  else warning = '✅ 적절한 분할 비율입니다';
+
+  document.getElementById('split-res').innerHTML =
+    `전체 ${total}개 데이터<br/>
+     훈련 세트: <span style="color:var(--accent)">${trainBar}</span> ${trainN}개 (${100 - ratio}%)<br/>
+     테스트 세트: <span style="color:var(--muted)">${testBar}</span> ${testN}개 (${ratio}%)<br/><br/>
+     ${warning}<br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       일반적으로 80:20 또는 70:30 비율을 사용. 데이터가 많을수록 테스트 비율 줄여도 됨.
+     </span>`;
+}
+updateSplit();
+</script>
+</body>
+</html>

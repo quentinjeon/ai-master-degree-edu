@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.25 — SVD 완전 유도 — 저랭크 근사와 LoRA | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ STEPS ══ */
+.step{display:flex;gap:14px;margin-bottom:18px;}
+.sn{width:30px;height:30px;background:var(--accent);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+.sb p{margin-bottom:0;}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.25 · 선형대수 심화 (레벨 2 — Phase 2-D · 11주차)</div>
+  <h1>SVD 완전 유도 — 저랭크 근사와 LoRA</h1>
+  <p>모든 행렬을 3개의 행렬로 분해합니다. 차원 축소, 추천 시스템, LoRA의 수학적 기반.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"JPEG 압축처럼, 중요한 정보만 골라서 행렬을 압축하는 마법"</strong>이 SVD입니다.</p>
+  <ul>
+    <li>① 1000×1000 이미지를 상위 50개 SVD 성분만으로 90%를 복원할 수 있다 — 나머지 950개는 버려도 된다</li>
+    <li>② 추천 시스템: 유저×영화 평점 행렬을 SVD로 분해하면 "액션을 좋아하는 사람" 같은 잠재 요인이 나타난다</li>
+    <li>③ AI: LoRA = 거대 모델의 가중치 변화 ΔW를 저랭크 행렬 BA로 근사 — 파라미터를 99% 이상 줄여도 성능을 유지한다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: SVD 정의 == -->
+<h2 class="st"><span class="ic">Σ</span>SVD 정의 — 모든 행렬의 분해</h2>
+<p>특이값 분해(Singular Value Decomposition, SVD)는 임의의 \(m \times n\) 실수 행렬 \(A\)를 세 행렬의 곱으로 분해하는 방법입니다. 정방 행렬이 아니어도, 역행렬이 없어도 항상 존재합니다.</p>
+
+<div class="cc">
+  <div class="ct">🔑 핵심 개념 — SVD의 기하학적 의미</div>
+  <p>임의의 선형변환 \(A\)는 다음 3단계로 해석할 수 있습니다: <strong>회전(V^T) → 스케일(Σ) → 회전(U)</strong>. 특이값 \(\sigma_i\)는 각 축 방향의 "늘림" 정도입니다.</p>
+  <p>이 분해는 항상 존재하며, 특이값을 내림차순으로 정렬하면 <strong>상위 \(k\)개 성분이 행렬의 핵심 정보</strong>를 담습니다.</p>
+</div>
+
+<!-- ════ FORMULA BOX 1: SVD 기본 분해 ════ -->
+<div class="fb">
+  <div class="fl">SVD — 특이값 분해</div>
+  \[
+    A = U \Sigma V^\top
+  \]
+  <div class="fn">
+    \(A \in \mathbb{R}^{m \times n}\): 분해 대상 행렬 (임의의 크기)<br/>
+    \(U \in \mathbb{R}^{m \times m}\): 좌 특이벡터 행렬 — 직교행렬 (\(UU^\top = I_m\))<br/>
+    \(\Sigma \in \mathbb{R}^{m \times n}\): 대각 행렬 — 대각 원소 \(\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_r \geq 0\)이 특이값<br/>
+    \(V \in \mathbb{R}^{n \times n}\): 우 특이벡터 행렬 — 직교행렬 (\(VV^\top = I_n\))<br/>
+    기하학: \(V^\top\)로 회전 → \(\Sigma\)로 스케일 → \(U\)로 회전
+  </div>
+</div>
+
+<!-- ════ FORMULA BOX 2: 특이값 계산 ════ -->
+<div class="fb">
+  <div class="fl">특이값 계산 — 고유값과의 관계</div>
+  \[
+    A^\top A = V \Sigma^\top \Sigma V^\top = V \mathrm{diag}(\sigma_1^2, \ldots, \sigma_r^2) V^\top
+    \quad \Rightarrow \quad \sigma_i = \sqrt{\lambda_i(A^\top A)}
+  \]
+  <div class="fn">
+    \(A^\top A \in \mathbb{R}^{n \times n}\): 양반정치 대칭행렬 — 고유값이 항상 \(\geq 0\)<br/>
+    \(\lambda_i(A^\top A)\): \(A^\top A\)의 \(i\)번째 고유값 (내림차순)<br/>
+    \(\sigma_i\): \(i\)번째 특이값 = \(A^\top A\)의 고유값의 제곱근<br/>
+    \(V\)의 열벡터: \(A^\top A\)의 고유벡터 (우 특이벡터)<br/>
+    \(U\)의 열벡터: \(AV / \sigma_i\) (좌 특이벡터)
+  </div>
+</div>
+
+<h3 class="sub">SVD 구성 요소 요약</h3>
+<table>
+  <tr><th>구성 요소</th><th>크기</th><th>성질</th><th>의미</th></tr>
+  <tr><td>\(U\) (좌 특이벡터)</td><td>\(m \times m\)</td><td>직교행렬</td><td>출력 공간의 새 좌표계</td></tr>
+  <tr><td>\(\Sigma\) (특이값 대각)</td><td>\(m \times n\)</td><td>대각, \(\sigma_i \geq 0\)</td><td>각 방향의 "중요도"</td></tr>
+  <tr><td>\(V^\top\) (우 특이벡터)</td><td>\(n \times n\)</td><td>직교행렬</td><td>입력 공간의 새 좌표계</td></tr>
+</table>
+
+
+<!-- == 섹션 2: Eckart-Young 정리 == -->
+<h2 class="st"><span class="ic">k</span>Eckart-Young 정리 — 최적 저랭크 근사</h2>
+<p>SVD의 핵심 응용은 <strong>저랭크 근사(low-rank approximation)</strong>입니다. 상위 \(k\)개의 특이값과 특이벡터만 사용하면 "가능한 모든 랭크-\(k\) 행렬 중 가장 좋은 근사"를 얻습니다. 이것이 Eckart-Young 정리입니다.</p>
+
+<!-- ════ FORMULA BOX 3: Eckart-Young 정리 ════ -->
+<div class="fb">
+  <div class="fl">Eckart-Young 정리 — 최적 저랭크 근사</div>
+  \[
+    A_k = \sum_{i=1}^{k} \sigma_i \mathbf{u}_i \mathbf{v}_i^\top = U_k \Sigma_k V_k^\top
+    \quad = \quad \underset{\mathrm{rank}(B) \leq k}{\arg\min}\; \|A - B\|_F
+  \]
+  <div class="fn">
+    \(A_k\): 상위 \(k\)개 특이 삼중쌍(singular triplet)으로 구성한 랭크-\(k\) 근사 행렬<br/>
+    \(\sigma_i \mathbf{u}_i \mathbf{v}_i^\top\): \(i\)번째 랭크-1 성분 (각각 독립 기여)<br/>
+    \(\|A - B\|_F\): Frobenius 노름 — 행렬 원소별 제곱합의 제곱근<br/>
+    오차: \(\|A - A_k\|_F^2 = \sigma_{k+1}^2 + \sigma_{k+2}^2 + \cdots + \sigma_r^2\)<br/>
+    이론 보장: 같은 랭크 제약에서 SVD 상위 \(k\)개 성분이 항상 최적 — PCA·이미지 압축·LoRA의 근거
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>PCA와의 관계:</strong> 데이터 행렬 \(X\)를 SVD로 분해하면 주성분분석(PCA)과 정확히 동일합니다. \(V\)의 열벡터가 주성분 방향이고, \(\sigma_i^2\)이 분산을 설명합니다. Eckart-Young 정리가 PCA의 수학적 보장을 제공합니다.</p></div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📐</div>
+  <div class="cb"><p><strong>설명 분산 비율 계산:</strong> 상위 \(k\)개 성분으로 설명하는 분산 비율은 \(\displaystyle\frac{\sum_{i=1}^{k} \sigma_i^2}{\sum_{i=1}^{r} \sigma_i^2} \times 100\%\)로 계산합니다. 이 값이 90%를 넘으면 통상적으로 충분한 근사로 봅니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: 행렬 완성 — 추천 시스템 == -->
+<h2 class="st"><span class="ic">🎬</span>응용: 행렬 완성 — 추천 시스템</h2>
+<p>실제 추천 시스템에서 유저-아이템 평점 행렬 \(M\)은 대부분이 비어 있습니다 (유저가 모든 영화를 보지 않으므로). SVD 기반 행렬 완성(matrix completion)은 관측된 평점으로부터 미관측 평점을 예측합니다.</p>
+
+<!-- ════ FORMULA BOX 4: 행렬 완성 목적함수 ════ -->
+<div class="fb">
+  <div class="fl">행렬 완성 목적함수</div>
+  \[
+    \min_{U, V} \sum_{(i,j) \in \Omega} \bigl(M_{ij} - \mathbf{u}_i^\top \mathbf{v}_j\bigr)^2
+    + \lambda \bigl(\|U\|_F^2 + \|V\|_F^2\bigr)
+  \]
+  <div class="fn">
+    \(M_{ij}\): 유저 \(i\)가 아이템 \(j\)에 매긴 실제 평점<br/>
+    \(\Omega\): 관측된 (유저, 아이템) 쌍의 집합<br/>
+    \(\mathbf{u}_i \in \mathbb{R}^k\): 유저 \(i\)의 잠재 요인 벡터<br/>
+    \(\mathbf{v}_j \in \mathbb{R}^k\): 아이템 \(j\)의 잠재 요인 벡터<br/>
+    \(\lambda\): 정규화 계수 — 과적합 방지<br/>
+    예측: \(\hat{M}_{ij} = \mathbf{u}_i^\top \mathbf{v}_j\) (내적으로 미관측 평점 예측)
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>전통 SVD 방식</h5>
+    <ul>
+      <li>완전 행렬에만 적용 가능</li>
+      <li>누락값 처리 필요 (평균 대체 등)</li>
+      <li>Eckart-Young 이론 보장 있음</li>
+      <li>계산량: \(O(\min(m,n)^2 \cdot \max(m,n))\)</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>행렬 인수분해 방식</h5>
+    <ul>
+      <li>부분 관측 행렬에 직접 적용</li>
+      <li>경사하강법으로 최적화</li>
+      <li>Netflix Prize에서 검증된 방식</li>
+      <li>확장성 우수, 대규모 데이터 처리 가능</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: LoRA == -->
+<h2 class="st"><span class="ic">🤖</span>LoRA — 저랭크 적응으로 LLM 파인튜닝</h2>
+<p>LoRA(Low-Rank Adaptation)는 사전 학습된 거대 언어 모델을 파인튜닝할 때, 전체 가중치 행렬을 업데이트하는 대신 가중치 변화량 \(\Delta W\)를 저랭크 행렬 두 개의 곱으로 근사합니다. Eckart-Young 정리가 이론적 근거를 제공합니다.</p>
+
+<!-- ════ FORMULA BOX 5: LoRA 수식 ════ -->
+<div class="fb">
+  <div class="fl">LoRA — 저랭크 가중치 적응</div>
+  \[
+    W' = W_0 + \Delta W = W_0 + B A,
+    \quad B \in \mathbb{R}^{d \times r},\; A \in \mathbb{R}^{r \times d},\; r \ll d
+  \]
+  <div class="fn">
+    \(W_0 \in \mathbb{R}^{d \times d}\): 사전 학습된 원본 가중치 — 학습 중 <strong>고정(frozen)</strong><br/>
+    \(\Delta W = BA\): 학습 가능한 가중치 변화량 — 랭크 \(r\)의 저랭크 행렬<br/>
+    \(B \in \mathbb{R}^{d \times r}\): 다운 프로젝션 — 0으로 초기화<br/>
+    \(A \in \mathbb{R}^{r \times d}\): 업 프로젝션 — 가우시안 랜덤 초기화<br/>
+    파라미터 수 비교: 원본 \(d^2\) → LoRA \(2dr\) (\(r=4, d=4096\)이면 99.8% 감소)<br/>
+    이론 근거: 파인튜닝 시 \(\Delta W\)의 내재 랭크가 낮다는 Eckart-Young 정리 활용
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> LoRA가 SVD를 직접 계산하는 것은 아닙니다. LoRA는 "가중치 변화가 저랭크 구조를 가질 것"이라는 가정 하에 \(B, A\)를 경사하강법으로 학습합니다. Eckart-Young 정리는 이 가정의 이론적 정당성을 제공합니다.</p></div>
+</div>
+
+<h3 class="sub">LoRA 파라미터 절감 효과</h3>
+<table>
+  <tr><th>모델</th><th>원본 파라미터 수</th><th>LoRA 파라미터 수</th><th>절감 비율</th></tr>
+  <tr><td>GPT-3 (175B), r=4</td><td>175,000,000,000</td><td>~4,700,000</td><td>99.997%</td></tr>
+  <tr><td>LLaMA-7B, r=8</td><td>7,000,000,000</td><td>~8,400,000</td><td>99.88%</td></tr>
+  <tr><td>단일 레이어 d=4096, r=4</td><td>16,777,216</td><td>32,768</td><td>99.80%</td></tr>
+</table>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 SVD 저랭크 근사 오차 탐색기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">특이값 [10, 5, 2, 1, 0.5] 고정. 랭크 k를 조절하면 설명 분산 비율과 근사 오차를 계산합니다.</p>
+
+  <div class="cr">
+    <span class="cl">사용 랭크 \(k\)</span>
+    <input type="range" id="svd-k" min="1" max="5" step="1" value="2" oninput="updateSVD()"/>
+    <input type="number" id="svd-k-v" value="2" readonly/>
+  </div>
+
+  <div class="cres" id="svd-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">Eckart-Young 정리가 보장하는 것은 무엇인가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; SVD는 항상 유일한 분해 결과를 가진다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 랭크-\(k\) 근사 중 SVD 상위 \(k\)개 성분이 Frobenius 노름 의미에서 최적이다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 상위 \(k\)개 성분으로 근사하면 오차가 항상 0이 된다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; SVD를 사용하면 행렬의 역행렬을 항상 계산할 수 있다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch24.html'">← Ch.24 고유값 분해·스펙트럼 이론</button>
+  <button class="btn btn-p" onclick="location.href='ch26.html'">Ch.26 행렬 미분·역전파 수학 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! Eckart-Young 정리: 랭크-k 제약 하에서 SVD 상위 k 성분이 Frobenius 노름 오차를 최소화하는 유일한 최적 근사입니다. 이것이 PCA·이미지 압축·LoRA의 이론적 근거입니다.'
+    : '❌ 틀렸습니다. Eckart-Young 정리는 "랭크-k 행렬 중 SVD 상위 k성분이 Frobenius 노름 의미에서 최적 근사"임을 보장합니다. 본문 섹션 2를 다시 확인해보세요.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+function updateSVD() {
+  const sigmas = [10, 5, 2, 1, 0.5];
+  const k = parseInt(document.getElementById('svd-k').value);
+  document.getElementById('svd-k-v').value = k;
+
+  const totalVar = sigmas.reduce((s, v) => s + v * v, 0);
+  const usedVar = sigmas.slice(0, k).reduce((s, v) => s + v * v, 0);
+  const explainedPct = (usedVar / totalVar * 100).toFixed(2);
+
+  const errorSqSum = sigmas.slice(k).reduce((s, v) => s + v * v, 0);
+  const frobError = Math.sqrt(errorSqSum).toFixed(4);
+
+  const sigmaStr = sigmas.map((s, i) =>
+    i < k
+      ? `<span style="color:var(--accent3)"><strong>σ${i+1}=${s}</strong></span>`
+      : `<span style="color:var(--muted)">σ${i+1}=${s}</span>`
+  ).join(', ');
+
+  document.getElementById('svd-res').innerHTML =
+    `특이값: ${sigmaStr}<br/>
+     사용 랭크: <strong>k = ${k}</strong><br/>
+     설명 분산 비율: <strong>${explainedPct}%</strong>
+       (사용된 σ² 합 = ${usedVar.toFixed(2)} / 전체 = ${totalVar.toFixed(2)})<br/>
+     근사 오차 ‖A − A<sub>k</sub>‖<sub>F</sub> = <strong>${frobError}</strong>
+       (= √(${sigmas.slice(k).map(s => s+'²').join(' + ') || '0'}))<br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       k를 늘릴수록 오차 감소 — Eckart-Young 정리에 의해 이 근사가 최적
+     </span>`;
+}
+updateSVD();
+</script>
+</body>
+</html>

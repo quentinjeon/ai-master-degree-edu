@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.22 — 확률변수의 수렴 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.22 · 측도 확률론 (레벨 2 — Phase 2-C · 8주차)</div>
+  <h1>확률변수의 수렴<br/>— a.s., 확률 수렴, 분포 수렴</h1>
+  <p>"거의 확실하게 수렴"이 뭔지 정확히 안다. LLN, CLT의 수학적 기반을 이해합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>동전을 계속 던질 때 <strong>"앞면이 나올 비율이 0.5에 가까워진다"는 게 얼마나 강한 말인지</strong>에 따라 수렴의 종류가 달라집니다.</p>
+  <ul>
+    <li><strong>a.s. 수렴:</strong> 동전을 무한히 던지면, 앞면 비율이 0.5가 <em>안 될</em> 확률이 딱 0이다 — 가장 강한 보장</li>
+    <li><strong>확률 수렴:</strong> 던질수록 비율이 0.5와 ε 이상 차이 날 확률이 0으로 줄어든다 — 중간 보장</li>
+    <li><strong>AI 연결:</strong> SGD의 그라디언트 추정량이 진짜 그라디언트에 "확률 수렴"한다 — 미니배치 학습이 가능한 이론적 근거</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 수렴의 4가지 종류 == -->
+<h2 class="st"><span class="ic">→</span>수렴의 4가지 종류</h2>
+<p>확률변수의 수열 \((X_n)\)이 \(X\)로 수렴하는 방식에는 강도가 서로 다른 4가지가 있습니다. 가장 강한 것부터 약한 것 순으로 이해하면 논문에서 "convergence" 표기가 보일 때 어떤 보장이 있는지 즉시 판단할 수 있습니다.</p>
+
+<h3 class="sub">수렴 종류 비교표</h3>
+<table>
+  <tr><th>종류</th><th>표기</th><th>강도</th><th>AI 연결</th></tr>
+  <tr><td>거의 확실한 수렴 (a.s.)</td><td>\(X_n \xrightarrow{a.s.} X\)</td><td>🔴 가장 강</td><td>강한 대수의 법칙(SLLN)</td></tr>
+  <tr><td>확률 수렴 (in probability)</td><td>\(X_n \xrightarrow{P} X\)</td><td>🟠 중간</td><td>약한 LLN, SGD 일관성</td></tr>
+  <tr><td>\(L^p\) 수렴 (평균 수렴)</td><td>\(X_n \xrightarrow{L^p} X\)</td><td>🟡 중간</td><td>MSE 수렴, 불편 추정량</td></tr>
+  <tr><td>분포 수렴 (in distribution)</td><td>\(X_n \xrightarrow{D} X\)</td><td>🟢 가장 약</td><td>중심극한정리(CLT)</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">ℹ️</div>
+  <div class="cb"><p><strong>함의 관계:</strong> \(X_n \xrightarrow{a.s.} X\) \(\Rightarrow\) \(X_n \xrightarrow{P} X\) \(\Rightarrow\) \(X_n \xrightarrow{D} X\). 역방향은 일반적으로 성립하지 않습니다. CLT는 분포 수렴이므로 가장 약한 보장입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: a.s. 수렴 == -->
+<h2 class="st"><span class="ic">a.s</span>거의 확실한 수렴 (Almost Sure)</h2>
+<p>a.s. 수렴(almost sure convergence)은 표본 경로 \(\omega\)마다 수렴이 이루어지는 집합의 확률이 1이라는 것입니다. 즉, 수렴에 실패하는 \(\omega\)들의 집합은 확률 0의 영사건(null set)입니다. 측도론 언어로 "거의 모든 경로에서 수렴"이라고 읽습니다.</p>
+
+<div class="fb">
+  <div class="fl">거의 확실한 수렴 (Almost Sure Convergence)</div>
+  \[
+    X_n \xrightarrow{a.s.} X
+    \iff
+    P\!\left(\left\{\omega : \lim_{n\to\infty} X_n(\omega) = X(\omega)\right\}\right) = 1
+  \]
+  <div class="fn">
+    \(\omega\): 확률 공간 \((\Omega, \mathcal{F}, P)\)의 각 표본점 (개별 무작위 결과)<br/>
+    \(X_n(\omega)\): 표본점 \(\omega\)에서 \(n\)번째 확률변수의 값<br/>
+    \(P(\{\cdots\}) = 1\): 수렴하는 경로들의 집합이 확률 1 — 수렴 못하는 집합은 null set<br/>
+    강한 대수의 법칙: \(\bar{X}_n \xrightarrow{a.s.} E[X]\) — 표본 평균이 a.s. 모평균에 수렴
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 강한 대수의 법칙 (Strong Law of Large Numbers)</div>
+  <p>i.i.d. 확률변수 \(X_1, X_2, \ldots\)의 표본 평균 \(\bar{X}_n = \frac{1}{n}\sum_{i=1}^n X_i\)는 \(E[|X_1|] < \infty\) 조건 하에 \(E[X_1]\)에 a.s. 수렴합니다.</p>
+  <p>이는 단순히 "평균적으로 수렴"이 아니라, 실제 실험을 무한히 반복하면 거의 모든 경로가 수렴한다는 강한 보장입니다.</p>
+</div>
+
+
+<!-- == 섹션 3: 확률 수렴 == -->
+<h2 class="st"><span class="ic">P→</span>확률 수렴 (Convergence in Probability)</h2>
+<p>확률 수렴은 a.s.보다 약합니다. 각 \(n\)에서 \(X_n\)과 \(X\)의 차이가 ε보다 클 확률이 0으로 수렴하면 됩니다. 표본 경로 하나하나가 수렴하지 않아도 됩니다 — 큰 오차를 가질 확률이 점점 줄어드는 것이 핵심입니다.</p>
+
+<div class="fb">
+  <div class="fl">확률 수렴 (Convergence in Probability)</div>
+  \[
+    X_n \xrightarrow{P} X
+    \iff
+    \forall \varepsilon > 0,\quad \lim_{n \to \infty} P\!\left(|X_n - X| > \varepsilon\right) = 0
+  \]
+  <div class="fn">
+    \(\varepsilon > 0\): 임의의 허용 오차 — 아무리 작게 잡아도 성립해야 한다<br/>
+    \(P(|X_n - X| > \varepsilon)\): \(n\)번째에서 \(\varepsilon\)을 초과하는 오차가 날 확률<br/>
+    \(\lim_{n\to\infty} = 0\): 이 확률이 0으로 수렴 — \(n\)이 커질수록 큰 오차는 드물어짐<br/>
+    약한 대수의 법칙: \(\bar{X}_n \xrightarrow{P} \mu\) / SGD 그라디언트 추정량의 일관성
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해 — a.s.와 확률 수렴의 차이:</strong> 확률 수렴이면 각 \(n\)에서 오차 확률이 작지만, 언젠가 큰 오차가 무한히 자주 발생할 수는 있습니다. a.s. 수렴은 이런 경로의 확률 자체가 0임을 보장합니다. 역방향(\(P \Rightarrow a.s.\))은 일반적으로 성립하지 않습니다.</p></div>
+</div>
+
+<h3 class="sub">수렴 종류 간 관계 — 역방향 반례</h3>
+<div class="two-col">
+  <div class="col-box">
+    <h5>확률 수렴 ⇏ a.s. 수렴</h5>
+    <ul>
+      <li>"방황하는 함수" 반례: \([0,1]\) 위에서 점점 좁아지지만 위치가 이동하는 지시함수</li>
+      <li>\(P(|X_n - 0| > \varepsilon) \to 0\)이지만 각 경로는 0에 수렴하지 않음</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>분포 수렴 ⇏ 확률 수렴</h5>
+    <ul>
+      <li>\(X \sim N(0,1)\), \(X_n = -X\)이면 \(X_n \xrightarrow{D} X\)이지만</li>
+      <li>\(P(|X_n - X| > \varepsilon) = P(2|X| > \varepsilon) \not\to 0\)</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: 분포 수렴과 CLT == -->
+<h2 class="st"><span class="ic">📊</span>분포 수렴과 중심극한정리</h2>
+<p>분포 수렴(convergence in distribution)은 가장 약한 수렴 개념입니다. \(X_n\)과 \(X\) 자체가 같은 확률 공간에 있을 필요조차 없고, 누적분포함수(CDF)가 수렴하면 됩니다. 중심극한정리(CLT)가 바로 이 수렴으로 표현됩니다.</p>
+
+<div class="fb">
+  <div class="fl">분포 수렴 (Convergence in Distribution)</div>
+  \[
+    X_n \xrightarrow{D} X
+    \iff
+    \lim_{n \to \infty} F_{X_n}(x) = F_X(x)
+    \quad \text{at every continuity point } x \text{ of } F_X
+  \]
+  <div class="fn">
+    \(F_{X_n}(x) = P(X_n \leq x)\): \(n\)번째 확률변수의 누적분포함수<br/>
+    \(F_X(x)\): 극한 확률변수의 CDF<br/>
+    "연속점에서": CDF의 불연속점(점프점)에서는 수렴이 보장되지 않음<br/>
+    \(X_n, X\)가 같은 확률 공간에 정의될 필요 없음 — 가장 약한 수렴 개념
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">중심극한정리 (Central Limit Theorem, CLT)</div>
+  \[
+    \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}}
+    \xrightarrow{D} N(0, 1)
+    \quad \text{as } n \to \infty
+  \]
+  <div class="fn">
+    \(\bar{X}_n = \frac{1}{n}\sum_{i=1}^n X_i\): 표본 평균 (i.i.d. \(X_i\), 유한 분산)<br/>
+    \(\mu = E[X_i]\): 모평균<br/>
+    \(\sigma^2 = \text{Var}(X_i)\): 모분산<br/>
+    \(\sqrt{n}\): 표준화를 위한 스케일 — 분산은 \(1/n\)으로 줄고 표준편차는 \(1/\sqrt{n}\)으로 줄어든다<br/>
+    CLT는 분포 수렴이므로 표본 경로 수렴이나 확률 수렴을 보장하지 않음
+  </div>
+</div>
+
+<h3 class="sub">강한 LLN vs 약한 LLN vs CLT 비교</h3>
+<table>
+  <tr><th>정리</th><th>수렴 종류</th><th>결론</th><th>스케일</th></tr>
+  <tr><td>강한 LLN (SLLN)</td><td>a.s. 수렴</td><td>\(\bar{X}_n \xrightarrow{a.s.} \mu\)</td><td>크기 자체 수렴</td></tr>
+  <tr><td>약한 LLN (WLLN)</td><td>확률 수렴</td><td>\(\bar{X}_n \xrightarrow{P} \mu\)</td><td>크기 자체 수렴</td></tr>
+  <tr><td>CLT</td><td>분포 수렴</td><td>\(\sqrt{n}(\bar{X}_n - \mu) \xrightarrow{D} N(0, \sigma^2)\)</td><td>\(\sqrt{n}\) 배율 확대</td></tr>
+</table>
+
+<div class="callout tip">
+  <div class="ci">🔗</div>
+  <div class="cb"><p><strong>AI 논문 연결:</strong> "our estimator is consistent"는 확률 수렴을 의미합니다. SGD 미니배치 그라디언트 \(g_t\)가 진짜 그라디언트 \(\nabla L\)에 확률 수렴한다는 것이 미니배치 학습의 이론적 근거입니다. CLT는 신뢰구간, 통계적 검정, 그리고 Bootstrap 방법의 수학적 기반입니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🎲 대수의 법칙 시뮬레이터</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">베르누이 동전 던지기를 시뮬레이션합니다. 동전 수 \(n\)을 늘릴수록 경험적 확률이 진짜 \(p\)에 수렴하는 것을 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">동전 수 \(n\)</span>
+    <input type="range" id="lln-n" min="10" max="1000" step="10" value="100" oninput="updateLLN()"/>
+    <input type="number" id="lln-n-v" value="100" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">진짜 앞면 확률 \(p\)</span>
+    <input type="range" id="lln-p" min="0.1" max="0.9" step="0.01" value="0.5" oninput="updateLLN()"/>
+    <input type="number" id="lln-p-v" value="0.50" readonly/>
+  </div>
+
+  <div class="cres" id="lln-res">시뮬레이션 결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">a.s. 수렴과 확률 수렴의 관계로 올바른 것은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 두 수렴 개념은 같다 — a.s. ⟺ 확률 수렴</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; 확률 수렴이 더 강한 개념이다 — 확률 수렴이면 a.s. 수렴이 따라온다</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; a.s. 수렴이 더 강하다 — a.s. 수렴이면 확률 수렴이 따라오지만 역은 일반적으로 성립 안 한다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 두 개념은 독립적이다 — 어느 쪽도 다른 쪽을 함의하지 않는다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch21.html'">← Ch.21 σ-대수·확률공간</button>
+  <button class="btn btn-p" onclick="location.href='ch23.html'">Ch.23 기대값의 측도론적 정의·Fubini →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! a.s. 수렴 ⟹ 확률 수렴 ⟹ 분포 수렴. 역방향은 일반적으로 성립하지 않습니다. "방황하는 함수" 반례가 확률 수렴 ⇏ a.s. 수렴을 보여줍니다.'
+    : '❌ 틀렸습니다. a.s. 수렴이 가장 강한 개념이며 확률 수렴을 함의합니다. 역은 일반적으로 성립하지 않습니다.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+function updateLLN() {
+  const n = parseInt(document.getElementById('lln-n').value);
+  const p = parseFloat(document.getElementById('lln-p').value);
+  document.getElementById('lln-n-v').value = n;
+  document.getElementById('lln-p-v').value = p.toFixed(2);
+
+  let heads = 0;
+  for (let i = 0; i < n; i++) {
+    if (Math.random() < p) heads++;
+  }
+
+  const empirical = heads / n;
+  const error = Math.abs(empirical - p);
+  const theoreticalSE = Math.sqrt(p * (1 - p) / n);
+  const zScore = error / theoreticalSE;
+
+  const convergenceMsg = error < 2 * theoreticalSE
+    ? '✅ 2σ 이내 — 수렴 양호'
+    : '⚠️ 2σ 초과 — 더 많은 시행 필요';
+
+  document.getElementById('lln-res').innerHTML =
+    `시행 횟수 n = <strong>${n}</strong>, 진짜 확률 p = <strong>${p.toFixed(2)}</strong><br/>
+     경험적 확률: <strong>${empirical.toFixed(4)}</strong> &nbsp;(앞면 ${heads}회)<br/>
+     오차 |p̂ − p|: <strong>${error.toFixed(4)}</strong><br/>
+     이론적 표준오차 σ/√n = √(p(1−p)/n): <strong>${theoreticalSE.toFixed(4)}</strong><br/>
+     <span style="font-size:.82rem;color:var(--muted)">${convergenceMsg} — n이 클수록 오차가 줄어드는 것이 약한 LLN(확률 수렴)의 실증</span>`;
+}
+updateLLN();
+</script>
+</body>
+</html>

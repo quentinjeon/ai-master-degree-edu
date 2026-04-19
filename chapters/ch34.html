@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.34 — 고급 최적화 이론 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.34 · 딥러닝 이론 심화 (Phase 3 — 8주차)</div>
+  <h1>고급 최적화 이론 — Adam·Momentum·Natural Gradient</h1>
+  <p>Adam이 왜 잘 작동하는가? Momentum의 이론, AdaGrad에서 Adam까지의 유도. 논문의 optimizer 분석을 이해합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>SGD는 경사가 가파른 방향으로만 내려간다. <strong>Adam은 "최근에 많이 움직인 방향은 조심스럽게, 적게 움직인 방향은 과감하게"라는 전략을 쓴다</strong> — 각 파라미터에 맞는 맞춤형 학습률을 자동으로 조절한다.</p>
+  <ul>
+    <li>좁고 긴 골짜기: SGD는 진동하며 느리게 내려가고, Adam은 빠르게 수렴</li>
+    <li>Momentum: 이전 업데이트 방향을 기억해 지그재그를 줄임 — 마치 공이 경사면을 굴러내려갈 때 관성을 갖는 것처럼</li>
+    <li>AI에서: 대부분의 딥러닝 논문에서 "Adam with lr=3e-4"처럼 쓴다 — 이 lr이 왜 그 값인지, 언제 SGD가 더 좋은지 이해하는 것이 목표</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: Momentum == -->
+<h2 class="st"><span class="ic">→</span>Momentum — 진동을 줄이는 관성</h2>
+<p>Momentum은 이전 그라디언트 방향의 지수이동평균을 현재 업데이트에 더합니다. 좁고 긴 골짜기(ill-conditioned landscape)에서 SGD는 최솟값 방향으로 나아가지 못하고 좌우로 진동하는 반면, Momentum은 과거 그라디언트들을 누적해 올바른 방향으로 가속합니다.</p>
+
+<div class="fb">
+  <div class="fl">HEAVY-BALL MOMENTUM</div>
+  \[
+    v_{t+1} = \beta v_t - \eta\nabla f(\theta_t) \quad\Rightarrow\quad \theta_{t+1} = \theta_t + v_{t+1}
+  \]
+  <div class="fn">
+    \(\beta \in [0,1)\): momentum 계수 — 일반적으로 0.9 사용<br/>
+    \(v_t\): 속도 벡터(velocity) — 이전 그라디언트들의 지수이동평균<br/>
+    \(\beta = 0\)이면 일반 SGD와 동일<br/>
+    유효 학습률: 볼록 함수에서 \(\eta/(1-\beta)\) — \(\beta=0.9\)이면 실효 학습률이 10배
+  </div>
+</div>
+
+<p>Nesterov Accelerated Gradient(NAG)는 "미래 위치에서 그라디언트를 먼저 평가"하는 lookahead 방식으로 Heavy-Ball보다 이론적으로 더 빠른 수렴을 보장합니다.</p>
+
+<div class="fb">
+  <div class="fl">NESTEROV ACCELERATED GRADIENT</div>
+  \[
+    v_{t+1} = \beta v_t - \eta\nabla f(\theta_t + \beta v_t) \quad\Rightarrow\quad \theta_{t+1} = \theta_t + v_{t+1}
+  \]
+  <div class="fn">
+    \(\theta_t + \beta v_t\): 미래 위치 예측 — 현재 위치에서 관성만큼 먼저 이동한 지점에서 그라디언트 평가<br/>
+    볼록 함수: \(O(1/T)\) → \(O(1/T^2)\) 수렴 가속 — Nesterov의 이론적 최적성 보장<br/>
+    PyTorch 구현: <code>torch.optim.SGD(momentum=0.9, nesterov=True)</code>
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>Momentum의 직관:</strong> β=0.9이면 "현재 그라디언트 10% + 이전 속도 90%"로 업데이트가 결정됩니다. 지그재그 방향은 서로 상쇄되고, 일관된 방향 성분만 누적되어 주요 방향으로 가속됩니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: AdaGrad == -->
+<h2 class="st"><span class="ic">G</span>AdaGrad — 적응적 학습률의 시작</h2>
+<p>AdaGrad는 각 파라미터에 대해 지금까지 나온 그라디언트의 제곱합을 누적하고, 이를 학습률에 나눕니다. 자주 업데이트되는 파라미터(큰 그라디언트)는 학습률이 작아지고, 드물게 업데이트되는 파라미터(작은 그라디언트)는 학습률이 크게 유지됩니다. NLP의 희소 특징에서 특히 유리합니다.</p>
+
+<div class="fb">
+  <div class="fl">ADAGRAD UPDATE</div>
+  \[
+    G_{t,ii} = \sum_{s=1}^{t} g_{s,i}^2 \quad\Rightarrow\quad \theta_{t+1,i} = \theta_{t,i} - \frac{\eta}{\sqrt{G_{t,ii} + \varepsilon}}\, g_{t,i}
+  \]
+  <div class="fn">
+    \(G_{t,ii}\): \(i\)번째 파라미터의 그라디언트 제곱 누적합 (대각 행렬의 \(i\)번째 원소)<br/>
+    \(g_{t,i}\): 시각 \(t\)에서 \(i\)번째 파라미터의 그라디언트<br/>
+    \(\varepsilon \approx 10^{-8}\): 분모가 0이 되는 것을 방지하는 수치 안정성 항<br/>
+    자주 나타나는 특징: \(G\)가 커서 학습률이 작아짐(희소 데이터에 유리)<br/>
+    한계: \(G\)가 계속 증가 → 학습률이 결국 0에 수렴하여 학습이 멈춤
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>AdaGrad의 치명적 한계:</strong> 그라디언트 제곱합 \(G_{t,ii}\)는 단조증가합니다. 따라서 학습률 \(\eta/\sqrt{G_{t,ii}}\)은 시간이 지날수록 0에 가까워져 학습이 중단됩니다. RMSProp과 Adam은 이 문제를 지수이동평균으로 해결합니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: Adam == -->
+<h2 class="st"><span class="ic">A</span>Adam — 현대 딥러닝의 표준 옵티마이저</h2>
+<p>Adam(Adaptive Moment Estimation)은 1차 모멘트(그라디언트의 지수이동평균)와 2차 모멘트(그라디언트 제곱의 지수이동평균)를 모두 추적합니다. Momentum의 방향성과 AdaGrad의 적응적 학습률을 결합하면서, 초기 바이어스를 보정하는 메커니즘까지 포함합니다.</p>
+
+<div class="fb">
+  <div class="fl">ADAM OPTIMIZER</div>
+  \[
+    \begin{aligned}
+      m_t &= \beta_1 m_{t-1} + (1-\beta_1)g_t \quad\text{(1차 모멘트)} \\
+      v_t &= \beta_2 v_{t-1} + (1-\beta_2)g_t^2 \quad\text{(2차 모멘트)} \\
+      \hat{m}_t &= \frac{m_t}{1-\beta_1^t},\quad \hat{v}_t = \frac{v_t}{1-\beta_2^t} \quad\text{(바이어스 보정)} \\
+      \theta_{t+1} &= \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \varepsilon}\,\hat{m}_t
+    \end{aligned}
+  \]
+  <div class="fn">
+    \(\beta_1 \approx 0.9\): 1차 모멘트 감쇠 — 그라디언트 방향의 지수이동평균<br/>
+    \(\beta_2 \approx 0.999\): 2차 모멘트 감쇠 — 그라디언트 크기(분산)의 지수이동평균<br/>
+    \(\varepsilon \approx 10^{-8}\): 수치 안정성 항<br/>
+    바이어스 보정 \(1/(1-\beta^t)\): 초기에 \(m_t, v_t\)가 0으로 초기화되어 편향되는 것을 수정<br/>
+    학습률 \(\eta = 3\times10^{-4}\): "Karpathy constant" — 광범위한 딥러닝 태스크에서 좋은 출발점
+  </div>
+</div>
+
+<h3 class="sub">옵티마이저 비교</h3>
+<table>
+  <tr><th>옵티마이저</th><th>업데이트 규칙</th><th>장점</th><th>단점</th></tr>
+  <tr><td>SGD</td><td>\(-\eta\nabla f\)</td><td>단순, 이해 쉬움, 일반화 우수</td><td>학습률 선택 민감, 수렴 느림</td></tr>
+  <tr><td>Momentum</td><td>\(-\eta(v + \nabla f)\)</td><td>진동 감소, 가속 수렴</td><td>\(\beta\) 선택 필요</td></tr>
+  <tr><td>AdaGrad</td><td>\(-\eta/\sqrt{G}\cdot\nabla f\)</td><td>희소 문제에 유리</td><td>학습률 소멸</td></tr>
+  <tr><td>Adam</td><td>\(-\eta/\sqrt{\hat{v}}\cdot\hat{m}\)</td><td>빠른 수렴, 적응적 학습률</td><td>일반화 gap, 수렴 미보장</td></tr>
+  <tr><td>AdamW</td><td>Adam + 분리된 weight decay</td><td>정규화 내장, LLM 표준</td><td>—</td></tr>
+</table>
+
+
+<!-- == 섹션 4: Adam의 한계와 AdamW == -->
+<h2 class="st"><span class="ic">⚠</span>Adam의 이론적 한계와 AdamW</h2>
+<p>Adam이 빠르게 수렴하지만 SGD보다 일반화 성능이 낮은 경우가 있습니다(Wilson et al., 2017). 또한 L2 정규화를 Adam에 단순히 추가하면 적응적 학습률 때문에 weight decay가 파라미터마다 다르게 적용됩니다. AdamW는 이 문제를 해결하여 현대 LLM 훈련의 표준이 되었습니다.</p>
+
+<div class="fb">
+  <div class="fl">ADAM VS ADAMW</div>
+  \[
+    \text{Adam + L2 (틀림):}\quad g_t \leftarrow \nabla f(\theta_t) + \lambda\theta_t
+    \quad\Rightarrow\quad
+    \theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \varepsilon}\hat{m}_t
+  \]
+  \[
+    \text{AdamW (맞음):}\quad
+    \theta_{t+1} = \theta_t - \frac{\eta}{\sqrt{\hat{v}_t} + \varepsilon}\hat{m}_t - \eta\lambda\theta_t
+  \]
+  <div class="fn">
+    Adam + L2: weight decay가 그라디언트에 포함되면 \(\hat{v}_t\)의 영향을 받아 파라미터마다 다른 강도로 적용됨<br/>
+    AdamW: weight decay \(\eta\lambda\theta_t\)를 업데이트에서 분리하여 직접 파라미터에 적용 — 균일한 weight decay 보장<br/>
+    현대 LLM 훈련: AdamW가 표준 — GPT-3, LLaMA, Mistral 모두 AdamW 사용
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>Adam의 수렴이 보장 안 되는 경우:</strong> 비볼록 문제에서 Adam은 수렴이 보장되지 않습니다(Reddi et al., 2018). AMSGrad가 이를 수정했지만 실전 성능은 Adam이 더 좋은 경우가 많습니다. 일반화 중요성이 높은 경우 SGD + Momentum + 학습률 스케줄러 조합이 Adam보다 우수할 수 있습니다.</p></div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>Adam이 유리한 상황</h5>
+    <ul>
+      <li>빠른 프로토타이핑</li>
+      <li>희소한 그라디언트 (NLP, Embedding)</li>
+      <li>학습률 튜닝 시간이 제한될 때</li>
+      <li>대규모 LLM 사전학습</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>SGD + Momentum이 유리한 상황</h5>
+    <ul>
+      <li>일반화 성능이 최우선일 때</li>
+      <li>이미지 분류(ResNet, VGG)</li>
+      <li>배치 크기가 클 때</li>
+      <li>세밀한 학습률 스케줄링 사용 시</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 Adam vs SGD — 좁은 골짜기에서의 수렴 비교</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    \(f(x,y) = x^2 + 100y^2\) (조건수 κ=100인 ill-conditioned 함수). 시작점 (3, 0.5)에서 SGD와 Adam의 수렴을 비교합니다.
+  </p>
+
+  <div class="cr">
+    <span class="cl">학습률 \(\eta\)</span>
+    <input type="range" id="opt-lr" min="0.001" max="0.5" step="0.001" value="0.01" oninput="updateOpt()"/>
+    <input type="number" id="opt-lr-v" value="0.010" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">반복 횟수</span>
+    <input type="range" id="opt-steps" min="10" max="500" step="10" value="100" oninput="updateOpt()"/>
+    <input type="number" id="opt-steps-v" value="100" readonly/>
+  </div>
+
+  <div class="cres" id="opt-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">AdamW가 Adam + L2 정규화와 다른 핵심 차이는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; AdamW는 L2 정규화(weight decay)를 아예 사용하지 않는다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; AdamW는 weight decay를 그라디언트가 아닌 파라미터에 직접 적용하여 적응적 학습률의 영향을 받지 않게 한다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; AdamW는 2차 모멘트(\(v_t\))를 사용하지 않는다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; AdamW는 학습률 스케줄러가 없어도 되므로 Adam보다 단순하다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch33.html'">← Ch.33 마팅게일·확률 과정</button>
+  <button class="btn btn-p" onclick="location.href='ch35.html'">Ch.35 논문 비판 독해 방법론 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! AdamW는 weight decay를 그라디언트 계산에서 분리하여 파라미터에 직접 적용합니다. 이로써 각 파라미터의 적응적 학습률과 독립적으로 균일한 weight decay가 보장됩니다.'
+    : '❌ 틀렸습니다. 본문의 "Adam VS AdamW" 수식 박스를 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Adam vs SGD 수렴 비교기 ──
+function updateOpt() {
+  const lr = parseFloat(document.getElementById('opt-lr').value);
+  const steps = parseInt(document.getElementById('opt-steps').value);
+  document.getElementById('opt-lr-v').value = lr.toFixed(3);
+  document.getElementById('opt-steps-v').value = steps;
+
+  // f(x,y) = x² + 100y², 시작점: (3.0, 0.5)
+  let [xSGD, ySGD] = [3.0, 0.5];
+  let sgdLoss = [];
+  for (let t = 0; t < steps; t++) {
+    xSGD -= lr * 2 * xSGD;
+    ySGD -= lr * 200 * ySGD;
+    sgdLoss.push(xSGD ** 2 + 100 * ySGD ** 2);
+  }
+
+  let [xA, yA] = [3.0, 0.5];
+  let [mx, my, vx, vy] = [0, 0, 0, 0];
+  const b1 = 0.9, b2 = 0.999, eps = 1e-8;
+  let adamLoss = [];
+  for (let t = 1; t <= steps; t++) {
+    const gx = 2 * xA, gy = 200 * yA;
+    mx = b1 * mx + (1 - b1) * gx;
+    my = b1 * my + (1 - b1) * gy;
+    vx = b2 * vx + (1 - b2) * gx * gx;
+    vy = b2 * vy + (1 - b2) * gy * gy;
+    const mhx = mx / (1 - b1 ** t), mhy = my / (1 - b1 ** t);
+    const vhx = vx / (1 - b2 ** t), vhy = vy / (1 - b2 ** t);
+    xA -= lr * mhx / (Math.sqrt(vhx) + eps);
+    yA -= lr * mhy / (Math.sqrt(vhy) + eps);
+    adamLoss.push(xA ** 2 + 100 * yA ** 2);
+  }
+
+  const sgdFinal = sgdLoss[sgdLoss.length - 1];
+  const adamFinal = adamLoss[adamLoss.length - 1];
+  const winner = adamFinal < sgdFinal ? 'Adam이 더 빠르게 수렴' : 'SGD가 더 작은 손실 달성';
+
+  document.getElementById('opt-res').innerHTML =
+    `f(x,y) = x² + 100y² (조건수 κ=100), η=${lr.toFixed(3)}, ${steps}번 반복<br/>
+     SGD 최종 손실: <strong>${sgdFinal.toExponential(3)}</strong><br/>
+     Adam 최종 손실: <strong>${adamFinal.toExponential(3)}</strong><br/>
+     결과: <strong>${winner}</strong><br/>
+     <span style="font-size:.78rem;color:var(--muted)">조건수가 큰 함수에서 Adam이 SGD보다 훨씬 빠르게 수렴함을 확인 — η를 키우면 SGD는 발산하고 Adam은 안정적으로 수렴합니다</span>`;
+}
+updateOpt();
+</script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.33 — 마팅게일과 확률 과정 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.33 · 딥러닝 이론 심화 (Phase 3 — 7주차)</div>
+  <h1>마팅게일과 확률 과정</h1>
+  <p>"공정한 게임"의 수학. Doob's inequality, Optional Stopping Theorem. SGD 수렴 증명의 확률론적 기반.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"카지노에서 아무리 전략을 써도 평균적으로 돈을 딸 수 없는 '공정한 게임'"</strong>이 마팅게일입니다. 미래 기댓값이 현재 값과 같다는 조건 — 이것이 SGD의 그라디언트 노이즈를 분석하는 수학적 언어입니다.</p>
+  <ul>
+    <li><strong>마팅게일:</strong> 코인 게임에서 누적 수익 — \(\mathbb{E}[S_n \mid S_1,\ldots,S_{n-1}] = S_{n-1}\) (미래 기댓값 = 현재)</li>
+    <li><strong>Doob's inequality:</strong> 마팅게일이 크게 뛸 확률의 상한 — 집중 부등식의 일반화</li>
+    <li><strong>AI에서:</strong> SGD의 파라미터 업데이트 수열이 마팅게일류(martingale-like)이고, 이 성질로 수렴을 증명</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 확률 과정 기초 == -->
+<h2 class="st"><span class="ic">🌊</span>확률 과정 기초</h2>
+<p>확률 과정은 시간 인덱스를 가진 확률변수의 모임입니다. 각 시각 \(t\)마다 하나의 확률변수 \(X_t\)가 정의되며, 모든 시각의 집합이 바로 확률 과정입니다. 머신러닝에서 SGD 반복 수열 \(\theta_0, \theta_1, \theta_2, \ldots\)이 대표적인 확률 과정입니다.</p>
+
+<div class="fb">
+  <div class="fl">STOCHASTIC PROCESS</div>
+  \[ \{X_t\}_{t=0}^\infty,\quad X_t:\Omega\to\mathbb{R}^d \]
+  <div class="fn">
+    \(\{X_t\}\): 확률 과정 — 시간 \(t\)로 인덱싱된 확률변수들의 모임<br/>
+    \(X_t\): 각 시각 \(t\)에서 표본공간 \(\Omega\)에서 \(\mathbb{R}^d\)로 가는 확률변수<br/>
+    \(t = 0,1,2,\ldots\): 이산 시간 인덱스 (또는 \(t \in \mathbb{R}_+\)이면 연속 시간)<br/>
+    샘플 경로(sample path): 고정된 \(\omega \in \Omega\)에서 \(t \mapsto X_t(\omega)\)의 궤적<br/>
+    ML에서: \(\theta_0, \theta_1, \theta_2, \ldots\) (SGD 반복)이 확률 과정
+  </div>
+</div>
+
+<h3 class="sub">중요한 확률 과정 유형</h3>
+<table>
+  <tr><th>과정</th><th>정의</th><th>ML 연결</th></tr>
+  <tr>
+    <td>마코프 체인</td>
+    <td>\(P(X_t \mid X_0,\ldots,X_{t-1}) = P(X_t \mid X_{t-1})\)</td>
+    <td>RL의 MDP</td>
+  </tr>
+  <tr>
+    <td>랜덤 워크</td>
+    <td>\(S_n = X_1 + \cdots + X_n\)</td>
+    <td>SGD 경로</td>
+  </tr>
+  <tr>
+    <td>마팅게일</td>
+    <td>\(\mathbb{E}[X_n \mid X_1,\ldots,X_{n-1}] = X_{n-1}\)</td>
+    <td>공정한 게임, SGD</td>
+  </tr>
+  <tr>
+    <td>브라운 운동</td>
+    <td>연속 랜덤 워크</td>
+    <td>확률미분방정식</td>
+  </tr>
+</table>
+
+
+<!-- == 섹션 2: 마팅게일 정의와 성질 == -->
+<h2 class="st"><span class="ic">𝔼</span>마팅게일 정의와 성질</h2>
+<p>마팅게일은 "공정한 게임"을 수학적으로 표현합니다. 핵심 조건은 현재까지의 모든 정보를 조건으로 할 때, 다음 단계의 기댓값이 현재 값과 같다는 것입니다. 이 성질 덕분에 SGD의 그라디언트 노이즈를 엄밀히 분석할 수 있습니다.</p>
+
+<div class="fb">
+  <div class="fl">MARTINGALE DEFINITION</div>
+  \[ \{M_t\}\text{ is a martingale w.r.t. }\{\mathcal{F}_t\} \iff \mathbb{E}[M_{t+1}\mid\mathcal{F}_t]=M_t\quad\forall t \]
+  <div class="fn">
+    \(\mathcal{F}_t\): \(t\) 시점까지의 정보를 담은 \(\sigma\)-대수 (filtration) — 과거와 현재의 모든 정보<br/>
+    \(\mathbb{E}[M_{t+1} \mid \mathcal{F}_t] = M_t\): 현재까지 알고 있는 모든 정보를 조건으로 할 때 미래 기댓값 = 현재<br/>
+    슈퍼마팅게일: \(\mathbb{E}[M_{t+1} \mid \mathcal{F}_t] \leq M_t\) (점점 감소하는 경향)<br/>
+    서브마팅게일: \(\mathbb{E}[M_{t+1} \mid \mathcal{F}_t] \geq M_t\) (점점 증가하는 경향)<br/>
+    SGD 적용: \(f(\theta_t)\)의 기댓값 수열이 슈퍼마팅게일 → 수렴 증명 가능
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">MARTINGALE DIFFERENCE SEQUENCE</div>
+  \[ d_t = M_t - M_{t-1} \Rightarrow \mathbb{E}[d_t \mid \mathcal{F}_{t-1}] = 0 \quad\text{(마팅게일 차분)} \]
+  <div class="fn">
+    \(d_t\): 마팅게일 차분(martingale difference) — 각 단계의 변화량<br/>
+    \(\mathbb{E}[d_t \mid \mathcal{F}_{t-1}] = 0\): 각 단계 변화량의 조건부 기댓값 = 0<br/>
+    SGD: 미니배치 그라디언트 \(\tilde{\nabla}f(\theta)\)의 노이즈 \(\varepsilon_t = \tilde{\nabla}f(\theta_t) - \nabla f(\theta_t)\)가 마팅게일 차분<br/>
+    마팅게일 차분의 합: 집중 부등식을 적용할 수 있어 SGD 수렴 증명에 활용
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>마팅게일과 독립성의 차이:</strong> 마팅게일 차분은 조건부 기댓값이 0인 것이지, 서로 독립일 필요는 없습니다. 독립보다 약한 조건이지만 집중 부등식을 적용하기에 충분합니다. 이것이 SGD 분석에서 마팅게일이 강력한 도구인 이유입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: Doob의 부등식 == -->
+<h2 class="st"><span class="ic">D</span>Doob의 부등식</h2>
+<p>마팅게일이 어느 시점에서나 임계값을 넘을 확률을 최대화하는 경계입니다. 마코프 부등식의 마팅게일 버전으로, 확률론적 알고리즘 분석의 핵심 도구입니다.</p>
+
+<div class="fb">
+  <div class="fl">DOOB'S MAXIMAL INEQUALITY</div>
+  \[ P\!\left(\max_{1\leq k\leq n}M_k\geq\lambda\right)\leq\frac{\mathbb{E}[M_n^+]}{\lambda} \quad\text{(비음 슈퍼마팅게일)} \]
+  <div class="fn">
+    \(M_n^+ = \max(M_n, 0)\): \(M_n\)의 양수 부분<br/>
+    \(\lambda > 0\): 임계값 (threshold)<br/>
+    \(\max_{1 \leq k \leq n} M_k\): \(n\) 시점까지 마팅게일의 최대값 — "어느 시점에서든 크게 뛸 확률"<br/>
+    마코프 부등식 \(P(X \geq \lambda) \leq \mathbb{E}[X]/\lambda\)의 마팅게일 버전<br/>
+    \(L^2\) 버전: \(P(\max_k |M_k| \geq \lambda) \leq \mathbb{E}[M_n^2] / \lambda^2\)
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">AZUMA-HOEFFDING INEQUALITY</div>
+  \[ |d_t|\leq c_t\text{ a.s.}\Rightarrow P(M_n-M_0\geq t)\leq\exp\!\left(-\frac{t^2}{2\sum_{k=1}^n c_k^2}\right) \]
+  <div class="fn">
+    \(d_t = M_t - M_{t-1}\): 마팅게일 차분<br/>
+    \(|d_t| \leq c_t\): 각 단계 변화량이 \(c_t\)로 유계(bounded) — almost surely<br/>
+    \(\sum_{k=1}^n c_k^2\): 단계별 경계값의 제곱합 (분산 기여의 합)<br/>
+    McDiarmid 부등식(Ch.27)이 Azuma-Hoeffding의 특수 케이스<br/>
+    ML 적용: SGD에서 각 배치 그라디언트 변화량이 유계이면 이 경계 사용 → 수렴 속도 분석
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p>SGD 수렴 논문에서 "Let \(\varepsilon_t = \tilde{\nabla}f(\theta_t) - \nabla f(\theta_t)\) be a martingale difference sequence"라는 문장이 등장하면, 이는 그라디언트 노이즈에 Azuma-Hoeffding 부등식을 적용하기 위한 전제 조건입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: Optional Stopping Theorem == -->
+<h2 class="st"><span class="ic">τ</span>Optional Stopping Theorem</h2>
+<p>공정한 게임(마팅게일)에서 언제 멈추는 전략을 써도 기대 수익은 처음과 같습니다. "더블링 전략"처럼 이기면 멈추는 전략이 기대수익을 높이지 못하는 이유가 이 정리에서 나옵니다.</p>
+
+<div class="fb">
+  <div class="fl">OPTIONAL STOPPING THEOREM</div>
+  \[ \tau\text{ 유계 stopping time},\ \{M_t\}\text{ 마팅게일} \Rightarrow \mathbb{E}[M_\tau]=\mathbb{E}[M_0] \]
+  <div class="fn">
+    \(\tau\): stopping time — 현재까지의 정보 \(\mathcal{F}_t\)만으로 정지 여부를 결정하는 랜덤 변수<br/>
+    \(\{\tau \leq t\} \in \mathcal{F}_t\): stopping time의 형식적 정의 — 미래 정보를 사용하지 않음<br/>
+    유계 조건: \(\tau \leq N\) a.s.이면 정리가 성립 (또는 uniformly integrable)<br/>
+    "더블링 전략" 실패 이유: 유한 자본에서 \(\tau\)가 유계가 아님 → 정리 적용 불가<br/>
+    ML 응용: 조기 종료(early stopping)가 평균적으로 bias를 도입하지 않는 조건 분석
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> "마팅게일이면 항상 E[M_τ] = E[M_0]"이라고 생각하기 쉽습니다. 그러나 τ가 유계가 아니거나 uniformly integrable 조건을 만족하지 않으면 이 등식이 깨집니다. 실제로 "더블링 전략"에서 τ는 유계가 아니고, 유한 자본이라는 외부 제약이 없으면 이론적으로 무한히 기다릴 수 있습니다.</p></div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>마팅게일 핵심 성질 요약</h5>
+    <ul>
+      <li>E[M_t] = E[M_0]: 기댓값 보존</li>
+      <li>E[M_τ] = E[M_0]: OST (유계 τ)</li>
+      <li>Var(M_n) = Σ Var(dₜ): 분산 가법성</li>
+      <li>차분 dₜ의 조건부 기댓값 = 0</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>SGD 수렴 증명에서의 활용</h5>
+    <ul>
+      <li>그라디언트 노이즈 → 마팅게일 차분</li>
+      <li>Doob 부등식 → 일탈 확률 경계</li>
+      <li>Azuma-Hoeffding → 수렴 속도</li>
+      <li>슈퍼마팅게일 → 손실 단조 감소</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 마팅게일 Random Walk — E[Sₙ] = S₀ 확인</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    대칭 랜덤 워크 \(S_n = \sum_{i=1}^n X_i,\ X_i \in \{+1,-1\}\text{ (각 1/2 확률)}\)을 시뮬레이션합니다.
+    마팅게일 성질: \(\mathbb{E}[S_n] = 0\)이지만 경로는 \(\sqrt{n}\) 정도 퍼집니다.
+  </p>
+
+  <div class="cr">
+    <span class="cl">걸음 수 n</span>
+    <input type="range" id="rw-n" min="10" max="500" step="10" value="100" oninput="updateRW()"/>
+    <input type="number" id="rw-n-v" value="100" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">시뮬레이션 횟수</span>
+    <input type="range" id="rw-trials" min="10" max="200" step="10" value="50" oninput="updateRW()"/>
+    <input type="number" id="rw-trials-v" value="50" readonly/>
+  </div>
+
+  <div class="cres" id="rw-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">
+    마팅게일 \(\{M_t\}\)에서 \(\mathbb{E}[M_{t+1} \mid \mathcal{F}_t] = M_t\) 가 의미하는 것은?
+  </p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 미래 값이 현재 값과 항상 같다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 현재까지 알고 있는 모든 정보를 조건으로 할 때 다음 값의 기댓값이 현재 값이다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(M_t\)는 단조증가 수열이다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; \(M_t\)는 항상 양수이다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch32.html'">← Ch.32 정보 기하학</button>
+  <button class="btn btn-p" onclick="location.href='ch34.html'">Ch.34 고급 최적화 이론 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 마팅게일의 핵심 조건: 현재 filtration ℱₜ를 조건으로 한 다음 값의 기댓값이 현재 값입니다. 미래 값이 실제로 같은 것이 아니라, 기댓값이 같은 것입니다.'
+    : '❌ 틀렸습니다. 본문을 다시 확인해보세요. 마팅게일에서 E[Mₜ₊₁|ℱₜ] = Mₜ는 조건부 기댓값에 관한 조건입니다.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Random Walk 시뮬레이터 ──
+function updateRW() {
+  const n = parseInt(document.getElementById('rw-n').value);
+  const trials = parseInt(document.getElementById('rw-trials').value);
+  document.getElementById('rw-n-v').value = n;
+  document.getElementById('rw-trials-v').value = trials;
+  let finalVals = [], maxVals = [];
+  for (let t = 0; t < trials; t++) {
+    let s = 0, maxS = 0;
+    for (let i = 0; i < n; i++) {
+      s += Math.random() < 0.5 ? 1 : -1;
+      if (s > maxS) maxS = s;
+    }
+    finalVals.push(s); maxVals.push(maxS);
+  }
+  const meanFinal = finalVals.reduce((a,b) => a+b, 0) / trials;
+  const meanMax = maxVals.reduce((a,b) => a+b, 0) / trials;
+  const theoreticalSD = Math.sqrt(n);
+  document.getElementById('rw-res').innerHTML =
+    `대칭 랜덤 워크 (p=0.5), n=${n}걸음, ${trials}번 시뮬레이션<br/>
+     E[Sₙ] 이론값 = <strong>0</strong> (마팅게일 성질)<br/>
+     시뮬레이션 E[Sₙ] ≈ <strong>${meanFinal.toFixed(3)}</strong> (≈0 확인)<br/>
+     이론적 표준편차 = √n = <strong>${theoreticalSD.toFixed(2)}</strong><br/>
+     평균 최대값 E[max Sₖ] ≈ <strong>${meanMax.toFixed(2)}</strong><br/>
+     <span style="font-size:.78rem;color:var(--muted)">E[Sₙ]=0이지만 경로는 √n 정도 퍼진다 — 마팅게일의 핵심</span>`;
+}
+updateRW();
+</script>
+</body>
+</html>

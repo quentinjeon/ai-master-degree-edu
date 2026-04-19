@@ -23,7 +23,7 @@ body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg
 
 /* ── Sidebar ── */
 #sb{width:270px;min-width:270px;background:var(--surface);border-right:1px solid var(--border);
-  display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;}
+  display:block;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;}
 #sb-top{padding:20px 18px 14px;border-bottom:1px solid var(--border);}
 #sb-top h2{font-size:13px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;}
 #sb-top p{font-size:11px;color:var(--muted);}
@@ -54,12 +54,20 @@ body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg
 .nu-ai .nu-badge{background:rgba(245,158,11,.18);color:var(--accent4);}
 .nu-ai .nu-title{color:var(--accent4);}
 .nu-ai{border-top-color:rgba(245,158,11,.2);}
+/* Unit 4 — 레벨 2 중급 (pink/accent5) */
+.nu-adv .nu-badge{background:rgba(248,113,113,.18);color:var(--accent5);}
+.nu-adv .nu-title{color:var(--accent5);}
+.nu-adv{border-top-color:rgba(248,113,113,.2);}
+/* Unit 5 — 레벨 3 고급 (cyan) */
+.nu-res .nu-badge{background:rgba(56,189,248,.18);color:#38bdf8;}
+.nu-res .nu-title{color:#38bdf8;}
+.nu-res{border-top-color:rgba(56,189,248,.2);}
 /* 접기/펼치기 */
-.nu-group{overflow:hidden;transition:max-height .25s ease;}
+.nu-group{overflow:hidden;transition:max-height .4s ease-in-out;max-height:2000px;}
 .nu-group.collapsed{max-height:0!important;}
 
 .ni{display:flex;align-items:center;gap:9px;padding:7px 18px;cursor:pointer;font-size:13px;color:var(--muted);
-  border-left:3px solid transparent;transition:all .18s;}
+  border-left:3px solid transparent;transition:all .18s;overflow:hidden;}
 .ni:hover{background:var(--hl);color:var(--text);}
 .ni.active{color:var(--accent);border-left-color:var(--accent);background:var(--hl);font-weight:600;}
 .ni .ck{width:15px;height:15px;border:2px solid var(--border);border-radius:50%;flex-shrink:0;
@@ -74,18 +82,24 @@ body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg
 .pu-math .path-unit-header{background:rgba(167,139,250,.07);border-bottom:1px solid rgba(167,139,250,.15);}
 .pu-stat .path-unit-header{background:rgba(52,211,153,.07);border-bottom:1px solid rgba(52,211,153,.15);}
 .pu-ai .path-unit-header{background:rgba(245,158,11,.07);border-bottom:1px solid rgba(245,158,11,.15);}
+.pu-adv .path-unit-header{background:rgba(248,113,113,.07);border-bottom:1px solid rgba(248,113,113,.15);}
+.pu-res .path-unit-header{background:rgba(56,189,248,.07);border-bottom:1px solid rgba(56,189,248,.15);}
 .pu-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;
   justify-content:center;font-size:22px;flex-shrink:0;}
 .pu-prep .pu-icon{background:rgba(108,138,255,.15);}
 .pu-math .pu-icon{background:rgba(167,139,250,.15);}
 .pu-stat .pu-icon{background:rgba(52,211,153,.15);}
 .pu-ai .pu-icon{background:rgba(245,158,11,.15);}
+.pu-adv .pu-icon{background:rgba(248,113,113,.15);}
+.pu-res .pu-icon{background:rgba(56,189,248,.15);}
 .pu-meta{flex:1;}
 .pu-meta .pu-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
 .pu-prep .pu-label{color:var(--accent);}
 .pu-math .pu-label{color:var(--accent2);}
 .pu-stat .pu-label{color:var(--accent3);}
 .pu-ai .pu-label{color:var(--accent4);}
+.pu-adv .pu-label{color:var(--accent5);}
+.pu-res .pu-label{color:#38bdf8;}
 .pu-meta h3{font-size:1.1rem;font-weight:800;margin-bottom:2px;}
 .pu-meta p{font-size:.82rem;color:var(--muted);margin:0;}
 .pu-start-btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:12px;
@@ -94,6 +108,8 @@ body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg
 .pu-math .pu-start-btn{background:rgba(167,139,250,.2);color:var(--accent2);}
 .pu-stat .pu-start-btn{background:rgba(52,211,153,.2);color:var(--accent3);}
 .pu-ai .pu-start-btn{background:rgba(245,158,11,.2);color:var(--accent4);}
+.pu-adv .pu-start-btn{background:rgba(248,113,113,.2);color:var(--accent5);}
+.pu-res .pu-start-btn{background:rgba(56,189,248,.2);color:#38bdf8;}
 .pu-start-btn:hover{opacity:.8;transform:translateY(-1px);}
 .path-unit-body{background:var(--surface);padding:16px 24px;}
 .path-chapters{display:flex;flex-direction:column;gap:6px;}
@@ -105,6 +121,8 @@ body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg
 .pu-math .path-ch .pc-num{background:rgba(167,139,250,.15);color:var(--accent2);}
 .pu-stat .path-ch .pc-num{background:rgba(52,211,153,.15);color:var(--accent3);}
 .pu-ai .path-ch .pc-num{background:rgba(245,158,11,.15);color:var(--accent4);}
+.pu-adv .path-ch .pc-num{background:rgba(248,113,113,.15);color:var(--accent5);}
+.pu-res .path-ch .pc-num{background:rgba(56,189,248,.15);color:#38bdf8;}
 .path-ch .pc-title{font-size:.9rem;font-weight:600;flex:1;}
 .path-ch .pc-sub{font-size:.78rem;color:var(--muted);}
 .path-ch .pc-arrow{font-size:12px;color:var(--muted);flex-shrink:0;}
@@ -303,7 +321,7 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
 <nav id="sb">
   <div id="sb-top">
     <h2>📐 확률·수학·AI 교재</h2>
-    <p>논문을 읽고 쓰는 연구자 과정 — Phase 1</p>
+    <p>논문을 읽고 쓰는 연구자 과정 — Phase 1~3</p>
     <div id="pb-wrap"><div id="pb"></div></div>
     <div id="pb-lbl">학습 진도 0%</div>
   </div>
@@ -317,9 +335,9 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
   <div class="nu nu-prep" onclick="toggleUnit('u0')">
     <span class="nu-badge">Unit 0</span>
     <span class="nu-title">사전 준비</span>
-    <span class="nu-arrow" id="arr-u0">▼</span>
+    <span class="nu-arrow" id="arr-u0">▶</span>
   </div>
-  <div class="nu-group" id="u0" style="max-height:200px">
+  <div class="nu-group collapsed" id="u0">
     <div class="ni" data-ch="chapters/ch00a.html"><div class="ck"></div>Ch.0A &nbsp;로그와 지수함수</div>
     <div class="ni" data-ch="chapters/ch00b.html"><div class="ck"></div>Ch.0B &nbsp;수열과 Σ 표기</div>
     <div class="ni" data-ch="chapters/ch00c.html"><div class="ck"></div>Ch.0C &nbsp;경우의 수·조합</div>
@@ -329,12 +347,13 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
   <div class="nu nu-math" onclick="toggleUnit('u1')">
     <span class="nu-badge">Unit 1</span>
     <span class="nu-title">기초 수학</span>
-    <span class="nu-arrow" id="arr-u1">▼</span>
+    <span class="nu-arrow" id="arr-u1">▶</span>
   </div>
-  <div class="nu-group" id="u1" style="max-height:300px">
+  <div class="nu-group collapsed" id="u1">
     <div class="ni" data-ch="chapters/ch01.html"><div class="ck"></div>Ch.1 &nbsp;집합과 함수</div>
     <div class="ni" data-ch="chapters/ch02.html"><div class="ck"></div>Ch.2 &nbsp;미분과 최적화</div>
     <div class="ni" data-ch="chapters/ch02b.html"><div class="ck"></div>Ch.2B &nbsp;적분 기초</div>
+    <div class="ni" data-ch="chapters/ch02d.html"><div class="ck"></div>Ch.2D &nbsp;경사하강법 실습</div>
     <div class="ni" data-ch="chapters/ch03.html"><div class="ck"></div>Ch.3 &nbsp;선형대수 기초</div>
     <div class="ni" data-ch="chapters/ch03b.html"><div class="ck"></div>Ch.3B &nbsp;선형회귀·최소제곱법</div>
   </div>
@@ -343,9 +362,9 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
   <div class="nu nu-stat" onclick="toggleUnit('u2')">
     <span class="nu-badge">Unit 2</span>
     <span class="nu-title">확률 &amp; 통계</span>
-    <span class="nu-arrow" id="arr-u2">▼</span>
+    <span class="nu-arrow" id="arr-u2">▶</span>
   </div>
-  <div class="nu-group" id="u2" style="max-height:300px">
+  <div class="nu-group collapsed" id="u2">
     <div class="ni" data-ch="chapters/ch04.html"><div class="ck"></div>Ch.4 &nbsp;확률론·베이즈</div>
     <div class="ni" data-ch="chapters/ch05.html"><div class="ck"></div>Ch.5 &nbsp;확률변수·분포</div>
     <div class="ni" data-ch="chapters/ch06.html"><div class="ck"></div>Ch.6 &nbsp;기대값·분산</div>
@@ -357,9 +376,9 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
   <div class="nu nu-ai" onclick="toggleUnit('u3')">
     <span class="nu-badge">Unit 3</span>
     <span class="nu-title">AI &amp; ML 연결</span>
-    <span class="nu-arrow" id="arr-u3">▼</span>
+    <span class="nu-arrow" id="arr-u3">▶</span>
   </div>
-  <div class="nu-group" id="u3" style="max-height:400px">
+  <div class="nu-group collapsed" id="u3">
     <div class="ni" data-ch="chapters/ch09.html"><div class="ck"></div>Ch.9 &nbsp;Logistic 회귀</div>
     <div class="ni" data-ch="chapters/ch09b.html"><div class="ck"></div>Ch.9B &nbsp;모델 평가지표</div>
     <div class="ni" data-ch="chapters/ch10.html"><div class="ck"></div>Ch.10 &nbsp;Softmax·다중분류</div>
@@ -367,6 +386,47 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
     <div class="ni" data-ch="chapters/ch12.html"><div class="ck"></div>Ch.12 &nbsp;딥러닝·LLM</div>
     <div class="ni" data-ch="chapters/ch13.html"><div class="ck"></div>Ch.13 &nbsp;Calibration</div>
     <div class="ni" data-ch="chapters/ch14.html"><div class="ck"></div>Ch.14 &nbsp;논문 읽기·쓰기</div>
+    <div class="ni" data-ch="chapters/ch14b.html"><div class="ck"></div>Ch.14B &nbsp;논문 5-question 프레임워크</div>
+  </div>
+
+  <!-- 대단원 4 — 레벨 2 수학 심화 -->
+  <div class="nu nu-adv" onclick="toggleUnit('u4')">
+    <span class="nu-badge">Unit 4</span>
+    <span class="nu-title">수학 심화 (Lv.2)</span>
+    <span class="nu-arrow" id="arr-u4">▶</span>
+  </div>
+  <div class="nu-group collapsed" id="u4">
+    <div class="ni" data-ch="chapters/ch15.html"><div class="ck"></div>Ch.15 &nbsp;수열과 극한</div>
+    <div class="ni" data-ch="chapters/ch16.html"><div class="ck"></div>Ch.16 &nbsp;연속성과 미분</div>
+    <div class="ni" data-ch="chapters/ch17.html"><div class="ck"></div>Ch.17 &nbsp;적분과 급수·오차 경계</div>
+    <div class="ni" data-ch="chapters/ch18.html"><div class="ck"></div>Ch.18 &nbsp;볼록 집합·볼록 함수</div>
+    <div class="ni" data-ch="chapters/ch19.html"><div class="ck"></div>Ch.19 &nbsp;Lagrangian·KKT</div>
+    <div class="ni" data-ch="chapters/ch20.html"><div class="ck"></div>Ch.20 &nbsp;수렴 속도 분석</div>
+    <div class="ni" data-ch="chapters/ch21.html"><div class="ck"></div>Ch.21 &nbsp;σ-대수·확률공간</div>
+    <div class="ni" data-ch="chapters/ch22.html"><div class="ck"></div>Ch.22 &nbsp;확률변수의 수렴</div>
+    <div class="ni" data-ch="chapters/ch23.html"><div class="ck"></div>Ch.23 &nbsp;기대값·Fubini</div>
+    <div class="ni" data-ch="chapters/ch24.html"><div class="ck"></div>Ch.24 &nbsp;고유값 분해</div>
+    <div class="ni" data-ch="chapters/ch25.html"><div class="ck"></div>Ch.25 &nbsp;SVD·LoRA</div>
+    <div class="ni" data-ch="chapters/ch26.html"><div class="ck"></div>Ch.26 &nbsp;행렬 미분·역전파</div>
+  </div>
+
+  <!-- 대단원 5 — 레벨 3 ML 이론 (고급) -->
+  <div class="nu nu-res" onclick="toggleUnit('u5')">
+    <span class="nu-badge">Unit 5</span>
+    <span class="nu-title">ML 이론 (Lv.3)</span>
+    <span class="nu-arrow" id="arr-u5">▶</span>
+  </div>
+  <div class="nu-group collapsed" id="u5">
+    <div class="ni" data-ch="chapters/ch27.html"><div class="ck"></div>Ch.27 &nbsp;집중 부등식</div>
+    <div class="ni" data-ch="chapters/ch28.html"><div class="ck"></div>Ch.28 &nbsp;PAC 학습·표본 복잡도</div>
+    <div class="ni" data-ch="chapters/ch29.html"><div class="ck"></div>Ch.29 &nbsp;VC 차원·Rademacher</div>
+    <div class="ni" data-ch="chapters/ch30.html"><div class="ck"></div>Ch.30 &nbsp;딥러닝 일반화 (Double Descent)</div>
+    <div class="ni" data-ch="chapters/ch31.html"><div class="ck"></div>Ch.31 &nbsp;Transformer Attention</div>
+    <div class="ni" data-ch="chapters/ch32.html"><div class="ck"></div>Ch.32 &nbsp;정보 기하학·Fisher</div>
+    <div class="ni" data-ch="chapters/ch33.html"><div class="ck"></div>Ch.33 &nbsp;마팅게일·확률 과정</div>
+    <div class="ni" data-ch="chapters/ch34.html"><div class="ck"></div>Ch.34 &nbsp;고급 최적화 (Adam·NGD)</div>
+    <div class="ni" data-ch="chapters/ch35.html"><div class="ck"></div>Ch.35 &nbsp;논문 비판 독해</div>
+    <div class="ni" data-ch="chapters/ch36.html"><div class="ck"></div>Ch.36 &nbsp;연구 설계·실험 방법론</div>
   </div>
 </nav>
 
@@ -440,7 +500,7 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
     <div class="path-unit-header">
       <div class="pu-icon">📏</div>
       <div class="pu-meta">
-        <div class="pu-label">Unit 1 · 5챕터</div>
+        <div class="pu-label">Unit 1 · 6챕터</div>
         <h3>기초 수학</h3>
         <p>집합, 미분, 선형대수 — AI가 "학습"하는 수학적 구조</p>
       </div>
@@ -466,6 +526,13 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
           <span class="pc-num">Ch.2B</span>
           <span class="pc-title">적분 기초</span>
           <span class="pc-sub">정적분, PDF·기댓값 연결</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch02d.html')">
+          <span class="pc-num">Ch.2D</span>
+          <span class="pc-title">경사하강법 실습</span>
+          <span class="pc-sub">numpy 구현, 학습률 실험</span>
           <span class="pc-arrow">›</span>
         </div>
         <div class="path-connector"></div>
@@ -546,7 +613,7 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
     <div class="path-unit-header">
       <div class="pu-icon">🤖</div>
       <div class="pu-meta">
-        <div class="pu-label">Unit 3 · 7챕터</div>
+        <div class="pu-label">Unit 3 · 8챕터</div>
         <h3>AI &amp; ML 연결</h3>
         <p>Logistic~논문읽기 — 배운 수학을 AI 연구로 연결</p>
       </div>
@@ -602,13 +669,210 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
           <span class="pc-sub">논문 구조, 기호 해독, 실전</span>
           <span class="pc-arrow">›</span>
         </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch14b.html')">
+          <span class="pc-num">Ch.14B</span>
+          <span class="pc-title">논문 5-question 프레임워크</span>
+          <span class="pc-sub">논문 해석 훈련, 비판적 읽기</span>
+          <span class="pc-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:22px;color:var(--muted);margin:4px 0 16px;">↓</div>
+
+  <!-- ── Unit 4: 레벨 2 수학 심화 ── -->
+  <div class="path-unit pu-adv">
+    <div class="path-unit-header">
+      <div class="pu-icon">🔬</div>
+      <div class="pu-meta">
+        <div class="pu-label">Unit 4 · 12챕터 · 🔵 레벨 2 중급</div>
+        <h3>수학 심화</h3>
+        <p>해석학·볼록 최적화·측도 확률론·선형대수 심화 — NeurIPS 정리 증명을 따라갈 수 있다</p>
+      </div>
+      <button class="pu-start-btn" onclick="goChapter('chapters/ch15.html')">여기서 시작 →</button>
+    </div>
+    <div class="path-unit-body">
+      <div class="path-chapters">
+        <div class="path-ch" onclick="goChapter('chapters/ch15.html')">
+          <span class="pc-num">Ch.15</span>
+          <span class="pc-title">수열과 극한의 엄밀한 정의</span>
+          <span class="pc-sub">ε-N 정의, Cauchy 수열</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch16.html')">
+          <span class="pc-num">Ch.16</span>
+          <span class="pc-title">연속성과 미분의 엄밀한 정의</span>
+          <span class="pc-sub">ε-δ 연속성, Lipschitz 조건</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch17.html')">
+          <span class="pc-num">Ch.17</span>
+          <span class="pc-title">적분과 급수·오차 경계와 근사</span>
+          <span class="pc-sub">리만 적분, 테일러 급수, 오차 분석</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch18.html')">
+          <span class="pc-num">Ch.18</span>
+          <span class="pc-title">볼록 집합과 볼록 함수</span>
+          <span class="pc-sub">볼록성, Jensen's inequality</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch19.html')">
+          <span class="pc-num">Ch.19</span>
+          <span class="pc-title">Lagrangian과 KKT 조건</span>
+          <span class="pc-sub">제약 최적화, dual problem, SVM</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch20.html')">
+          <span class="pc-num">Ch.20</span>
+          <span class="pc-title">수렴 속도 분석</span>
+          <span class="pc-sub">O(1/T) 수렴, 가속 방법</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch21.html')">
+          <span class="pc-num">Ch.21</span>
+          <span class="pc-title">σ-대수와 확률공간</span>
+          <span class="pc-sub">Borel σ-algebra, 확률 측도</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch22.html')">
+          <span class="pc-num">Ch.22</span>
+          <span class="pc-title">확률변수의 수렴</span>
+          <span class="pc-sub">a.s. 수렴, 확률 수렴, CLT</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch23.html')">
+          <span class="pc-num">Ch.23</span>
+          <span class="pc-title">기대값의 측도론적 정의·Fubini</span>
+          <span class="pc-sub">르베그 적분, 수렴 정리</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch24.html')">
+          <span class="pc-num">Ch.24</span>
+          <span class="pc-title">고유값 분해와 스펙트럼 이론</span>
+          <span class="pc-sub">대칭 행렬, Rayleigh quotient, PCA</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch25.html')">
+          <span class="pc-num">Ch.25</span>
+          <span class="pc-title">SVD 완전 유도·LoRA</span>
+          <span class="pc-sub">저랭크 근사, Eckart-Young, LoRA</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch26.html')">
+          <span class="pc-num">Ch.26</span>
+          <span class="pc-title">행렬 미분·역전파 수학</span>
+          <span class="pc-sub">Jacobian, Hessian, 역전파 완전 유도</span>
+          <span class="pc-arrow">›</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:22px;color:var(--muted);margin:4px 0 16px;">↓</div>
+
+  <!-- ── Unit 5: 레벨 3 ML 이론 (고급) ── -->
+  <div class="path-unit pu-res">
+    <div class="path-unit-header">
+      <div class="pu-icon">🎓</div>
+      <div class="pu-meta">
+        <div class="pu-label">Unit 5 · 10챕터 · 🔴 레벨 3 고급</div>
+        <h3>ML 이론 · 연구 방법론</h3>
+        <p>통계적 학습 이론·딥러닝 이론·연구 설계 — SCI 논문을 직접 설계하고 쓴다</p>
+      </div>
+      <button class="pu-start-btn" onclick="goChapter('chapters/ch27.html')">여기서 시작 →</button>
+    </div>
+    <div class="path-unit-body">
+      <div class="path-chapters">
+        <div class="path-ch" onclick="goChapter('chapters/ch27.html')">
+          <span class="pc-num">Ch.27</span>
+          <span class="pc-title">집중 부등식</span>
+          <span class="pc-sub">Markov·Hoeffding·Bernstein</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch28.html')">
+          <span class="pc-num">Ch.28</span>
+          <span class="pc-title">PAC 학습 이론·표본 복잡도</span>
+          <span class="pc-sub">일반화 이론, 표본 복잡도</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch29.html')">
+          <span class="pc-num">Ch.29</span>
+          <span class="pc-title">VC 차원·Rademacher 복잡도</span>
+          <span class="pc-sub">성장함수, Shattering, Margin bound</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch30.html')">
+          <span class="pc-num">Ch.30</span>
+          <span class="pc-title">딥러닝 일반화 미스터리</span>
+          <span class="pc-sub">Double Descent, NTK</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch31.html')">
+          <span class="pc-num">Ch.31</span>
+          <span class="pc-title">Transformer Attention 완전 유도</span>
+          <span class="pc-sub">Q·K·V 행렬, Multi-Head Attention</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch32.html')">
+          <span class="pc-num">Ch.32</span>
+          <span class="pc-title">정보 기하학·Fisher Information</span>
+          <span class="pc-sub">통계다양체, 자연 경사하강법</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch33.html')">
+          <span class="pc-num">Ch.33</span>
+          <span class="pc-title">마팅게일과 확률 과정</span>
+          <span class="pc-sub">마팅게일 정지 정리, 확률 과정</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch34.html')">
+          <span class="pc-num">Ch.34</span>
+          <span class="pc-title">고급 최적화 이론</span>
+          <span class="pc-sub">Adam·Momentum·Natural Gradient</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch35.html')">
+          <span class="pc-num">Ch.35</span>
+          <span class="pc-title">논문 비판 독해 방법론</span>
+          <span class="pc-sub">비판적 독해, Claim 분해, 실험 검증</span>
+          <span class="pc-arrow">›</span>
+        </div>
+        <div class="path-connector"></div>
+        <div class="path-ch" onclick="goChapter('chapters/ch36.html')">
+          <span class="pc-num">Ch.36</span>
+          <span class="pc-title">연구 설계·실험 방법론</span>
+          <span class="pc-sub">실험 제어, 재현성, 통계적 유의성</span>
+          <span class="pc-arrow">›</span>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="callout tip" style="margin-top:22px;">
     <div class="ci">💡</div>
-    <div class="cb"><p><strong>순서대로 공부하세요.</strong> 각 단원은 이전 단원을 전제로 설계되어 있습니다. Unit 0 → 1 → 2 → 3 순서로 진행하면 16주 안에 AI 논문 수식을 두려움 없이 읽을 수 있습니다.</p></div>
+    <div class="cb"><p><strong>순서대로 공부하세요.</strong> 각 단원은 이전 단원을 전제로 설계되어 있습니다. Unit 0 → 1 → 2 → 3 → 4 → 5 순서로 진행하면 레벨 1(논문 읽기) → 레벨 2(증명 검증) → 레벨 3(논문 설계·집필) 단계로 성장합니다.</p></div>
   </div>
 
   <h2 class="st"><span class="ic">🏁</span>16주 후 되어야 하는 것</h2>
@@ -2274,7 +2538,7 @@ input[type=number]{width:72px;background:var(--code);border:1px solid var(--bord
 // ── Navigation ──
 let cur = 'home';
 const visitedSet = new Set();
-const TOTAL = 23; // 홈·사전·계획 3 + 챕터 20
+const TOTAL = 47; // 홈·사전·계획 3 + 챕터 44 (Unit0~5 전체)
 
 // 챕터 파일명 → 사이드바 요소 맵
 const chapterMap = {};
@@ -2301,6 +2565,7 @@ function setActiveSidebarByFile(filename) {
     const group = el.closest('.nu-group');
     if (group && group.classList.contains('collapsed')) {
       const gid = group.id;
+      group.style.maxHeight = '';
       group.classList.remove('collapsed');
       const arrow = document.getElementById('arr-' + gid);
       if (arrow) arrow.textContent = '▼';
@@ -2327,9 +2592,17 @@ function toggleUnit(id) {
   if (!group) return;
   const isOpen = !group.classList.contains('collapsed');
   if (isOpen) {
-    group.classList.add('collapsed');
+    // 닫기: 실제 렌더링된 높이로 고정한 뒤 0으로 애니메이션
+    const h = group.getBoundingClientRect().height;
+    group.style.maxHeight = h + 'px';
+    requestAnimationFrame(() => {
+      group.classList.add('collapsed');
+      group.style.maxHeight = '';
+    });
     if (arrow) arrow.textContent = '▶';
   } else {
+    // 열기: 클래스만 제거 → CSS max-height:2000px으로 애니메이션 (타이밍 측정 불필요)
+    group.style.maxHeight = '';
     group.classList.remove('collapsed');
     if (arrow) arrow.textContent = '▼';
   }

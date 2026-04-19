@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.19 — Lagrangian과 KKT 조건 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ KKT 조건 박스 ══ */
+.kkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+.kkt-card{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.kkt-card .kkt-num{font-size:.7rem;font-weight:700;color:var(--accent4);text-transform:uppercase;
+  letter-spacing:.1em;margin-bottom:6px;}
+.kkt-card .kkt-name{font-size:.88rem;font-weight:700;color:var(--accent2);margin-bottom:6px;}
+.kkt-card p{font-size:.83rem;color:var(--muted);margin-bottom:0;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:140px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.8;}
+.cres .cres-row{display:flex;gap:8px;align-items:baseline;margin-bottom:2px;}
+.cres .cres-label{font-size:.8rem;color:var(--muted);font-weight:400;min-width:160px;}
+.cres .cres-ok{color:var(--accent3);}
+.cres .cres-fail{color:var(--accent5);}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.19 · 볼록 최적화 (레벨 2 — Phase 2-B · 5주차)</div>
+  <h1>Lagrangian과 KKT 조건</h1>
+  <p>제약이 있는 최적화 문제. SVM, 정규화의 수학적 기반인 KKT 조건을 이해합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"하루 칼로리는 2000kcal 이하여야 한다"는 제약 아래 가장 맛있는 식사를 고르는 것 — 이것이 제약 최적화입니다.</strong></p>
+  <ul>
+    <li>① 제약 없는 최적화: 무엇이든 먹고 싶은 대로 → 단순히 \(\min f(x)\)를 풀면 됨</li>
+    <li>② 등호 제약 \(g(x) = 0\): "칼로리를 정확히 2000kcal 써야 한다" — 라인 위에서만 움직일 수 있음</li>
+    <li>③ AI에서: SVM은 마진 최대화 + KKT 조건으로 서포트 벡터를 정의하고, L2 정규화는 Gaussian prior + KKT의 등가 관계로 이해할 수 있음</li>
+  </ul>
+</div>
+
+<div class="callout tip">
+  <div class="ci">🔗</div>
+  <div class="cb"><p><strong>레벨 1·2 연결:</strong> Ch.18에서 배운 볼록 함수의 성질이 여기서 결정적입니다. 볼록 문제에서는 KKT 조건이 최적성의 필요충분조건이 됩니다. 이 챕터가 SVM(Ch.09), 정규화(Ch.08), 강화학습의 Policy gradient까지 연결됩니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 제약 최적화 형식 == -->
+<h2 class="st"><span class="ic">🔒</span>제약 최적화 문제의 표준 형식</h2>
+<p>제약 최적화 문제는 목적함수를 최소화하되, 등호 제약과 부등호 제약을 동시에 만족해야 합니다. AI 논문에서 이 형식이 반복적으로 등장합니다.</p>
+
+<div class="fb">
+  <div class="fl">제약 최적화 표준형 (Standard Form)</div>
+  \[
+    \begin{aligned}
+      &\min_{x} \; f(x) \\
+      &\text{s.t.} \quad g_i(x) = 0, \quad i = 1, \ldots, m \\
+      &\phantom{\text{s.t.}} \quad h_j(x) \leq 0, \quad j = 1, \ldots, p
+    \end{aligned}
+  \]
+  <div class="fn">
+    \(f(x)\): 최소화할 목적함수 (예: 오차, 손실)<br/>
+    \(g_i(x) = 0\): 등호 제약 — 정확히 만족해야 하는 조건 (예: 확률의 합 = 1)<br/>
+    \(h_j(x) \leq 0\): 부등호 제약 — 넘어서는 안 되는 조건 (예: 가중치 크기 제한)<br/>
+    \(\text{s.t.}\): "subject to"의 약자 — "~를 만족하는 조건 아래"
+  </div>
+</div>
+
+<h3 class="sub">AI 논문에서 제약 최적화 예시</h3>
+<table>
+  <tr><th>문제</th><th>목적함수 \(f(x)\)</th><th>제약 유형</th><th>KKT 역할</th></tr>
+  <tr><td>SVM (소프트 마진)</td><td>마진 역수 \(\frac{1}{2}\|w\|^2\)</td><td>부등호: \(y_i(w^\top x_i + b) \geq 1\)</td><td>서포트 벡터 정의</td></tr>
+  <tr><td>심플렉스 사영</td><td>\(\|p - q\|^2\)</td><td>등호: \(\sum p_i = 1\), 부등호: \(p_i \geq 0\)</td><td>확률 벡터 최근접점</td></tr>
+  <tr><td>Sparse Coding</td><td>\(\|Ax - b\|^2\)</td><td>부등호: \(\|x\|_1 \leq t\)</td><td>Lasso 쌍대 해석</td></tr>
+  <tr><td>Policy Gradient</td><td>\(-J(\pi)\) (기대 보상)</td><td>등호: \(\text{KL}(\pi \| \pi_{\text{old}}) \leq \delta\)</td><td>TRPO 업데이트 조건</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb"><p>AI 논문에서 "feasible region (가능 집합)"이란 모든 제약을 만족하는 \(x\)의 집합입니다. 우리는 이 집합 안에서 \(f(x)\)를 최소화해야 합니다. Ch.18에서 배운 볼록 집합이 가능 집합인 경우, 전역 최솟값이 존재하고 KKT로 찾을 수 있습니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: Lagrangian == -->
+<h2 class="st"><span class="ic">ℒ</span>Lagrangian — 제약을 목적함수 안으로 집어넣기</h2>
+<p>Lagrangian은 제약 조건을 목적함수 안에 "패널티"처럼 합산한 함수입니다. 제약을 외부에서 강제하는 대신, Lagrange 승수(\(\lambda, \mu\))를 도입해 목적함수와 합산합니다. 이렇게 하면 제약 문제가 무제약 새들포인트(saddle-point) 문제로 바뀝니다.</p>
+
+<div class="fb">
+  <div class="fl">Lagrangian 함수 (Lagrangian Function)</div>
+  \[
+    \mathcal{L}(x, \lambda, \mu) = f(x) + \sum_{i=1}^{m} \lambda_i g_i(x) + \sum_{j=1}^{p} \mu_j h_j(x)
+  \]
+  <div class="fn">
+    \(f(x)\): 원래의 목적함수<br/>
+    \(\lambda_i\): 등호 제약 \(g_i(x) = 0\)에 대응하는 Lagrange 승수 — 부호 제한 없음 (\(\lambda_i \in \mathbb{R}\))<br/>
+    \(\mu_j\): 부등호 제약 \(h_j(x) \leq 0\)에 대응하는 Lagrange 승수 — 반드시 \(\mu_j \geq 0\) (쌍대 가능성)<br/>
+    \(\lambda_i g_i(x)\): 등호를 어기면 패널티가 무한히 커짐<br/>
+    \(\mu_j h_j(x)\): \(h_j(x) > 0\)이면 \(\mu_j \geq 0\)이므로 패널티 증가 → 가능 집합 밖으로 못 나감
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 Lagrangian의 새들포인트 해석</div>
+  <p>원래 문제의 해 \(x^*\)는 Lagrangian의 새들포인트(saddle point)입니다:</p>
+  \[
+    \mathcal{L}(x^*, \lambda, \mu) \leq \mathcal{L}(x^*, \lambda^*, \mu^*) \leq \mathcal{L}(x, \lambda^*, \mu^*)
+  \]
+  <p style="margin-top:8px;font-size:.88rem;color:var(--muted)">즉 \(x^*\)는 \(\mathcal{L}\)을 \(x\)에 대해 최솟값으로 만들고, \((\lambda^*, \mu^*)\)는 최댓값으로 만듭니다. 이 기묘한 구조가 프라이멀·쌍대 이론의 핵심입니다.</p>
+</div>
+
+<h3 class="sub">쌍대 문제 (Dual Problem)</h3>
+<p>Lagrangian에서 \(x\)를 먼저 최소화하면 쌍대 함수 \(d(\lambda, \mu) = \min_x \mathcal{L}(x, \lambda, \mu)\)를 얻습니다. 강한 쌍대성(strong duality)이 성립하면 \(\min_x f(x) = \max_{\lambda, \mu \geq 0} d(\lambda, \mu)\)입니다.</p>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>프라이멀 문제 (Primal)</h5>
+    <ul>
+      <li>\(\min_x f(x)\) s.t. 제약</li>
+      <li>\(x\)가 변수, \(\lambda, \mu\)는 고정</li>
+      <li>가능 집합 안에서 최솟값 탐색</li>
+      <li>SVM에서: 마진 최소화 형태</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>쌍대 문제 (Dual)</h5>
+    <ul>
+      <li>\(\max_{\lambda, \mu \geq 0} d(\lambda, \mu)\)</li>
+      <li>\(\lambda, \mu\)가 변수, \(x\)는 제거됨</li>
+      <li>쌍대 가능 집합에서 최댓값 탐색</li>
+      <li>SVM에서: 서포트 벡터만으로 표현</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 3: KKT 조건 == -->
+<h2 class="st"><span class="ic">✓</span>KKT 조건 — 최적해의 필요충분조건</h2>
+<p>KKT(Karush-Kuhn-Tucker) 조건은 제약 최적화 문제의 최적해 \(x^*\)가 만족해야 하는 4가지 조건입니다. 볼록 문제에서는 이 조건이 필요충분조건이 됩니다. SVM, 정규화, 강화학습 등 거의 모든 AI 최적화 이론의 핵심입니다.</p>
+
+<div class="kkt-grid">
+  <div class="kkt-card">
+    <div class="kkt-num">조건 1</div>
+    <div class="kkt-name">정류 조건 (Stationarity)</div>
+    <p>\(\nabla_x \mathcal{L}(x^*, \lambda^*, \mu^*) = 0\) — Lagrangian의 \(x\)에 대한 기울기가 0</p>
+  </div>
+  <div class="kkt-card">
+    <div class="kkt-num">조건 2</div>
+    <div class="kkt-name">가능성 (Primal Feasibility)</div>
+    <p>\(g_i(x^*) = 0\), \(h_j(x^*) \leq 0\) — 원래 제약을 모두 만족</p>
+  </div>
+  <div class="kkt-card">
+    <div class="kkt-num">조건 3</div>
+    <div class="kkt-name">쌍대 가능성 (Dual Feasibility)</div>
+    <p>\(\mu_j^* \geq 0\) — 부등호 제약의 승수는 반드시 비음수</p>
+  </div>
+  <div class="kkt-card">
+    <div class="kkt-num">조건 4</div>
+    <div class="kkt-name">상보 여유 (Complementary Slackness)</div>
+    <p>\(\mu_j^* \cdot h_j(x^*) = 0\) — 제약이 활성화되지 않으면 승수는 0</p>
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">KKT 조건 (4가지 — 볼록 문제에서 필요충분)</div>
+  \[
+    \begin{aligned}
+      (1)\; &\nabla_x \mathcal{L}(x^*, \lambda^*, \mu^*) = 0 \quad &\text{(정류 조건)}\\
+      (2)\; &g_i(x^*) = 0, \quad h_j(x^*) \leq 0 \quad &\text{(가능성)}\\
+      (3)\; &\mu_j^* \geq 0 \quad &\text{(쌍대 가능성)}\\
+      (4)\; &\mu_j^* \cdot h_j(x^*) = 0 \quad &\text{(상보 여유)}
+    \end{aligned}
+  \]
+  <div class="fn">
+    조건 (1): 최적점에서 Lagrangian의 기울기가 0 — 경사하강법으로 더 내려갈 수 없는 상태<br/>
+    조건 (2): 최적해는 반드시 원래 제약을 만족해야 함 (가능 집합 안에 있어야 함)<br/>
+    조건 (3): 부등호 제약의 승수 \(\mu_j^* \geq 0\) — 부호를 바꾸면 제약 방향이 반대가 됨<br/>
+    조건 (4): \(\mu_j^* > 0\)이면 \(h_j(x^*) = 0\) (활성 제약), \(h_j(x^*) &lt; 0\)이면 \(\mu_j^* = 0\) — 둘 중 하나는 반드시 0
+  </div>
+</div>
+
+<h3 class="sub">상보 여유 조건의 의미 — SVM 서포트 벡터</h3>
+<p>상보 여유 조건 \(\mu_j^* \cdot h_j(x^*) = 0\)은 두 가지 경우만 허용합니다:</p>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>경우 A: 비활성 제약</h5>
+    <ul>
+      <li>\(h_j(x^*) &lt; 0\) — 제약을 여유롭게 만족</li>
+      <li>\(\Rightarrow \mu_j^* = 0\) — 승수는 자동으로 0</li>
+      <li>이 제약은 최적해에 영향 없음</li>
+      <li>SVM: 마진 안쪽 데이터 → 계수 = 0</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>경우 B: 활성 제약</h5>
+    <ul>
+      <li>\(h_j(x^*) = 0\) — 제약 경계에 정확히 위치</li>
+      <li>\(\Rightarrow \mu_j^* \geq 0\) — 승수가 양수일 수 있음</li>
+      <li>이 제약이 최적해를 결정</li>
+      <li>SVM: 마진 경계 데이터 = 서포트 벡터</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>SVM의 서포트 벡터는 KKT 상보 여유의 결과입니다.</strong> SVM에서 제약은 \(h_i(w, b) = 1 - y_i(w^\top x_i + b) \leq 0\). 상보 여유 \(\mu_i^* \cdot h_i = 0\)에 의해, \(\mu_i^* > 0\)인 데이터만이 결정 경계에 기여합니다. 이것이 바로 마진 위에 위치한 "서포트 벡터"의 수학적 정의입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: L2 정규화와 KKT == -->
+<h2 class="st"><span class="ic">🔗</span>L2 정규화와 KKT — 등가 관계</h2>
+<p>L2 정규화(Ridge)는 단순히 "오차 패널티"가 아닙니다. KKT 이론을 통해 제약 최적화 문제와 완전히 등가임을 보일 수 있습니다. 이 등가 관계는 정규화 강도 \(\lambda\)와 제약 크기 \(t\) 사이의 일대일 대응을 보여줍니다.</p>
+
+<div class="fb">
+  <div class="fl">L2 정규화 ↔ 제약 최적화 등가 관계</div>
+  \[
+    \underbrace{\min_\theta \; \mathcal{L}(\theta) + \frac{\lambda}{2}\|\theta\|^2}_{\text{Lagrangian 형태}}
+    \quad \Longleftrightarrow \quad
+    \underbrace{\min_\theta \; \mathcal{L}(\theta) \;\; \text{s.t.} \;\; \|\theta\|^2 \leq t}_{\text{제약 최적화 형태}}
+  \]
+  <div class="fn">
+    \(\mathcal{L}(\theta)\): 원래 손실함수 (예: 교차 엔트로피, MSE)<br/>
+    \(\lambda\): 정규화 강도 (Lagrange 승수 역할) — \(\lambda\)가 크면 \(t\)가 작음<br/>
+    \(\|\theta\|^2 \leq t\): 파라미터 노름의 상한 제약 — 과적합 방지<br/>
+    좌변에서 \(\lambda\)는 고정값, 우변에서 \(t\)는 제약의 크기<br/>
+    둘 중 하나의 KKT 조건을 풀면 나머지의 해도 자동으로 구해짐
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 Bayesian 관점과의 연결</div>
+  <p>L2 정규화의 Bayesian 해석: \(\theta\)에 Gaussian prior \(\theta \sim \mathcal{N}(0, \sigma^2 I)\)를 부과한 MAP 추정과 동일합니다.</p>
+  \[
+    \underbrace{\min_\theta \left[\mathcal{L}(\theta) + \frac{\lambda}{2}\|\theta\|^2\right]}_{\text{L2 정규화}}
+    = \underbrace{\max_\theta \left[\p(\text{Data}|\theta) \cdot \mathcal{N}(\theta; 0, \sigma^2 I)\right]}_{\text{MAP 추정}}
+  \]
+  <p style="font-size:.84rem;color:var(--muted);margin-top:8px;">여기서 \(\lambda = 1/\sigma^2\). 정규화 강도가 클수록 prior의 분산이 작아져 파라미터가 0 근방에 집중됩니다. KKT는 이 관계를 제약 최적화 언어로도 표현할 수 있게 해줍니다.</p>
+</div>
+
+<h3 class="sub">AI 논문에서의 KKT 활용 패턴</h3>
+<table>
+  <tr><th>알고리즘</th><th>제약</th><th>KKT 조건의 역할</th></tr>
+  <tr><td>SVM (Hard margin)</td><td>\(y_i(w^\top x_i + b) \geq 1\)</td><td>서포트 벡터: \(\mu_i^* > 0\)인 점만 결정 경계에 기여</td></tr>
+  <tr><td>TRPO (RL)</td><td>\(\text{KL}(\pi_\text{new} \| \pi_\text{old}) \leq \delta\)</td><td>신뢰 영역 제약을 만족하는 최대 업데이트 방향</td></tr>
+  <tr><td>Lasso (L1)</td><td>\(\|\theta\|_1 \leq t\)</td><td>KKT로 sparsity 패턴 결정 — 일부 계수가 정확히 0</td></tr>
+  <tr><td>Frank-Wolfe</td><td>볼록 집합 \(\mathcal{C}\) 위에서 최적화</td><td>KKT 조건으로 수렴 판단 기준 설정</td></tr>
+</table>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 KKT 조건 체험기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    문제: \(\min_{x} x^2 \;\text{s.t.}\; x - 1 \leq 0\) (즉 \(x \leq 1\))<br/>
+    Lagrangian: \(\mathcal{L}(x, \mu) = x^2 + \mu(x - 1)\). 슬라이더를 조절해 KKT 조건을 확인하세요.
+  </p>
+
+  <div class="cr">
+    <span class="cl">Lagrange 승수 \(\mu\)</span>
+    <input type="range" id="kkt-mu" min="0" max="5" step="0.01" value="0" oninput="updateKKT()"/>
+    <input type="number" id="kkt-mu-v" value="0.00" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">변수 \(x\)</span>
+    <input type="range" id="kkt-x" min="-3" max="3" step="0.01" value="0" oninput="updateKKT()"/>
+    <input type="number" id="kkt-x-v" value="0.00" readonly/>
+  </div>
+
+  <div class="cres" id="kkt-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">KKT 상보 여유 조건 \(\mu_j^* \cdot h_j(x^*) = 0\)이 의미하는 것은 무엇인가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 모든 Lagrange 승수 \(\mu_j^*\)는 항상 0이다</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; 모든 부등호 제약은 항상 등호로 만족된다</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; 활성 제약(\(h_j = 0\))에만 양수 승수가 붙고, 비활성 제약의 승수는 0이다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 제약을 위반한 경우에 승수가 양수가 된다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch18.html'">← Ch.18 볼록 집합·볼록 함수</button>
+  <button class="btn btn-p" onclick="location.href='ch20.html'">Ch.20 수렴 속도 분석 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 상보 여유 μⱼ·hⱼ(x*)=0은 "활성 제약(hⱼ=0)에만 양수 승수가 붙고, 여유가 있는 비활성 제약의 승수는 반드시 0"임을 의미합니다. SVM의 서포트 벡터가 바로 이 조건으로 정의됩니다.'
+    : '❌ 틀렸습니다. 상보 여유는 μⱼ와 hⱼ(x*) 중 하나는 반드시 0이어야 한다는 뜻입니다. 둘 다 양수일 수는 없습니다.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+function updateKKT() {
+  const mu = parseFloat(document.getElementById('kkt-mu').value);
+  const x  = parseFloat(document.getElementById('kkt-x').value);
+
+  document.getElementById('kkt-mu-v').value = mu.toFixed(2);
+  document.getElementById('kkt-x-v').value  = x.toFixed(2);
+
+  const lagrangian = x * x + mu * (x - 1);
+  const constraint = x - 1;
+  const gradL      = 2 * x + mu;
+
+  const dualFeasOk    = mu >= -0.0001;
+  const primalFeasOk  = constraint <= 0.0001;
+  const stationaryOk  = Math.abs(gradL) < 0.05;
+  const complSlackOk  = Math.abs(mu * constraint) < 0.05;
+
+  const ok   = '<span class="cres-ok">✅ 만족</span>';
+  const fail = '<span class="cres-fail">❌ 위반</span>';
+
+  const kktAllOk = dualFeasOk && primalFeasOk && stationaryOk && complSlackOk;
+
+  let analysis = '';
+  if (Math.abs(x) < 0.05 && mu < 0.05) {
+    analysis = ' → 무제약 최솟값 x=0 (제약 비활성, μ=0)';
+  } else if (Math.abs(x - 1) < 0.05 && Math.abs(mu - 2) < 0.15) {
+    analysis = ' → 제약 활성 최솟값 x=1 (μ≈2)';
+  } else {
+    analysis = kktAllOk ? ' → KKT 조건 충족!' : ' → KKT 조건 미충족';
+  }
+
+  document.getElementById('kkt-res').innerHTML =
+    `<div class="cres-row"><span class="cres-label">ℒ(x,μ) = x² + μ(x−1)</span><strong>${lagrangian.toFixed(4)}</strong></div>
+     <div class="cres-row"><span class="cres-label">(1) 정류: ∇ₓℒ = 2x+μ = ${gradL.toFixed(3)}</span>${stationaryOk ? ok : fail}</div>
+     <div class="cres-row"><span class="cres-label">(2) 가능성: x−1 = ${constraint.toFixed(3)} ≤ 0</span>${primalFeasOk ? ok : fail}</div>
+     <div class="cres-row"><span class="cres-label">(3) 쌍대 가능성: μ = ${mu.toFixed(2)} ≥ 0</span>${dualFeasOk ? ok : fail}</div>
+     <div class="cres-row"><span class="cres-label">(4) 상보 여유: μ·(x−1) = ${(mu*constraint).toFixed(3)}</span>${complSlackOk ? ok : fail}</div>
+     <div style="margin-top:8px;font-size:.8rem;color:var(--muted)">
+       <strong style="color:${kktAllOk ? 'var(--accent3)' : 'var(--accent4)'}">
+         ${kktAllOk ? '🏆 KKT 4조건 모두 만족' : '⚠️ KKT 조건 미충족'}
+       </strong>${analysis}<br/>
+       힌트: x=0, μ=0 또는 x=1, μ=2 근방에서 모든 조건이 만족됩니다.
+     </div>`;
+}
+
+updateKKT();
+</script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.29 — VC 차원과 Rademacher 복잡도 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.29 · 통계적 학습 이론 (Phase 3 — 3주차)</div>
+  <h1>VC 차원과 Rademacher 복잡도</h1>
+  <p>무한 가설 클래스의 복잡도를 측정합니다. 신경망의 일반화 경계, "VC dimension d → n = O(d/ε²)"의 수학.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>선형 분류기로 평면 위의 점들을 얼마나 다양하게 나눌 수 있는가? — <strong>"3개 점은 어떻게 놓아도 가능하지만 4개 점은 불가능한 배치가 있다. 이 '최대 분류 가능 점 수'가 VC 차원이다."</strong></p>
+  <ul>
+    <li>1D 임계값 분류기: VC 차원 = 1 (점 1개는 분류 가능, 2개는 불가)</li>
+    <li>2D 선형 분류기: VC 차원 = 3 (3점은 가능, 4점은 XOR 패턴 불가)</li>
+    <li>AI에서: 신경망의 VC 차원 = O(W log W) (W = 파라미터 수) → 일반화 경계가 이를 통해 유도되지만, 딥러닝의 실제 성능은 이론보다 훨씬 좋다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: Shattering과 VC 차원 == -->
+<h2 class="st"><span class="ic">V</span>Shattering과 VC 차원</h2>
+<p>가설 클래스 \(\mathcal{H}\)가 점 집합 \(C\)를 <strong>분쇄(shatter)</strong>한다는 것은 \(C\)의 모든 가능한 이진 라벨 할당을 \(\mathcal{H}\) 안의 어떤 \(h\)가 완벽히 분류할 수 있다는 뜻입니다. VC 차원은 분쇄 가능한 최대 집합의 크기입니다.</p>
+
+<div class="fb">
+  <div class="fl">VC DIMENSION DEFINITION</div>
+  \[ \mathrm{VCdim}(\mathcal{H}) = \max\{|C|:\mathcal{H}\text{ shatters }C\} \]
+  <div class="fn">
+    \(C\): 점들의 집합<br/>
+    "\(\mathcal{H}\)가 \(C\)를 분쇄": \(\forall(y_1,\ldots,y_{|C|}) \in \{0,1\}^{|C|},\ \exists h \in \mathcal{H}\ \text{s.t.}\ h(x_i)=y_i\ \text{for all}\ i\)<br/>
+    \(\mathrm{VCdim}=d\)이면 크기 \(d\)인 집합은 분쇄 가능, 크기 \(d+1\)인 <strong>모든</strong> 집합은 분쇄 불가
+  </div>
+</div>
+
+<h3 class="sub">주요 가설 클래스의 VC 차원</h3>
+<table>
+  <tr><th>가설 클래스</th><th>차원</th><th>VC 차원</th></tr>
+  <tr><td>1D 임계값 \(h(x)=\mathbf{1}[x>\theta]\)</td><td>1</td><td>1</td></tr>
+  <tr><td>2D 선형 분류기</td><td>2</td><td>3</td></tr>
+  <tr><td>\(d\)차원 선형 분류기</td><td>\(d\)</td><td>\(d+1\)</td></tr>
+  <tr><td>신경망 (\(W\) 파라미터)</td><td>—</td><td>\(O(W \log W)\)</td></tr>
+  <tr><td>결정트리 (깊이 \(d\))</td><td>—</td><td>\(O(2^d)\)</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb"><p><strong>분쇄의 핵심:</strong> \(\mathcal{H}\)가 크기 \(d+1\)인 점 집합을 분쇄하지 <em>못한다</em>는 것이 포인트입니다. "어떤 배치를 잡아도 분쇄 불가"이어야 VC 차원이 \(d\)로 확정됩니다. 하나라도 분쇄 가능한 배치가 존재하면 VC 차원은 적어도 \(d+1\)입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: 통계적 학습의 기본 정리 == -->
+<h2 class="st"><span class="ic">∗</span>통계적 학습의 기본 정리</h2>
+<p>VC 차원이 유한하면 PAC 학습 가능하고, 무한하면 PAC 학습 불가능합니다. 이것이 통계적 학습 이론의 핵심 결과입니다. VC 경계는 훈련 오차와 검증 오차의 차이를 표본 크기와 VC 차원으로 한정합니다.</p>
+
+<div class="fb">
+  <div class="fl">VC GENERALIZATION BOUND</div>
+  \[ P\!\left[L_D(h_S)-L_S(h_S)\leq\sqrt{\frac{2d\ln(en/d)+2\ln(4/\delta)}{n}}\right]\geq 1-\delta \]
+  <div class="fn">
+    \(d = \mathrm{VCdim}(\mathcal{H})\): VC 차원<br/>
+    우변이 \(\varepsilon\)이 되도록 풀면 표본 복잡도: \(n = O\!\left(d/\varepsilon^2 + \log(1/\delta)/\varepsilon^2\right)\)<br/>
+    상수 \(e \approx 2.718\)은 자연상수 (Sauer's Lemma에서 유래)<br/>
+    핵심: \(n\)이 충분하면 훈련-검증 오차 차이가 \(\varepsilon\) 이하
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">VC SAMPLE COMPLEXITY</div>
+  \[ m_\mathcal{H}(\varepsilon,\delta) = O\!\left(\frac{d+\log(1/\delta)}{\varepsilon^2}\right) \]
+  <div class="fn">
+    \(d\) = VC 차원, \(\varepsilon\) = 정확도, \(\delta\) = 신뢰도<br/>
+    \(d\)차원 선형 분류기: \(m_\mathcal{H} = O(d/\varepsilon^2)\)<br/>
+    신경망(\(W\) 파라미터): \(m_\mathcal{H} = O(W \log W/\varepsilon^2)\)
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>✅ VC 경계의 장점</h5>
+    <ul>
+      <li>분포와 무관한 최악의 경우 경계</li>
+      <li>PAC 학습 가능성의 필요충분 조건</li>
+      <li>표본 복잡도를 VC 차원 하나로 요약</li>
+      <li>임의 가설 클래스에 적용 가능</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>⚠️ VC 경계의 한계</h5>
+    <ul>
+      <li>신경망에서 너무 느슨 (실제보다 훨씬 큰 \(n\) 요구)</li>
+      <li>분포 정보를 전혀 활용하지 않음</li>
+      <li>딥러닝의 "더블 디센트" 현상 설명 불가</li>
+      <li>회귀·다중 클래스에는 직접 적용 불가</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 3: Rademacher 복잡도 == -->
+<h2 class="st"><span class="ic">R</span>Rademacher 복잡도</h2>
+<p>VC 차원은 이진 분류에만 적용되고 분포와 무관합니다. <strong>Rademacher 복잡도</strong>는 특정 분포와 표본에 의존하는 더 정밀한 복잡도 척도입니다. "무작위 노이즈 라벨과 얼마나 상관관계를 가질 수 있는가"를 측정합니다.</p>
+
+<div class="fb">
+  <div class="fl">EMPIRICAL RADEMACHER COMPLEXITY</div>
+  \[ \hat{\mathcal{R}}_S(\mathcal{H}) = \mathbb{E}_{\boldsymbol{\sigma}}\!\left[\sup_{h\in\mathcal{H}}\frac{1}{n}\sum_{i=1}^n\sigma_i h(x_i)\right] \]
+  <div class="fn">
+    \(\sigma_i \in \{-1,+1\}\): i.i.d. Rademacher 변수(균등 분포) — 무작위 노이즈 라벨<br/>
+    \(\sup_{h\in\mathcal{H}}\): \(\mathcal{H}\) 안의 \(h\) 중 노이즈와 가장 잘 상관되는 것을 선택<br/>
+    값이 클수록 \(\mathcal{H}\)가 더 복잡 (노이즈에도 맞출 수 있음을 의미)<br/>
+    Rademacher 복잡도 = 0 → 복잡도 없음 (가설이 하나뿐인 경우 등)
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">RADEMACHER GENERALIZATION BOUND</div>
+  \[ P\!\left[L_D(h)\leq L_S(h)+2\mathcal{R}_n(\mathcal{H})+\sqrt{\frac{\ln(2/\delta)}{2n}}\right]\geq 1-\delta \]
+  <div class="fn">
+    \(\mathcal{R}_n(\mathcal{H})\): 표본 크기 \(n\)에서의 Rademacher 복잡도<br/>
+    VC 경계보다 분포에 따라 더 타이트할 수 있음 (분포 정보를 활용하기 때문)<br/>
+    딥러닝에서: 실제로 Rademacher 복잡도가 낮아서 이론이 예측하는 것보다 잘 일반화됨<br/>
+    \(2\mathcal{R}_n(\mathcal{H})\): 복잡도 페널티 항 / \(\sqrt{\ln(2/\delta)/2n}\): 확률 신뢰도 항
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>VC vs Rademacher 비교:</strong> VC 차원은 분포와 무관한 "최악의 경우" 경계이고, Rademacher 복잡도는 실제 데이터 분포와 표본에 의존하는 "평균적 경우" 경계입니다. 실제 딥러닝 모델의 일반화를 분석할 때 Rademacher가 더 유용할 때가 많습니다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: Sauer's Lemma == -->
+<h2 class="st"><span class="ic">S</span>Sauer's Lemma — 무한 ℋ의 수학적 도구</h2>
+<p>유한 \(\mathcal{H}\)에 대한 일반화 경계는 Union Bound로 유도됩니다. 무한 \(\mathcal{H}\)(예: 선형 분류기, 신경망)에 대해서는 "<strong>성장 함수(growth function)</strong>"를 통해 유효한 "패턴 수"를 유한으로 제한합니다. Sauer's Lemma가 이 핵심 도구입니다.</p>
+
+<div class="cc">
+  <div class="ct">🔑 성장 함수 (Growth Function)</div>
+  <p>성장 함수 \(\Pi_\mathcal{H}(n)\)는 \(n\)개 점에서 \(\mathcal{H}\)가 만들 수 있는 서로 다른 이진 패턴(이분)의 최대 개수입니다.</p>
+  \[ \Pi_\mathcal{H}(n) = \max_{x_1,\ldots,x_n \in \mathcal{X}} |\{(h(x_1),\ldots,h(x_n)) : h \in \mathcal{H}\}| \]
+</div>
+
+<div class="fb">
+  <div class="fl">SAUER'S LEMMA</div>
+  \[ \Pi_\mathcal{H}(n) \leq \sum_{i=0}^{d}\binom{n}{i} \leq \left(\frac{en}{d}\right)^d \]
+  <div class="fn">
+    \(\Pi_\mathcal{H}(n)\): 성장 함수 = \(n\)개 점에서 \(\mathcal{H}\)가 만들 수 있는 서로 다른 이진 패턴 수<br/>
+    \(d = \mathrm{VCdim}(\mathcal{H})\)<br/>
+    \(n \leq d\)이면 최대 \(2^n\), \(n > d\)이면 다항식(\(n^d\))으로 증가<br/>
+    이 다항식 증가가 일반화 경계 유도의 핵심 — Union Bound를 다항식 개의 가설로 제한
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> 신경망의 VC 차원이 크면 항상 일반화가 나쁘다고 생각하기 쉽습니다. 그러나 딥러닝의 "double descent" 현상이 보여주듯, VC 차원이 표본 수보다 훨씬 커도 실제 일반화 성능이 좋을 수 있습니다. VC 이론은 최악의 경우 경계이며, 실제 딥러닝에서는 더 정밀한 분석이 필요합니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 2D 선형 분류기의 VC 차원 — VC = 3</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">점 수 \(n\)을 바꾸면서 2D 선형 분류기의 분쇄 가능 여부와 Sauer 상한을 확인해보세요.</p>
+
+  <div class="cr">
+    <span class="cl">점 수 \(n\)</span>
+    <input type="range" id="vc-n" min="2" max="5" step="1" value="3" oninput="updateVC()"/>
+    <input type="number" id="vc-n-v" value="3" readonly/>
+  </div>
+
+  <div class="cres" id="vc-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">\(d\)차원 선형 분류기(초평면)의 VC 차원은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(d\)</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(d+1\)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(2d\)</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; \(d^2\)</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch28.html'">← Ch.28 PAC 학습 이론</button>
+  <button class="btn btn-p" onclick="location.href='ch30.html'">Ch.30 딥러닝 일반화 미스터리 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! d차원 초평면은 일반 위치에 있는 d+1개 점을 분쇄할 수 있지만, d+2개 점은 불가합니다. 예: 2D에서 VC=3.'
+    : '❌ 틀렸습니다. d차원 선형 분류기의 VC 차원은 d+1입니다. 본문을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── VC 차원 시각화 ──
+function updateVC() {
+  const n = parseInt(document.getElementById('vc-n').value);
+  document.getElementById('vc-n-v').value = n;
+  const d = 3;
+  const twoN = Math.pow(2, n);
+  let sauer = 0;
+  for (let i = 0; i <= Math.min(n, d); i++) {
+    let comb = 1;
+    for (let j = 0; j < i; j++) { comb = comb * (n - j) / (j + 1); }
+    sauer += comb;
+  }
+  sauer = Math.round(sauer);
+  const canShatter = n <= d ? '✅ 분쇄 가능 (적절한 배치 존재)' : '❌ 분쇄 불가 (어떤 배치도 불가)';
+  const growthDesc = n <= d
+    ? `최대 ${twoN}개 패턴 (= 2ⁿ, 모두 가능)`
+    : `최대 ${sauer}개 패턴 < ${twoN} (일부 불가)`;
+  document.getElementById('vc-res').innerHTML =
+    `2D 선형 분류기의 VC 차원 = ${d}<br/>
+     n = ${n}개 점에 대해: ${canShatter}<br/>
+     이분 수 (Sauer 상한): <strong>${sauer}</strong><br/>
+     최대 가능 이분 수: 2ⁿ = <strong>${twoN}</strong><br/>
+     ${growthDesc}<br/>
+     <span style="font-size:.78rem;color:var(--muted)">n=4일 때 XOR 패턴이 불가: 선형 분류기 한계</span>`;
+}
+updateVC();
+</script>
+</body>
+</html>

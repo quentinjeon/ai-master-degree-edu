@@ -13,6 +13,10 @@
 
 | 파일 | 상태 | 잠금 에이전트 | 잠금 시각 |
 |------|:----:|------------|---------|
+| `chapters/ch00d.html` | 🔓 FREE | — | — |
+| `chapters/ch00e.html` | 🔓 FREE | — | — |
+| `chapters/ch00f.html` | 🔓 FREE | — | — |
+| `chapters/ch02d.html` | 🔓 FREE | — | — |
 | `chapters/ch00a.html` | 🔓 FREE | — | — |
 | `chapters/ch00b.html` | 🔓 FREE | — | — |
 | `chapters/ch00c.html` | 🔓 FREE | — | — |
@@ -33,6 +37,33 @@
 | `chapters/ch12.html` | 🔓 FREE | — | — |
 | `chapters/ch13.html` | 🔓 FREE | — | — |
 | `chapters/ch14.html` | 🔓 FREE | — | — |
+| `chapters/ch14b.html` | 🔓 FREE | — | — |
+| `chapters/ch15.html` | 🔓 FREE | — | — |
+| `chapters/ch16.html` | 🔓 FREE | — | — |
+| `chapters/ch17.html` | 🔓 FREE | — | — |
+| `chapters/ch18.html` | 🔓 FREE | — | — |
+| `chapters/ch19.html` | 🔓 FREE | — | — |
+| `chapters/ch20.html` | 🔓 FREE | — | — |
+| `chapters/ch21.html` | 🔓 FREE | — | — |
+| `chapters/ch22.html` | 🔓 FREE | — | — |
+| `chapters/ch23.html` | 🔓 FREE | — | — |
+| `chapters/ch24.html` | 🔓 FREE | — | — |
+| `chapters/ch25.html` | 🔓 FREE | — | — |
+| `chapters/ch26.html` | 🔓 FREE | — | — |
+| `chapters/ch27.html` | 🔓 FREE | — | — |
+| `chapters/ch28.html` | 🔓 FREE | — | — |
+| `chapters/ch29.html` | 🔓 FREE | — | — |
+| `chapters/ch30.html` | 🔓 FREE | — | — |
+| `chapters/ch31.html` | 🔓 FREE | — | — |
+| `chapters/ch32.html` | 🔓 FREE | — | — |
+| `chapters/ch33.html` | 🔓 FREE | — | — |
+| `chapters/ch34.html` | 🔓 FREE | — | — |
+| `chapters/ch35.html` | 🔓 FREE | — | — |
+| `chapters/ch36.html` | 🔓 FREE | — | — |
+| `chapters/ch37.html` | 🔓 FREE | — | — |
+| `chapters/ch38.html` | 🔓 FREE | — | — |
+| `chapters/ch39.html` | 🔓 FREE | — | — |
+| `chapters/ch40.html` | 🔓 FREE | — | — |
 
 ---
 

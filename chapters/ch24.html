@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.24 — 고유값 분해와 스펙트럼 이론 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ RQ 시각화 바 ══ */
+.rq-bar-wrap{margin-top:10px;display:flex;align-items:center;gap:10px;}
+.rq-bar-bg{flex:1;height:14px;background:var(--surface3);border-radius:99px;overflow:hidden;}
+.rq-bar-fill{height:100%;border-radius:99px;transition:width .2s,background .2s;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.24 · 선형대수 심화 (레벨 2 — Phase 2-D · 10주차)</div>
+  <h1>고유값 분해와 스펙트럼 이론</h1>
+  <p>행렬의 "방향과 크기"를 분해합니다. PCA, 공분산 분석, Attention의 수학적 기반.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>행렬 곱은 공간을 <strong>"회전시키고 늘이는"</strong> 변환인데, 고유벡터는 회전 없이 \(\lambda\)배(늘임)만 경험하는 특별한 방향입니다.</p>
+  <ul>
+    <li>공분산 행렬의 고유벡터 = PCA 주성분 방향 — 데이터가 가장 넓게 퍼진 축</li>
+    <li>큰 고유값 = 데이터 분산이 큰 방향, 작은 고유값 = 노이즈에 가까운 방향</li>
+    <li>AI: Attention 행렬 스펙트럼 분석 / LoRA 저랭크 분해가 모두 이 이론 위에서 작동한다</li>
+  </ul>
+</div>
+
+<div class="callout info">
+  <div class="ci">🔗</div>
+  <div class="cb"><p><strong>Ch.03 연결:</strong> Ch.03에서 배운 행렬 곱·기저 변환이 이 챕터의 출발점입니다. 여기서는 그 변환의 "고유 구조"를 찾아냅니다. SVD(Ch.25)와 역전파 수학(Ch.26)의 직접적인 선행 지식입니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 고유값과 고유벡터 == -->
+<h2 class="st"><span class="ic">λ</span>고유값과 고유벡터</h2>
+<p>정방행렬 \(A \in \mathbb{R}^{n \times n}\)에 의한 선형 변환은 대부분의 벡터를 회전시킵니다. 그런데 어떤 특별한 벡터 \(\mathbf{v}\)는 방향은 그대로이고 크기만 \(\lambda\)배 바뀝니다. 이 벡터를 <strong>고유벡터(eigenvector)</strong>, 배율 \(\lambda\)를 <strong>고유값(eigenvalue)</strong>이라 합니다.</p>
+
+<div class="fb">
+  <div class="fl">고유값·고유벡터 정의</div>
+  \[
+    A\mathbf{v} = \lambda \mathbf{v}, \quad \mathbf{v} \neq \mathbf{0}
+  \]
+  <div class="fn">
+    \(A\): \(n \times n\) 정방행렬<br/>
+    \(\mathbf{v}\): 고유벡터 — 변환 후에도 같은 방향을 유지하는 영벡터가 아닌 벡터<br/>
+    \(\lambda\): 고유값 — 고유벡터가 늘어나거나 줄어드는 배율 (음수 가능)<br/>
+    고유값은 \(\det(A - \lambda I) = 0\) (특성방정식)을 풀어서 구한다
+  </div>
+</div>
+
+<h3 class="sub">대각화 — 행렬 거듭제곱을 쉽게 계산하는 열쇠</h3>
+<p>\(A\)가 \(n\)개의 선형 독립인 고유벡터를 가지면 대각화할 수 있습니다. 대각화는 반복 연산(정규화, 멱급수, 지수행렬)을 극적으로 단순화합니다.</p>
+
+<div class="fb">
+  <div class="fl">대각화 (Eigendecomposition)</div>
+  \[
+    A = V \Lambda V^{-1}
+  \]
+  \[
+    \Lambda = \operatorname{diag}(\lambda_1, \ldots, \lambda_n), \quad V = [\mathbf{v}_1 \mid \cdots \mid \mathbf{v}_n]
+  \]
+  <div class="fn">
+    \(V\): 고유벡터를 열로 쌓은 행렬 — \(V\)의 \(i\)번째 열이 \(\mathbf{v}_i\)<br/>
+    \(\Lambda\): 고유값을 대각선에 놓은 대각행렬<br/>
+    \(V^{-1}\): \(V\)의 역행렬 — 고유벡터가 직교하면 \(V^{-1} = V^\top\)<br/>
+    핵심 응용: \(A^k = V \Lambda^k V^{-1}\) — 대각행렬의 거듭제곱은 각 원소를 \(k\)제곱하면 끝
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>\(A^k = V\Lambda^k V^{-1}\)의 위력:</strong> Transformer의 반복 attention 합성, 마팅게일 이론의 전이행렬 분석 등 "행렬을 여러 번 곱하는" 상황마다 대각화가 등장한다. \(\lambda_i^k\)만 계산하면 되므로 \(O(n^3k)\)가 \(O(n^3 + nk)\)로 줄어든다.</p></div>
+</div>
+
+<h3 class="sub">고유값 찾기 — 특성다항식</h3>
+<table>
+  <tr><th>단계</th><th>수식</th><th>의미</th></tr>
+  <tr><td>특성방정식 설정</td><td>\(\det(A - \lambda I) = 0\)</td><td>\(\lambda\)가 해가 되는 조건</td></tr>
+  <tr><td>고유값 \(\lambda_i\) 계산</td><td>다항식 풀기</td><td>최대 \(n\)개의 실수/복소수 해</td></tr>
+  <tr><td>고유벡터 \(\mathbf{v}_i\) 계산</td><td>\((A - \lambda_i I)\mathbf{v} = \mathbf{0}\) 풀기</td><td>영공간(null space) 구하기</td></tr>
+  <tr><td>대각화 조건 확인</td><td>\(V\) 가역 여부</td><td>고유벡터가 선형 독립이어야 함</td></tr>
+</table>
+
+
+<!-- == 섹션 2: 스펙트럼 정리 == -->
+<h2 class="st"><span class="ic">S</span>스펙트럼 정리 — 대칭행렬의 아름다운 구조</h2>
+<p>일반 행렬은 복소수 고유값이나 선형 종속 고유벡터를 가질 수 있습니다. 하지만 대칭행렬 \(A = A^\top\)는 훨씬 강력한 보장을 제공합니다. 바로 <strong>스펙트럼 정리(Spectral Theorem)</strong>입니다.</p>
+
+<div class="fb">
+  <div class="fl">스펙트럼 정리 (Spectral Theorem)</div>
+  \[
+    A = A^\top \implies A = Q \Lambda Q^\top
+  \]
+  <div class="fn">
+    \(A = A^\top\): 대칭행렬 조건 — 공분산 행렬, Hessian 등이 여기에 해당<br/>
+    \(Q\): 직교행렬 (\(Q^{-1} = Q^\top\), \(QQ^\top = I\)) — 고유벡터가 서로 수직이고 단위벡터<br/>
+    \(\Lambda\): 실수 고유값으로 이루어진 대각행렬 — 복소수 고유값 없음이 보장됨<br/>
+    해석: \(A\)는 "회전(\(Q^\top\)) → 축별 스케일링(\(\Lambda\)) → 역회전(\(Q\))"으로 분해된다
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>일반 행렬</h5>
+    <ul>
+      <li>고유값이 복소수일 수 있음</li>
+      <li>고유벡터가 직교하지 않을 수 있음</li>
+      <li>\(V^{-1} \neq V^\top\) (계산 비쌈)</li>
+      <li>대각화 불가능한 경우도 있음</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>대칭행렬 (스펙트럼 정리)</h5>
+    <ul>
+      <li>고유값이 항상 실수</li>
+      <li>고유벡터가 항상 직교</li>
+      <li>\(Q^{-1} = Q^\top\) (계산 빠름)</li>
+      <li>항상 대각화 가능</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb"><p><strong>공분산 행렬에 스펙트럼 정리 적용:</strong> 데이터 행렬 \(X\)의 공분산 행렬 \(\Sigma = \frac{1}{n}X^\top X\)는 대칭·양반정치입니다. 스펙트럼 정리로 \(\Sigma = Q\Lambda Q^\top\)로 분해하면, \(Q\)의 열벡터가 주성분(PC) 방향이 됩니다 — 이것이 PCA의 수학적 본질입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: 양반정치 행렬 == -->
+<h2 class="st"><span class="ic">≽</span>양반정치 행렬 — PSD 조건과 판별</h2>
+<p>대칭행렬 중에서도 특히 중요한 부류가 <strong>양반정치(Positive Semi-Definite, PSD)</strong> 행렬입니다. 공분산 행렬, Gram 행렬, Hessian 등 ML에 나오는 핵심 행렬 대부분이 여기에 속합니다.</p>
+
+<div class="fb">
+  <div class="fl">양반정치 (PSD) 조건</div>
+  \[
+    A \succeq 0 \iff \mathbf{x}^\top A \mathbf{x} \geq 0 \quad \forall \mathbf{x} \iff \text{모든 고유값 } \lambda_i \geq 0
+  \]
+  <div class="fn">
+    \(A \succeq 0\): 양반정치 기호 — "행렬 부등식"으로 읽음<br/>
+    \(\mathbf{x}^\top A \mathbf{x}\): 이차형식(quadratic form) — 스칼라값<br/>
+    세 조건은 동치: 어느 하나를 확인하면 나머지가 모두 성립<br/>
+    양정치(PD): 모든 고유값 \(\lambda_i > 0\) (등호 제외)
+  </div>
+</div>
+
+<h3 class="sub">행렬 유형 분류</h3>
+<table>
+  <tr><th>유형</th><th>기호</th><th>고유값 조건</th><th>예시</th></tr>
+  <tr><td>양정치 (PD)</td><td>\(A \succ 0\)</td><td>모든 \(\lambda_i > 0\)</td><td>강볼록 함수의 Hessian</td></tr>
+  <tr><td>양반정치 (PSD)</td><td>\(A \succeq 0\)</td><td>모든 \(\lambda_i \geq 0\)</td><td>공분산 행렬, \(X^\top X\)</td></tr>
+  <tr><td>부정치 (Indefinite)</td><td>—</td><td>양수·음수 혼재</td><td>비볼록 함수의 Hessian (안장점)</td></tr>
+  <tr><td>음정치 (ND)</td><td>\(A \prec 0\)</td><td>모든 \(\lambda_i < 0\)</td><td>\(-\Sigma\) (음의 공분산)</td></tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> "대각선 원소가 모두 양수이면 PSD"는 틀렸습니다. 예: \(\begin{pmatrix}1 & 10 \\ 10 & 1\end{pmatrix}\)은 대각선이 양수지만 고유값이 \(-9, 11\)이므로 부정치입니다. 반드시 모든 고유값 또는 이차형식 조건을 확인해야 합니다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: Rayleigh Quotient와 PCA == -->
+<h2 class="st"><span class="ic">R</span>Rayleigh Quotient와 PCA</h2>
+<p>방향 벡터 \(\mathbf{x}\)가 행렬 \(A\)와 만날 때 "얼마나 증폭되는가"를 측정하는 값이 <strong>Rayleigh Quotient</strong>입니다. 이것을 최대화하면 자연스럽게 PCA의 첫 번째 주성분을 얻습니다.</p>
+
+<div class="fb">
+  <div class="fl">Rayleigh Quotient 정의와 최적값</div>
+  \[
+    R(A, \mathbf{x}) = \frac{\mathbf{x}^\top A \mathbf{x}}{\mathbf{x}^\top \mathbf{x}}, \qquad
+    \lambda_{\min} \leq R(A, \mathbf{x}) \leq \lambda_{\max}
+  \]
+  \[
+    \max_{\mathbf{x} \neq \mathbf{0}} R(A, \mathbf{x}) = \lambda_{\max}, \quad \text{최대를 달성하는 } \mathbf{x} = \mathbf{v}_{\max}
+  \]
+  <div class="fn">
+    \(R(A, \mathbf{x})\): Rayleigh Quotient — 벡터 크기 정규화 후 이차형식 값<br/>
+    \(\lambda_{\max}\): \(A\)의 최대 고유값<br/>
+    \(\mathbf{v}_{\max}\): 최대 고유값에 대응하는 고유벡터<br/>
+    PCA 연결: 공분산 행렬 \(\Sigma\)에 적용 → 분산이 최대인 방향 = 제1 주성분
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 PCA = 공분산 행렬의 고유값 분해</div>
+  <p><strong>목표:</strong> 데이터의 분산이 가장 큰 방향(축)을 찾는다.</p>
+  <p><strong>수학:</strong> 공분산 행렬 \(\Sigma \in \mathbb{R}^{d \times d}\)를 스펙트럼 분해 \(\Sigma = Q\Lambda Q^\top\)한다.</p>
+  <p><strong>결과:</strong> \(Q\)의 열 = 주성분 방향 (서로 직교), \(\Lambda\)의 대각 = 각 방향의 분산</p>
+  <p><strong>설명 분산 비율:</strong> \(k\)개 주성분이 설명하는 분산 = \(\displaystyle\frac{\lambda_1 + \cdots + \lambda_k}{\lambda_1 + \cdots + \lambda_d}\)</p>
+</div>
+
+<h3 class="sub">AI 논문에서의 스펙트럼 분석</h3>
+<table>
+  <tr><th>응용</th><th>행렬</th><th>스펙트럼 의미</th></tr>
+  <tr><td>PCA</td><td>공분산 행렬 \(\Sigma\)</td><td>최대 고유값 방향 = 1st PC</td></tr>
+  <tr><td>Attention</td><td>\(QK^\top / \sqrt{d_k}\)</td><td>스펙트럼이 집중될수록 sharp attention</td></tr>
+  <tr><td>LoRA</td><td>가중치 행렬 \(W\)</td><td>저랭크 근사: 큰 고유값 성분만 보존</td></tr>
+  <tr><td>그래프 신경망</td><td>Laplacian \(L\)</td><td>작은 고유값 = 저주파 신호</td></tr>
+</table>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록 — Rayleigh Quotient 시각화
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 Rayleigh Quotient 인터랙티브 시각화</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">\(A = \operatorname{diag}(a_{11}, a_{22})\), \(\mathbf{x} = (\cos\theta,\, \sin\theta)^\top\) 로 설정 시 \(R = a_{11}\cos^2\theta + a_{22}\sin^2\theta\). 슬라이더를 움직여 최대·최소가 되는 각도를 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">행렬 \(a_{11}\)</span>
+    <input type="range" id="rq-a11" min="-3" max="3" step="0.1" value="2" oninput="updateRQ()"/>
+    <input type="number" id="rq-a11-v" value="2.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">행렬 \(a_{22}\)</span>
+    <input type="range" id="rq-a22" min="-3" max="3" step="0.1" value="0.5" oninput="updateRQ()"/>
+    <input type="number" id="rq-a22-v" value="0.5" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">벡터 각도 \(\theta\)</span>
+    <input type="range" id="rq-theta" min="0" max="180" step="1" value="30" oninput="updateRQ()"/>
+    <input type="number" id="rq-theta-v" value="30" readonly/>
+    <span style="font-size:11px;color:var(--muted)">도(°)</span>
+  </div>
+
+  <div class="cres" id="rq-res">계산 중...</div>
+
+  <div style="margin-top:14px;">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">R 값 범위 시각화 (최솟값 ~ 현재값 ~ 최댓값)</div>
+    <div class="rq-bar-wrap">
+      <span style="font-size:11px;color:var(--muted);min-width:50px;" id="rq-min-label"></span>
+      <div class="rq-bar-bg">
+        <div class="rq-bar-fill" id="rq-bar" style="width:50%;background:var(--accent);"></div>
+      </div>
+      <span style="font-size:11px;color:var(--muted);min-width:50px;text-align:right;" id="rq-max-label"></span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">데이터의 공분산 행렬 \(\Sigma\)에 대해 PCA의 <strong>첫 번째 주성분</strong>은 무엇인가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(\Sigma\)의 최솟값 고유값에 대응하는 고유벡터</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(\Sigma\)의 최댓값 고유값에 대응하는 고유벡터 — 데이터 분산이 가장 큰 방향</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 모든 고유값의 합 방향</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 데이터 평균 벡터 방향</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch23.html'">← Ch.23 기대값의 측도론적 정의·Fubini</button>
+  <button class="btn btn-p" onclick="location.href='ch25.html'">Ch.25 SVD 완전 유도·LoRA →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! PCA의 첫 번째 주성분은 Rayleigh Quotient를 최대화하는 방향 = 최대 고유값의 고유벡터입니다. 이 방향으로 데이터를 투영하면 분산이 가장 큽니다.'
+    : '❌ 틀렸습니다. 제1 주성분은 공분산 행렬의 최대 고유값에 대응하는 고유벡터입니다. 본문의 Rayleigh Quotient 섹션을 다시 확인하세요.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Rayleigh Quotient 계산기 ──
+function updateRQ() {
+  const a11   = parseFloat(document.getElementById('rq-a11').value);
+  const a22   = parseFloat(document.getElementById('rq-a22').value);
+  const theta = parseFloat(document.getElementById('rq-theta').value);
+
+  document.getElementById('rq-a11-v').value   = a11.toFixed(1);
+  document.getElementById('rq-a22-v').value   = a22.toFixed(1);
+  document.getElementById('rq-theta-v').value = theta.toFixed(0);
+
+  const rad  = theta * Math.PI / 180;
+  const cos2 = Math.cos(rad) ** 2;
+  const sin2 = Math.sin(rad) ** 2;
+  const R    = a11 * cos2 + a22 * sin2;
+
+  const lambdaMax = Math.max(a11, a22);
+  const lambdaMin = Math.min(a11, a22);
+
+  // 최적 각도 (최대: a11>a22 → 0°, a22>a11 → 90°)
+  const thetaMaxDeg = a11 >= a22 ? 0 : 90;
+  const thetaMinDeg = a11 <= a22 ? 0 : 90;
+
+  // 막대 시각화 — 범위 [lambdaMin, lambdaMax] 내 R의 위치
+  let pct = 50;
+  if (lambdaMax !== lambdaMin) {
+    pct = ((R - lambdaMin) / (lambdaMax - lambdaMin)) * 100;
+    pct = Math.min(100, Math.max(0, pct));
+  }
+
+  const barColor = R >= 0 ? 'var(--accent3)' : 'var(--accent5)';
+  document.getElementById('rq-bar').style.width    = pct + '%';
+  document.getElementById('rq-bar').style.background = barColor;
+  document.getElementById('rq-min-label').textContent = lambdaMin.toFixed(2);
+  document.getElementById('rq-max-label').textContent = lambdaMax.toFixed(2);
+
+  document.getElementById('rq-res').innerHTML =
+    `A = diag(${a11.toFixed(1)}, ${a22.toFixed(1)}),&nbsp; &theta; = ${theta}&deg;<br/>
+     x = (cos ${theta}&deg;, sin ${theta}&deg;) = (${Math.cos(rad).toFixed(3)}, ${Math.sin(rad).toFixed(3)})<br/>
+     <strong>R(A, x) = ${a11.toFixed(1)} &times; cos&sup2;&theta; + ${a22.toFixed(1)} &times; sin&sup2;&theta; = ${R.toFixed(4)}</strong><br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       &lambda;<sub>min</sub> = ${lambdaMin.toFixed(2)} (&theta; = ${thetaMinDeg}&deg;) &nbsp;|&nbsp;
+       &lambda;<sub>max</sub> = ${lambdaMax.toFixed(2)} (&theta; = ${thetaMaxDeg}&deg;)
+     </span>`;
+}
+updateRQ();
+</script>
+</body>
+</html>

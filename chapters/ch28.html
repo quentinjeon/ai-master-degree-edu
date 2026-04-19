@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.28 — PAC 학습 이론 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.28 · 통계적 학습 이론 (Phase 3 — 2주차)</div>
+  <h1>PAC 학습 이론 — 얼마나 많은 데이터가 필요한가</h1>
+  <p>Probably Approximately Correct. 표본 복잡도, 일관성, 일반화 오차. 논문의 "sample complexity O(d/ε²)" 분석을 이해합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"스팸 필터를 학습시키려면 얼마나 많은 이메일을 봐야 할까?"</strong> PAC 이론은 원하는 정확도와 신뢰도를 달성하기 위해 최소 몇 개의 데이터가 필요한지 수학적으로 보장합니다.</p>
+  <ul>
+    <li><strong>ε-정확:</strong> 학습된 분류기의 진짜 오차가 최적 오차보다 ε 이하 — "거의 맞는(approximately correct)" 조건</li>
+    <li><strong>1-δ 신뢰도:</strong> 이 보장이 1-δ의 확률로 성립 (δ는 실패 확률) — "아마도(probably)" 조건</li>
+    <li><strong>AI에서:</strong> 논문에서 "Algorithm X achieves ε-accurate classifier with n = O(d log(1/δ)/ε²) samples"라고 쓰는 것이 PAC 복잡도 결과</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: PAC 학습 프레임워크 == -->
+<h2 class="st"><span class="ic">🎓</span>PAC 학습 프레임워크</h2>
+<p>PAC(Probably Approximately Correct) 학습 이론은 학습 문제를 수학적으로 엄밀하게 정의합니다. "언제 어떤 조건에서 학습이 가능한가"를 형식화하며, 학습 알고리즘의 성능 보장을 제공합니다.</p>
+
+<div class="fb">
+  <div class="fl">PAC LEARNABILITY</div>
+  \[
+    \text{가설 클래스 } \mathcal{H} \text{ 가 PAC 학습 가능}
+    \iff \exists\, A,\; m_\mathcal{H}(\varepsilon,\delta):\;
+    \forall D,\; n \geq m_\mathcal{H}(\varepsilon,\delta):\;
+    P\!\left[L_D(A(S)) \leq \min_{h\in\mathcal{H}}L_D(h)+\varepsilon\right] \geq 1-\delta
+  \]
+  <div class="fn">
+    \(\varepsilon\): 정확도 파라미터 — 작을수록 엄격한 정확도 요구<br/>
+    \(\delta\): 신뢰도 파라미터 — 작을수록 실패 확률이 낮아짐<br/>
+    \(L_D(h)\): 분포 \(D\)에 대한 \(h\)의 진짜 오차(true risk)<br/>
+    \(m_\mathcal{H}(\varepsilon,\delta)\): 표본 복잡도 — \(\varepsilon, \delta\) 달성에 필요한 최소 샘플 수<br/>
+    \(A(S)\): 훈련 샘플 \(S\)를 입력받은 학습 알고리즘 \(A\)의 출력 가설
+  </div>
+</div>
+
+<h3 class="sub">PAC 프레임워크 주요 개념</h3>
+<table>
+  <tr><th>개념</th><th>기호</th><th>의미</th></tr>
+  <tr>
+    <td>가설 클래스</td>
+    <td>\(\mathcal{H}\)</td>
+    <td>가능한 모든 학습 모델의 집합</td>
+  </tr>
+  <tr>
+    <td>진짜 오차</td>
+    <td>\(L_D(h)\)</td>
+    <td>분포 \(D\)에서 \(h\)의 오류율 (일반화 오차)</td>
+  </tr>
+  <tr>
+    <td>경험적 오차</td>
+    <td>\(L_S(h)\)</td>
+    <td>훈련 샘플 \(S\)에서 \(h\)의 오류율</td>
+  </tr>
+  <tr>
+    <td>표본 복잡도</td>
+    <td>\(m_\mathcal{H}(\varepsilon,\delta)\)</td>
+    <td>\(\varepsilon\)-accurate with prob \(1\!-\!\delta\)를 보장하는 최소 \(n\)</td>
+  </tr>
+  <tr>
+    <td>일관 학습기</td>
+    <td>ERM</td>
+    <td>경험적 오차를 최소화하는 알고리즘</td>
+  </tr>
+</table>
+
+
+<!-- == 섹션 2: 경험적 위험 최소화 == -->
+<h2 class="st"><span class="ic">↓</span>경험적 위험 최소화 (ERM)</h2>
+<p>가장 직관적인 학습 알고리즘은 훈련 데이터에서 오차(경험적 위험)를 최소화하는 것입니다. 이를 <strong>ERM(Empirical Risk Minimization)</strong>이라 하며, PAC 학습의 표준 알고리즘입니다.</p>
+
+<div class="fb">
+  <div class="fl">EMPIRICAL RISK MINIMIZATION</div>
+  \[
+    h_S = \mathrm{ERM}_{\mathcal{H}}(S)
+    = \underset{h\in\mathcal{H}}{\arg\min}\; L_S(h)
+    \quad\text{where}\quad
+    L_S(h) = \frac{1}{n}\sum_{i=1}^n \mathbf{1}[h(x_i)\neq y_i]
+  \]
+  <div class="fn">
+    \(h_S\): 훈련 데이터 \(S\)에서 ERM으로 선택된 가설<br/>
+    \(L_S(h)\): 경험적 위험(empirical risk) = 훈련 오류율<br/>
+    \(\mathbf{1}[\cdot]\): 지시함수 — 괄호 안 조건이 참이면 1, 거짓이면 0<br/>
+    ERM이 PAC 학습 가능하려면 \(\mathcal{H}\)가 유한하거나 VC 차원이 유한해야 함<br/>
+    무한 \(\mathcal{H}\)에서 ERM의 일반화를 다루는 것이 VC 이론의 핵심
+  </div>
+</div>
+
+
+<!-- == 섹션 3: 유한 가설 클래스의 일반화 경계 == -->
+<h2 class="st"><span class="ic">|ℋ|</span>유한 가설 클래스의 일반화 경계</h2>
+<p>유한 \(\mathcal{H}\)에서 ERM의 일반화 경계를 Hoeffding 부등식과 Union bound로 유도합니다. 이 결과가 "표본 복잡도는 log|ℋ|에 비례한다"는 핵심 결론의 근거입니다.</p>
+
+<div class="fb">
+  <div class="fl">GENERALIZATION BOUND FOR FINITE ℋ</div>
+  \[
+    P\!\left[\exists\, h\in\mathcal{H}: L_D(h)-L_S(h)>\varepsilon\right]
+    \leq |\mathcal{H}|\cdot e^{-2n\varepsilon^2}
+  \]
+  <div class="fn">
+    \(|\mathcal{H}|\): 가설 클래스 크기<br/>
+    유도 방법: 각 가설 \(h\)에 Hoeffding 부등식 적용 후 Union bound로 합산<br/>
+    \(\delta = |\mathcal{H}|e^{-2n\varepsilon^2}\)로 놓으면 표본 복잡도 \(n \geq \frac{\log(|\mathcal{H}|/\delta)}{2\varepsilon^2}\)<br/>
+    결론: 더 복잡한 모델 클래스(\(|\mathcal{H}|\) 큼)는 더 많은 데이터가 필요
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">SAMPLE COMPLEXITY FOR FINITE ℋ</div>
+  \[
+    m_\mathcal{H}(\varepsilon,\delta) \leq \frac{\log|\mathcal{H}|+\log(1/\delta)}{2\varepsilon^2}
+  \]
+  <div class="fn">
+    \(\log|\mathcal{H}|\): 가설 클래스의 "비트 수" — 모델 복잡도를 측정하는 척도<br/>
+    \(\log(1/\delta)\): 신뢰도 요구에 따른 추가 샘플 — \(\delta\)를 줄이면 로그 비율로 증가<br/>
+    \(2\varepsilon^2\): 정확도 요구 — \(\varepsilon\)을 절반으로 줄이면 필요 샘플이 4배 증가<br/>
+    이 공식은 "log|ℋ| bits의 설명 길이를 가진 모델 클래스는 O(log|ℋ|/ε²) 샘플로 PAC 학습 가능"을 의미
+  </div>
+</div>
+
+
+<!-- == 섹션 4: Bias-Variance에서 PAC으로 == -->
+<h2 class="st"><span class="ic">⚖</span>Bias-Variance에서 PAC으로</h2>
+<p>PAC 이론은 Bias-Variance tradeoff를 더 엄밀하게 설명합니다. 진짜 오차는 근사 오차(approximation error)와 추정 오차(estimation error) 두 부분으로 분해됩니다.</p>
+
+<div class="fb">
+  <div class="fl">ESTIMATION ERROR VS APPROXIMATION ERROR</div>
+  \[
+    L_D(h_S) \leq
+    \underbrace{L_D(h^*)}_{\text{approximation error}}
+    +
+    \underbrace{L_D(h_S)-L_D(h^*)}_{\text{estimation error}}
+  \]
+  <div class="fn">
+    \(h^*\): \(\mathcal{H}\) 내 진짜 최적 가설 — \(\arg\min_{h\in\mathcal{H}} L_D(h)\)<br/>
+    Approximation error: \(\mathcal{H}\)가 얼마나 좋은 모델을 포함하는가 → bias에 해당<br/>
+    Estimation error: 유한한 데이터로 \(h^*\)에 얼마나 가까이 갈 수 있는가 → variance에 해당<br/>
+    모델 복잡도↑ → approximation error↓, estimation error↑ (tradeoff 관계)
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>모델 복잡도 ↑ (큰 ℋ)</h5>
+    <ul>
+      <li>Approximation error ↓ — 좋은 가설 포함</li>
+      <li>Estimation error ↑ — 더 많은 샘플 필요</li>
+      <li>과적합(overfitting) 위험 증가</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>모델 복잡도 ↓ (작은 ℋ)</h5>
+    <ul>
+      <li>Approximation error ↑ — 최적 가설 부재</li>
+      <li>Estimation error ↓ — 적은 샘플로 학습</li>
+      <li>과소적합(underfitting) 위험 증가</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p>PAC 이론은 "완벽하게 분리 가능한 데이터"(Realizable) 설정에서 시작합니다. 즉 \(\exists\, h^* \in \mathcal{H}: L_D(h^*) = 0\)을 가정합니다. 실제 노이즈 있는 데이터에 대한 이론을 <strong>Agnostic PAC</strong>이라 하며, 이 경우 \(\min_{h\in\mathcal{H}} L_D(h)\)가 0보다 클 수 있습니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 PAC 표본 복잡도 — ε과 δ에 따른 필요 샘플 수</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">정확도 \(\varepsilon\), 실패 확률 \(\delta\), 가설 클래스 복잡도 \(\log|\mathcal{H}|\)를 조정하여 필요한 최소 샘플 수를 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">정확도 \(\varepsilon\)</span>
+    <input type="range" id="pac-eps" min="0.01" max="0.3" step="0.01" value="0.05" oninput="updatePAC()"/>
+    <input type="number" id="pac-eps-v" value="0.05" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">실패 확률 \(\delta\)</span>
+    <input type="range" id="pac-delta" min="0.01" max="0.3" step="0.01" value="0.05" oninput="updatePAC()"/>
+    <input type="number" id="pac-delta-v" value="0.05" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">\(\log|\mathcal{H}|\) (비트)</span>
+    <input type="range" id="pac-logH" min="1" max="50" step="1" value="10" oninput="updatePAC()"/>
+    <input type="number" id="pac-logH-v" value="10" readonly/>
+  </div>
+
+  <div class="cres" id="pac-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">PAC 학습에서 표본 복잡도 \(m_\mathcal{H}(\varepsilon, \delta)\)가 \(\log(|\mathcal{H}|)\)에 비례하는 이유는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 더 많은 모델을 보려면 각 모델에 대한 오차를 계산해야 하기 때문</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; Union bound로 모든 \(h \in \mathcal{H}\)에 동시에 일반화를 보장해야 해서 \(|\mathcal{H}|\) 배 증가 → 로그로 흡수됨</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(|\mathcal{H}|\)이 클수록 각 샘플의 정보량이 늘어서</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; VC 차원이 \(\log|\mathcal{H}|\)와 항상 같기 때문</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch27.html'">← Ch.27 집중 부등식</button>
+  <button class="btn btn-p" onclick="location.href='ch29.html'">Ch.29 VC 차원·Rademacher 복잡도 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! Union bound를 적용하면 P[∃h: 일반화 실패] ≤ |ℋ|·exp(-2nε²)가 됩니다. δ=|ℋ|exp(-2nε²)로 놓으면 n ≥ log(|ℋ|/δ)/(2ε²)이고, 여기서 log|ℋ| 항이 나옵니다.'
+    : '❌ 틀렸습니다. 핵심은 Union bound입니다. 모든 가설에 대해 동시에 보장하려면 각 가설의 실패 확률을 합산해야 하고, 이것이 |ℋ| 배로 증가하다가 지수 부등식과 결합하면 log|ℋ|로 흡수됩니다.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── PAC 표본 복잡도 계산기 ──
+function updatePAC() {
+  const eps = parseFloat(document.getElementById('pac-eps').value);
+  const delta = parseFloat(document.getElementById('pac-delta').value);
+  const logH = parseInt(document.getElementById('pac-logH').value);
+  document.getElementById('pac-eps-v').value = eps.toFixed(2);
+  document.getElementById('pac-delta-v').value = delta.toFixed(2);
+  document.getElementById('pac-logH-v').value = logH;
+  const nRequired = Math.ceil((logH * Math.log(2) + Math.log(1 / delta)) / (2 * eps * eps));
+  const nSingle = Math.ceil(Math.log(2 / delta) / (2 * eps * eps));
+  document.getElementById('pac-res').innerHTML =
+    `목표: ε=${eps.toFixed(2)}, δ=${delta.toFixed(2)}, log|ℋ|=${logH} bits<br/>
+     유한 ℋ 표본 복잡도: n ≥ <strong>${nRequired.toLocaleString()}</strong><br/>
+     단일 가설(|ℋ|=1): n ≥ ${nSingle.toLocaleString()}<br/>
+     ℋ 복잡도 증가에 의한 추가 샘플: <strong>${(nRequired - nSingle).toLocaleString()}</strong>개<br/>
+     <span style="font-size:.78rem;color:var(--muted)">ε을 절반으로 줄이면 n이 4배, δ를 줄이면 log 비율로 증가</span>`;
+}
+updatePAC();
+</script>
+</body>
+</html>

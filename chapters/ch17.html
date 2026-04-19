@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.17 — 적분과 급수 — 오차 경계와 근사 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.17 · 해석학 기초 (레벨 2 — Phase 2-A · 3주차)</div>
+  <h1>적분과 급수 — 오차 경계와 근사</h1>
+  <p>Riemann 적분, 테일러 급수, 오차 경계. 논문의 "approximation error" 분석을 이해합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"GPS가 복잡한 위성 계산 대신 간단한 다항식으로 근사하듯, AI도 복잡한 함수를 테일러 근사로 분석한다"</strong></p>
+  <ul>
+    <li>① \(\sin(x) \approx x\) — x가 0 근처라면 사인값은 x 자체와 거의 같다</li>
+    <li>② 오차 경계: 위 근사의 오차는 최대 \(|x|^3/6\) 이하로 보장된다</li>
+    <li>③ AI 연결: 1차 근사 = 경사하강법(GD), 2차 근사 = Newton's method — 둘의 차이가 바로 테일러 급수 항 수의 차이</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: Riemann 적분 == -->
+<h2 class="st"><span class="ic">∫</span>Riemann 적분</h2>
+<p>Riemann 적분은 곡선 아래 넓이를 직사각형의 합으로 계산합니다. 구간 \([a, b]\)를 \(n\)개의 작은 구간으로 나누고, 각 구간의 대표점 \(x_i^*\)에서 함수값 \(f(x_i^*)\)를 높이로 하는 직사각형을 세웁니다. \(n \to \infty\)로 보낼 때 이 합이 수렴하면 그 값이 정적분입니다.</p>
+
+<div class="fb">
+  <div class="fl">Riemann 적분의 정의</div>
+  \[
+    \int_a^b f(x)\,dx
+    = \lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*)\,\Delta x_i,
+    \quad \Delta x_i = \frac{b - a}{n}
+  \]
+  <div class="fn">
+    \([a, b]\): 적분 구간<br/>
+    \(n\): 분할 직사각형 수 — \(n \to \infty\)로 극한을 취한다<br/>
+    \(x_i^*\): 각 소구간의 대표점 (왼쪽 끝, 오른쪽 끝, 또는 중점 모두 가능)<br/>
+    \(\Delta x_i = (b-a)/n\): 소구간의 폭 — \(n\)이 클수록 작아진다<br/>
+    연속 함수는 항상 Riemann 적분 가능하다
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">ℹ️</div>
+  <div class="cb"><p><strong>Lebesgue 적분:</strong> Riemann은 직관적이지만 불연속점이 많은 함수(예: Dirichlet 함수)는 Riemann 적분이 불가능합니다. AI 이론에서 등장하는 일반적인 확률론과 측도론은 Lebesgue 적분을 사용합니다.</p></div>
+</div>
+
+<h3 class="sub">적분의 AI 연결 — 기댓값과 적분</h3>
+<table>
+  <tr><th>개념</th><th>수식</th><th>AI·확률론 연결</th></tr>
+  <tr><td>정적분</td><td>\(\int_a^b f(x)\,dx\)</td><td>확률밀도함수의 넓이 = 확률</td></tr>
+  <tr><td>기댓값</td><td>\(\mathbb{E}[X] = \int_{-\infty}^{\infty} x\,p(x)\,dx\)</td><td>연속 확률변수의 평균</td></tr>
+  <tr><td>정규화</td><td>\(\int_{-\infty}^{\infty} p(x)\,dx = 1\)</td><td>PDF의 필수 조건</td></tr>
+  <tr><td>로그우도</td><td>\(\int \log p(x|\theta)\,p(x)\,dx\)</td><td>교차 엔트로피 손실의 기반</td></tr>
+</table>
+
+
+<!-- == 섹션 2: 테일러 급수 == -->
+<h2 class="st"><span class="ic">📈</span>테일러 급수</h2>
+<p>테일러 급수(Taylor Series)는 임의의 무한 번 미분 가능한 함수를 원점(또는 임의의 점 \(a\))에서 다항식의 합으로 표현합니다. 각 항의 계수는 해당 점에서의 \(k\)번째 도함수값을 \(k!\)으로 나눈 것입니다. 급수를 \(n\)번째 항에서 끊으면 \(n\)차 다항식 근사가 됩니다.</p>
+
+<div class="fb">
+  <div class="fl">테일러 급수 (원점 전개)</div>
+  \[
+    f(x) = \sum_{k=0}^{\infty} \frac{f^{(k)}(0)}{k!}\,x^k
+    = f(0) + f'(0)\,x + \frac{f''(0)}{2!}\,x^2 + \frac{f'''(0)}{3!}\,x^3 + \cdots
+  \]
+  <div class="fn">
+    \(f^{(k)}(0)\): 함수의 \(k\)번째 도함수를 \(x=0\)에서 평가한 값<br/>
+    \(k!\): \(k\) 팩토리얼 — 중복 계수를 정규화하는 역할<br/>
+    \(x^k\): 다항식 항 — \(x\)가 0 근처일수록 고차 항이 빠르게 작아진다<br/>
+    무한 급수이므로 수렴 반경(radius of convergence) 내에서만 성립한다
+  </div>
+</div>
+
+<h3 class="sub">주요 함수의 테일러 급수와 AI 연결</h3>
+<table>
+  <tr><th>함수</th><th>테일러 급수</th><th>AI 연결</th></tr>
+  <tr>
+    <td>\(e^x\)</td>
+    <td>\(1 + x + \dfrac{x^2}{2!} + \dfrac{x^3}{3!} + \cdots\)</td>
+    <td>소프트맥스, 정규 분포, KL 발산</td>
+  </tr>
+  <tr>
+    <td>\(\ln(1+x)\)</td>
+    <td>\(x - \dfrac{x^2}{2} + \dfrac{x^3}{3} - \cdots\) &nbsp; \((|x|<1)\)</td>
+    <td>로그우도, 교차 엔트로피 분석</td>
+  </tr>
+  <tr>
+    <td>\(\sin(x)\)</td>
+    <td>\(x - \dfrac{x^3}{3!} + \dfrac{x^5}{5!} - \cdots\)</td>
+    <td>위치 인코딩(Transformer), 주기성 분석</td>
+  </tr>
+  <tr>
+    <td>\(\sigma(x) = \dfrac{1}{1+e^{-x}}\)</td>
+    <td>\(\tfrac{1}{2} + \tfrac{x}{4} - \tfrac{x^3}{48} + \cdots\)</td>
+    <td>시그모이드 선형화 — 작은 입력 근처 동작 분석</td>
+  </tr>
+</table>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>1차 vs 2차 근사:</strong> 테일러 급수를 1차에서 끊으면 <em>선형 근사</em>(경사하강법의 이론적 토대), 2차에서 끊으면 <em>2차 근사</em>(Newton's method)입니다. 고차 항을 더 쓸수록 정확하지만 계산 비용도 커집니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: 테일러 정리와 오차 경계 == -->
+<h2 class="st"><span class="ic">⚠</span>테일러 정리와 오차 경계</h2>
+<p>테일러 급수를 \(n\)차에서 끊으면 나머지(remainder) \(R_n(x)\)가 발생합니다. 테일러 정리는 이 나머지의 크기를 <strong>수학적으로 보장</strong>하는 공식을 제공합니다. 이것이 논문에서 "approximation error bounded by..." 구절의 수학적 근거입니다.</p>
+
+<div class="fb">
+  <div class="fl">Lagrange 나머지 (오차 경계)</div>
+  \[
+    R_n(x) = \frac{f^{(n+1)}(\xi)}{(n+1)!}\,(x - a)^{n+1},
+    \quad \xi \in (a,\, x)
+  \]
+  <div class="fn">
+    \(R_n(x)\): \(n\)차 테일러 근사의 나머지(오차)<br/>
+    \(f^{(n+1)}(\xi)\): \((n+1)\)번째 도함수를 \((a, x)\) 사이 어떤 점 \(\xi\)에서 평가 — 정확한 \(\xi\)는 모르지만 존재함이 보장된다<br/>
+    \((n+1)!\): 팩토리얼 — 항 수가 늘수록 오차가 매우 빠르게 줄어든다<br/>
+    \((x - a)^{n+1}\): \(x\)가 전개점 \(a\)에 가까울수록 오차가 작아진다<br/>
+    실용적 사용: \(|f^{(n+1)}| \leq M\)이면 \(|R_n(x)| \leq M|x-a|^{n+1}/(n+1)!\)
+  </div>
+</div>
+
+<h3 class="sub">2차 테일러 근사 — 최적화 이론의 핵심</h3>
+<p>매개변수 \(\theta\)를 \(\Delta\theta\)만큼 업데이트할 때, 손실 함수 \(f\)의 변화를 2차 근사합니다. Newton's method는 이 2차 근사를 최소화하는 \(\Delta\theta\)를 구합니다.</p>
+
+<div class="fb">
+  <div class="fl">2차 테일러 근사 — 최적화 연결</div>
+  \[
+    f(\theta + \Delta\theta)
+    \approx f(\theta)
+    + \nabla f(\theta)^\top \Delta\theta
+    + \frac{1}{2}\,\Delta\theta^\top H(\theta)\,\Delta\theta
+  \]
+  <div class="fn">
+    \(f(\theta)\): 현재 파라미터에서의 손실값<br/>
+    \(\nabla f(\theta)^\top \Delta\theta\): 1차 항 — 기울기 방향으로의 선형 변화 (경사하강법은 여기까지만 사용)<br/>
+    \(H(\theta)\): 헤시안(Hessian) 행렬 — \(f\)의 2차 도함수 행렬, 곡률 정보를 담는다<br/>
+    \(\frac{1}{2}\Delta\theta^\top H \Delta\theta\): 2차 항 — 곡률에 따른 보정 (Newton's method가 이를 활용)<br/>
+    이 근사를 \(\Delta\theta\)로 최소화하면 \(\Delta\theta^* = -H(\theta)^{-1}\nabla f(\theta)\)
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>경사하강법 (1차 근사)</h5>
+    <ul>
+      <li>\(\Delta\theta = -\alpha \nabla f(\theta)\)</li>
+      <li>헤시안 불필요 → 계산 저렴</li>
+      <li>곡률 정보 무시 → 느릴 수 있음</li>
+      <li>대규모 딥러닝에서 사실상 표준</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>Newton's Method (2차 근사)</h5>
+    <ul>
+      <li>\(\Delta\theta = -H^{-1}\nabla f(\theta)\)</li>
+      <li>헤시안 필요 → \(O(d^3)\) 계산</li>
+      <li>곡률 반영 → 수렴 빠름</li>
+      <li>소규모·볼록 문제에 유리</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: Big-O 표기법 == -->
+<h2 class="st"><span class="ic">𝒪</span>Big-O 표기법과 수렴 속도</h2>
+<p>Big-O 표기법은 함수의 점근적 상한을 나타냅니다. AI 논문에서 "알고리즘이 \(O(1/T)\) 속도로 수렴한다"처럼 쓰이며, 상수 인수를 무시하고 성장률(또는 감소율)의 <em>차수</em>만을 비교합니다.</p>
+
+<div class="fb">
+  <div class="fl">Big-O 표기법의 수학적 정의</div>
+  \[
+    f(n) = O(g(n))
+    \iff
+    \exists\, C > 0,\, N_0\ \text{s.t.}\ n > N_0 \Rightarrow |f(n)| \leq C \cdot |g(n)|
+  \]
+  <div class="fn">
+    \(C\): 상수 — 특정 상수값은 중요하지 않고 존재함만 보장하면 된다<br/>
+    \(N_0\): 경계 — \(N_0\) 이후 모든 \(n\)에서 부등식이 성립한다<br/>
+    \(|f(n)| \leq C|g(n)|\): \(f\)의 성장(또는 감소)이 \(g\)보다 빠르지 않음을 의미<br/>
+    실용 의미: 상수 배율만큼의 차이는 무시하고 "차수"만 비교한다
+  </div>
+</div>
+
+<h3 class="sub">최적화 알고리즘 수렴 속도 비교</h3>
+<table>
+  <tr><th>수렴 속도</th><th>표기</th><th>의미</th><th>알고리즘 예</th></tr>
+  <tr><td>선형 수렴</td><td>\(O(1/T)\)</td><td>\(T\)번 후 오차 \(\leq C/T\)</td><td>볼록 함수에서의 GD</td></tr>
+  <tr><td>아선형 수렴</td><td>\(O(1/\sqrt{T})\)</td><td>\(T\)번 후 오차 \(\leq C/\sqrt{T}\)</td><td>SGD (볼록)</td></tr>
+  <tr><td>초선형 수렴</td><td>\(O(1/T^2)\)</td><td>\(T\)번 후 오차 \(\leq C/T^2\)</td><td>Nesterov 가속</td></tr>
+  <tr><td>기하 수렴</td><td>\(O(\rho^T)\)</td><td>\(T\)번 후 오차 \(\leq C\rho^T\), \(\rho &lt; 1\)</td><td>강볼록 함수에서의 GD</td></tr>
+  <tr><td>로그 수렴</td><td>\(O(\log T / T)\)</td><td>로그 인수 포함 선형 수렴</td><td>SGD (보정 학습률)</td></tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> \(O(1/T)\)는 "T번 후 오차가 정확히 \(1/T\)"가 아닙니다. "오차가 어떤 상수 C에 대해 \(C/T\) 이하"임을 의미합니다. 상수 C는 알고리즘과 문제에 따라 다르며, 실제 성능은 이 상수가 얼마나 작은지에도 좌우됩니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 테일러 근사 오차 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">\(\sin(x)\)의 테일러 근사값과 실제값의 차이를 확인하세요. 항 수(n)가 늘수록 오차가 줄어드는 것을 관찰할 수 있습니다.</p>
+
+  <div class="cr">
+    <span class="cl">\(x\) 값 (0 ~ π)</span>
+    <input type="range" id="tay-x" min="0" max="3.14159" step="0.01" value="1.0" oninput="updateTaylor()"/>
+    <input type="number" id="tay-x-v" value="1.00" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">항 수 \(n\) (1 ~ 5)</span>
+    <input type="range" id="tay-n" min="1" max="5" step="1" value="2" oninput="updateTaylor()"/>
+    <input type="number" id="tay-n-v" value="2" readonly/>
+  </div>
+
+  <div class="cres" id="tay-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">"경사하강법의 수렴 속도가 \(O(1/T)\)이다"의 의미는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(T\)번 반복 후 오차가 정확히 \(1/T\)이다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(T\)번 반복 후 오차가 최대 \(C/T\) 이하이다 (C는 알고리즘에 의존하는 상수)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(T\)번 반복하면 반드시 수렴이 보장된다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 학습률이 \(1/T\)임을 의미한다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch16.html'">← Ch.16 연속성과 미분</button>
+  <button class="btn btn-p" onclick="location.href='ch18.html'">Ch.18 볼록 집합·볼록 함수 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! O(1/T)는 "어떤 상수 C에 대해 오차 ≤ C/T"를 의미합니다. 상수 C는 문제와 알고리즘에 따라 다릅니다.'
+    : '❌ 틀렸습니다. Big-O는 점근적 상한을 나타내며, 상수 인수를 무시합니다. 본문의 Big-O 정의를 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── 테일러 근사 계산기 ──
+function factorial(k) {
+  if (k <= 1) return 1;
+  let result = 1;
+  for (let i = 2; i <= k; i++) result *= i;
+  return result;
+}
+
+function updateTaylor() {
+  const x = parseFloat(document.getElementById('tay-x').value);
+  const n = parseInt(document.getElementById('tay-n').value);
+  document.getElementById('tay-x-v').value = x.toFixed(2);
+  document.getElementById('tay-n-v').value = n;
+
+  // sin(x) 테일러 급수: Σ (-1)^k * x^(2k+1) / (2k+1)!
+  let approx = 0;
+  let terms = [];
+  for (let k = 0; k < n; k++) {
+    const term = Math.pow(-1, k) * Math.pow(x, 2 * k + 1) / factorial(2 * k + 1);
+    approx += term;
+    terms.push(`<span style="color:var(--accent2)">항${k+1}</span>: (-1)^${k}·x^${2*k+1}/${2*k+1}! = ${term.toFixed(6)}`);
+  }
+
+  const exact = Math.sin(x);
+  const error = Math.abs(exact - approx);
+  const lagrangeBound = Math.pow(Math.abs(x), 2 * n + 1) / factorial(2 * n + 1);
+
+  document.getElementById('tay-res').innerHTML =
+    `<strong>x = ${x.toFixed(2)}, 항 수 n = ${n}</strong><br/>` +
+    terms.join('<br/>') + '<br/>' +
+    `<span style="color:var(--accent)">테일러 근사값: ${approx.toFixed(7)}</span><br/>` +
+    `<span style="color:var(--text)">실제 sin(${x.toFixed(2)}): ${exact.toFixed(7)}</span><br/>` +
+    `<span style="color:var(--accent5)">실제 오차: ${error.toFixed(7)}</span><br/>` +
+    `<span style="color:var(--muted);font-size:.82rem">Lagrange 오차 경계: ≤ |x|^${2*n+1}/${2*n+1}! = ${lagrangeBound.toFixed(7)} ` +
+    `${error <= lagrangeBound + 1e-15 ? '✅ 경계 내' : '(수치 오차)'}</span>`;
+}
+updateTaylor();
+</script>
+</body>
+</html>

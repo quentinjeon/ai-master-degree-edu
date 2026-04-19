@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.40 — 리뷰 대응·Response Letter·재투고 전략 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ STEPS ══ */
+.step{display:flex;gap:14px;margin-bottom:18px;}
+.sn{width:30px;height:30px;background:var(--accent);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+.sb p{margin-bottom:0;}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE / CHECKLIST ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+.review-item{display:flex;align-items:flex-start;gap:11px;padding:9px 12px;border-radius:8px;
+  border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:background .15s;}
+.review-item:hover{background:var(--hl);}
+.review-item input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;margin-top:2px;flex-shrink:0;}
+.review-item label{font-size:.88rem;cursor:pointer;line-height:1.55;}
+.review-item .weight{font-size:.75rem;color:var(--muted);margin-left:auto;flex-shrink:0;padding-top:2px;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ DECISION TREE ══ */
+.dtree{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin:14px 0;}
+.dtree-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;}
+.dtree-cond{background:var(--surface3);border:1px solid var(--accent2);color:var(--accent2);
+  border-radius:8px;padding:4px 10px;font-size:.8rem;font-weight:600;flex-shrink:0;min-width:160px;text-align:center;}
+.dtree-arrow{color:var(--muted);font-size:1.1rem;flex-shrink:0;padding-top:2px;}
+.dtree-act{font-size:.85rem;color:var(--text);padding-top:3px;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+/* ══ GRADUATION CARD ══ */
+.graduation-card{border-left:3px solid var(--accent3);margin:2rem 0;padding:1.5rem;
+  background:var(--surface2);border-radius:12px;border:1px solid var(--border);
+  border-left:4px solid var(--accent3);}
+.graduation-card h3{font-size:1.1rem;margin-bottom:14px;color:var(--accent3);}
+.graduation-card p{font-size:.88rem;margin-bottom:8px;}
+.graduation-card p strong{color:var(--accent4);}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.40 · 연구 방법론 (레벨 3 — Phase 3-C · 14주차 · 최종)</div>
+  <h1>리뷰 대응·Response Letter·재투고 전략</h1>
+  <p>"논문은 초고를 써서 끝나는 일이 아니다." Reject를 accept로 만드는 리뷰 분석, Response letter 작성 구조, 재투고 전략까지 — 논문 출판의 마지막 관문.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>논문 리뷰어는 <strong>적이 아니라 코드 리뷰어다</strong> — PR을 올리면 동료가 "이 부분 다시 보자"고 코멘트 다는 것처럼, 리뷰어도 논문을 더 좋게 만들려고 지적하는 것이다.</p>
+  <ul>
+    <li>NeurIPS 2023 accept rate 26% — 세계 최고 연구자도 reject를 받는다. Reject는 실패가 아니라 과정이다</li>
+    <li>대부분의 논문은 1~3번 수정 후 accept된다. 첫 번째 제출이 마지막이 되는 경우는 드물다</li>
+    <li>AI 연구에서: Response letter를 체계적으로 쓰면 accept 확률이 크게 상승한다 — 리뷰 코멘트에 "Type A~D" 분류를 적용하고 5단계 구조로 답변하는 것이 이 챕터의 핵심이다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 리뷰 코멘트 분석 == -->
+<h2 class="st"><span class="ic">🔍</span>리뷰 코멘트 분석 — 유형 분류가 먼저다</h2>
+<p>리뷰 코멘트를 받으면 즉시 감정적으로 반응하지 말고 먼저 <strong>유형을 분류</strong>해야 한다. 유형에 따라 대응 방법이 완전히 달라지기 때문이다. 모든 코멘트는 아래 4가지 유형 중 하나로 분류된다.</p>
+
+<!-- FORMULA BOX 1: 코멘트 유형 분류 -->
+<div class="fb">
+  <div class="fl">리뷰 코멘트 4가지 유형 분류</div>
+  \[
+    \text{Type A (사실 오류)} \xrightarrow{\text{글쓰기로 해결}} \text{논문 표현 수정}
+  \]
+  \[
+    \text{Type B (오해)} \xrightarrow{\text{문장 보강}} \text{설명 추가·명확화}
+  \]
+  \[
+    \text{Type C (실험 부족)} \xrightarrow{\text{추가 실험}} \text{Ablation·Baseline 보완}
+  \]
+  \[
+    \text{Type D (본질 한계)} \xrightarrow{\text{Limitation 섹션}} \text{미래 연구 방향 명시}
+  \]
+  <div class="fn">
+    Type A: 리뷰어가 논문의 수식·수치를 잘못 읽은 경우 — 원문을 더 명확하게 수정<br/>
+    Type B: 리뷰어가 방법론을 오해한 경우 — 추가 설명·예시·그림으로 명확화<br/>
+    Type C: 리뷰어가 추가 실험을 요구하는 경우 — 수행 가능하면 실험, 불가능하면 이유 설명<br/>
+    Type D: 리뷰어가 연구 자체의 한계를 지적하는 경우 — Limitation 섹션에 솔직하게 기술하고 미래 연구로 연결
+  </div>
+</div>
+
+<h3 class="sub">흔한 리뷰 코멘트와 분류·대응 방법</h3>
+<table>
+  <tr><th>리뷰 코멘트 예시</th><th>유형</th><th>분류 근거</th><th>대응 방법</th></tr>
+  <tr>
+    <td>"The baseline comparison is insufficient"</td>
+    <td><span class="tag ty">Type C</span></td>
+    <td>추가 실험 요구</td>
+    <td>최신 SOTA 2~3개 추가 비교 실험 수행</td>
+  </tr>
+  <tr>
+    <td>"The related work section misses [논문명]"</td>
+    <td><span class="tag tb">Type A</span></td>
+    <td>정보 누락 (글쓰기)</td>
+    <td>해당 논문 인용 추가 + 간단한 비교 서술</td>
+  </tr>
+  <tr>
+    <td>"It's unclear how the hyperparameter λ was chosen"</td>
+    <td><span class="tag tp">Type B</span></td>
+    <td>방법론 설명 오해</td>
+    <td>실험 세팅 섹션에 Hyperparameter search 과정 명시</td>
+  </tr>
+  <tr>
+    <td>"The method only works on vision tasks"</td>
+    <td><span class="tag tg">Type D</span></td>
+    <td>본질적 적용 범위 한계</td>
+    <td>Limitation에 솔직히 기술, NLP 적용 가능성을 Future Work로</td>
+  </tr>
+  <tr>
+    <td>"The computational cost is too high for practical use"</td>
+    <td><span class="tag tg">Type D</span></td>
+    <td>본질적 효율 한계</td>
+    <td>FLOPs 비교 표 추가 + 경량화 방향 Future Work 언급</td>
+  </tr>
+  <tr>
+    <td>"Figure 3 is confusing"</td>
+    <td><span class="tag tb">Type B</span></td>
+    <td>표현 불명확 (오해 유발)</td>
+    <td>그림 재제작 + 캡션 확장, 본문 참조 문장 보강</td>
+  </tr>
+</table>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>분류 우선 규칙:</strong> 리뷰를 받으면 24시간 이내에 모든 코멘트에 Type A/B/C/D를 붙이는 작업만 먼저 한다. 이 분류가 끝나야 비로소 "얼마나 많은 추가 실험이 필요한가"를 현실적으로 파악할 수 있다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: Response Letter 구조 == -->
+<h2 class="st"><span class="ic">📝</span>Response Letter 구조 — 5단계 작성법</h2>
+<p>Response letter는 단순한 답변이 아니라 <strong>리뷰어를 설득하는 구조화된 문서</strong>다. 아래 5단계 구조를 모든 코멘트에 일관되게 적용하면 리뷰어가 "저자가 코멘트를 진지하게 받아들였다"는 인상을 받는다.</p>
+
+<!-- FORMULA BOX 2: 5단계 구조 -->
+<div class="fb">
+  <div class="fl">Response Letter 5단계 구조</div>
+  \[
+    \text{Step 1: } \underbrace{\text{요약 + 감사}}_{\text{Opening}} \to
+    \text{Step 2: } \underbrace{\text{대응 방향}}_{\text{Action}} \to
+    \text{Step 3: } \underbrace{\text{수정 내용}}_{\text{Change}} \to
+    \text{Step 4: } \underbrace{\text{논문 위치}}_{\text{Location}} \to
+    \text{Step 5: } \underbrace{\text{추가 설명·반박}}_{\text{Discussion}}
+  \]
+  <div class="fn">
+    Step 1: 코멘트를 한 줄로 요약하고, 지적에 감사함을 표현 ("Thank you for this insightful comment...")<br/>
+    Step 2: 어떤 방향으로 대응할지 먼저 밝힘 ("We agree / We partially agree / We respectfully disagree...")<br/>
+    Step 3: 실제로 논문에서 무엇을 변경했는지 기술 (신규 실험, 텍스트 수정, 그림 교체 등)<br/>
+    Step 4: 수정 내용이 논문의 어디에 있는지 페이지·섹션·줄 번호를 명시<br/>
+    Step 5: 리뷰어가 여전히 궁금할 수 있는 사항에 추가 설명. 동의하지 않는 경우 정중하게 반박
+  </div>
+</div>
+
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><p><strong>요약 + 감사 (Opening)</strong>: 리뷰어의 코멘트를 한 문장으로 압축 인용 후 감사 표현. "We thank Reviewer #2 for pointing out..."처럼 시작.</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><p><strong>대응 방향 (Action)</strong>: "We agree", "We partially agree", "We respectfully disagree" 중 하나로 입장을 먼저 밝힌다. 모호한 표현 금지.</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><p><strong>수정 내용 (Change)</strong>: 실제 변경 사항을 구체적으로 서술. "We added Table 3 comparing our method with GPT-4 on..."처럼 구체적으로.</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">4</div>
+    <div class="sb"><p><strong>논문 위치 (Location)</strong>: "Please see Section 4.2, lines 312–328 of the revised manuscript." — 리뷰어가 직접 확인할 수 있도록 위치 명시.</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">5</div>
+    <div class="sb"><p><strong>추가 설명·반박 (Discussion)</strong>: Type C 실험 결과 요약, Type D 한계 인정, 또는 Type A/B 반박 근거 제시. 길어도 괜찮다.</p></div>
+  </div>
+</div>
+
+<h3 class="sub">나쁜 표현 vs 좋은 표현 — 실전 변환 예시</h3>
+<table>
+  <tr><th>나쁜 표현 ❌</th><th>좋은 표현 ✅</th><th>이유</th></tr>
+  <tr>
+    <td>"The reviewer misunderstood our method."</td>
+    <td>"We apologize for the unclear presentation. We have revised Section 3.1 to clarify..."</td>
+    <td>리뷰어를 탓하면 적대감을 유발. 자신의 글쓰기를 개선한다고 표현</td>
+  </tr>
+  <tr>
+    <td>"This is beyond the scope of this paper."</td>
+    <td>"We agree this is an important direction. We have added this to the Limitation section (§6) and plan to address it in future work."</td>
+    <td>단순 거절은 리뷰어를 실망시킴. 인정 + 미래 연구 연결로 전환</td>
+  </tr>
+  <tr>
+    <td>"We already compared with all relevant baselines."</td>
+    <td>"Thank you for suggesting [Method X]. We have added a comparison in Table 2 (§4.3). Our method outperforms it by 2.3% on..."</td>
+    <td>방어적 태도 대신 실험으로 직접 보여줌</td>
+  </tr>
+  <tr>
+    <td>"The reviewer is wrong about the complexity."</td>
+    <td>"We respectfully disagree. The complexity is O(n log n), not O(n²), as we show in Appendix A with detailed derivation."</td>
+    <td>"respectfully disagree" + 근거 명시로 정중하되 명확하게 반박</td>
+  </tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb"><p><strong>Response letter 전체 구성:</strong> 도입부에서 "We thank all reviewers for constructive feedback..." 로 시작. 각 리뷰어 별로 섹션 구분. 코멘트는 그대로 인용(인용 블록)하고 바로 아래 답변. 마지막에 모든 변경 사항을 요약한 "Summary of Changes" 섹션 추가.</p></div>
+</div>
+
+
+<!-- == 섹션 3: Reject 처리와 재투고 == -->
+<h2 class="st"><span class="ic">🔄</span>Reject 처리와 재투고 전략</h2>
+<p>Reject는 해당 제출의 끝이지 연구의 끝이 아니다. Reject 메일을 받으면 최소 48시간 동안 논문을 열지 말고 감정을 가라앉힌다. 그 후 리뷰를 냉정하게 분석해 <strong>재투고 venue를 결정</strong>한다.</p>
+
+<!-- FORMULA BOX 3: 재투고 결정 트리 -->
+<div class="fb">
+  <div class="fl">재투고 결정 트리 (Decision Tree)</div>
+  \[
+    \text{Reject 분석}
+    \begin{cases}
+      \text{비판이 타당 + 수정 가능} & \Rightarrow \text{같은 급 venue 재투고 (수정 후)} \\
+      \text{오해·misunderstanding 多} & \Rightarrow \text{같은 venue 다음 사이클 재투고} \\
+      \text{Scope 미스매치} & \Rightarrow \text{더 적합한 venue 변경} \\
+      \text{근본 결함 발견} & \Rightarrow \text{6개월 추가 작업 후 재투고}
+    \end{cases}
+  \]
+  <div class="fn">
+    "비판이 타당 + 수정 가능": 리뷰어 지적이 맞고, 1~2달 안에 해결 가능한 경우 — 최대한 빠르게 수정해 다음 deadlie 제출<br/>
+    "오해 多": 리뷰어가 방법론을 잘못 이해한 경우 — 같은 venue의 다음 사이클(보통 1년 후)에 설명을 개선해 재제출<br/>
+    "Scope 미스매치": 방법론이 해당 venue 관심사와 맞지 않는 경우 — 더 적합한 workshop·journal 탐색<br/>
+    "근본 결함": 연구 설계 자체의 문제 — 재설계 필요, 급하게 재투고하면 또 reject
+  </div>
+</div>
+
+<div class="dtree">
+  <div class="dtree-row">
+    <div class="dtree-cond">비판 타당 + 수정 가능</div>
+    <div class="dtree-arrow">→</div>
+    <div class="dtree-act"><strong>같은 급 재투고</strong>: 리뷰를 전부 반영해 수정 후 다음 deadline 제출. NeurIPS reject → ICLR 제출처럼.</div>
+  </div>
+  <div class="dtree-row">
+    <div class="dtree-cond">오해·불명확 多</div>
+    <div class="dtree-arrow">→</div>
+    <div class="dtree-act"><strong>같은 venue 재투고</strong>: 설명을 대폭 개선해 다음 사이클에 같은 학회 재제출. 방법론이 좋으면 통과 확률 높음.</div>
+  </div>
+  <div class="dtree-row">
+    <div class="dtree-cond">Scope 미스매치</div>
+    <div class="dtree-arrow">→</div>
+    <div class="dtree-act"><strong>Venue 변경</strong>: 연구 내용에 더 맞는 학회·저널 탐색. CVPR reject → ECCV, 또는 관련 workshop 제출.</div>
+  </div>
+  <div class="dtree-row">
+    <div class="dtree-cond">근본 결함 발견</div>
+    <div class="dtree-arrow">→</div>
+    <div class="dtree-act"><strong>6개월 추가 작업</strong>: 연구 설계·실험 재설계. 급하게 재투고하면 리뷰어에게 같은 reject를 받는다.</div>
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>Reject 후 즉시 재투고의 위험성:</strong> Reject를 받자마자 리뷰를 무시하고 다른 학회에 그대로 제출하면, 같은 리뷰어가 배정될 수 있다 (연구 커뮤니티는 좁다). 또한 수정하지 않은 논문은 같은 약점을 가지므로 또 reject된다. 최소 4주~8주 동안 리뷰를 깊이 반영한 후 재투고한다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: 멘탈 관리 == -->
+<h2 class="st"><span class="ic">🧠</span>멘탈 관리 — 논문 출판은 마라톤이다</h2>
+<p>논문 출판 과정에서 심리적 소진(burnout)은 매우 흔하다. 타임라인을 현실적으로 이해하고 각 단계의 심리적 위험을 미리 알면 훨씬 잘 버틸 수 있다.</p>
+
+<!-- FORMULA BOX 4: 출판 타임라인 -->
+<div class="fb">
+  <div class="fl">논문 출판 전체 타임라인</div>
+  \[
+    \underbrace{2 \sim 6\text{개월}}_{\text{초고 작성}} +
+    \underbrace{2 \sim 4\text{개월}}_{\text{심사 대기}} +
+    \underbrace{1 \sim 3\text{개월}}_{\text{수정 대응}} +
+    \underbrace{1 \sim 6\text{개월}}_{\text{출판 처리}}
+    = \underbrace{1 \sim 2\text{년}}_{\text{총 소요 시간}}
+  \]
+  <div class="fn">
+    초고 작성: 연구 설계부터 완성된 초고까지 — 실험 실패·방향 전환 포함하면 더 길어질 수 있음<br/>
+    심사 대기: 제출 후 리뷰 결과까지 — 학회 2~4개월, 저널 3~12개월<br/>
+    수정 대응: Minor revision 1~2개월, Major revision 2~3개월<br/>
+    출판 처리: Accept 후 proof, DOI 발급, 학회 발표 준비까지<br/>
+    총 소요: 좋은 논문도 1년 이상 걸리는 것이 정상이다
+  </div>
+</div>
+
+<h3 class="sub">6단계별 심리적 위험과 대응 전략</h3>
+<table>
+  <tr><th>단계</th><th>심리적 위험</th><th>대응 전략</th></tr>
+  <tr>
+    <td><strong>1. 초고 작성 중</strong></td>
+    <td>완벽주의로 인한 마비 ("아직 준비가 안 됐어")</td>
+    <td>초고는 나쁜 것이 정상. 일단 쓰고 수정한다</td>
+  </tr>
+  <tr>
+    <td><strong>2. 제출 직후</strong></td>
+    <td>기대 과잉 + 불안 ("이번엔 accept될까?")</td>
+    <td>다음 프로젝트를 즉시 시작. 결과를 기다리며 멈추지 않는다</td>
+  </tr>
+  <tr>
+    <td><strong>3. Reject 수신 직후</strong></td>
+    <td>분노, 자기 의심, 포기 충동</td>
+    <td>48시간 논문 열지 않기. 산책·운동. 리뷰어에게 답장 금지</td>
+  </tr>
+  <tr>
+    <td><strong>4. 리뷰 분석 단계</strong></td>
+    <td>리뷰어 비난, 방어적 해석</td>
+    <td>모든 코멘트에 Type A~D 분류 작업만 먼저. 감정 판단 뒤로</td>
+  </tr>
+  <tr>
+    <td><strong>5. 수정 작업 중</strong></td>
+    <td>추가 실험 범위 확장으로 인한 소진</td>
+    <td>Type C 실험 중 "핵심 요청" vs "nice-to-have" 구분 후 우선순위 설정</td>
+  </tr>
+  <tr>
+    <td><strong>6. 재심사 대기</strong></td>
+    <td>다시 불안 증가, 프로젝트 방치</td>
+    <td>Response letter 완성 → 제출 → 즉시 다음 프로젝트. 논문은 시스템이다</td>
+  </tr>
+</table>
+
+<div class="callout tip">
+  <div class="ci">🏆</div>
+  <div class="cb"><p><strong>최고 연구자도 reject를 받는다:</strong> Yann LeCun, Geoffrey Hinton, Yoshua Bengio — 이 세 명의 논문도 수차례 reject를 받았다. 논문의 가치와 accept 여부는 다르다. 리뷰를 통해 논문이 더 좋아지고, 결국 출판된다. Reject를 받는다는 것은 충분히 도전적인 venue에 제출했다는 증거다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE — Response Letter 완성도 체크리스트
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>📋 Response Letter 완성도 체크리스트</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;">
+    제출 전 아래 항목을 점검하세요. 체크할수록 accept 확률이 높아집니다. 총 100점 만점.
+  </p>
+
+  <div id="review-container"></div>
+
+  <div class="cres" id="review-result">체크박스를 선택하면 완성도 점수를 계산합니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">리뷰어가 "Baseline comparison is insufficient"이라는 코멘트를 남겼다. 첫 번째 대응으로 가장 적절한 것은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; "We already compared with all relevant baselines in Table 1" 이라고 반박한다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; Type C(실험 부족)로 분류하고, 추가 baseline 실험 계획을 수립한다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 핵심 연구 범위를 벗어나므로 해당 코멘트를 무시한다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; "This comparison is beyond the scope of this paper"라고 답변한다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  Phase 3 완전 졸업 확인 블록
+════════════════════════════════════════ -->
+<div class="graduation-card">
+  <h3>🎓 Phase 3 완전 졸업 확인 — SCI 논문 작성 가능 수준</h3>
+  <p><strong>Phase 3-A (통계적 학습 이론)</strong>: Ch.27~30 — 집중 부등식, PAC 학습, VC 차원, Double Descent</p>
+  <p><strong>Phase 3-B (딥러닝 이론)</strong>: Ch.31~34 — Transformer, Fisher 정보, 마팅게일, 고급 최적화</p>
+  <p><strong>Phase 3-C (연구 방법론)</strong>: Ch.35~40 — 논문 비판, 연구 설계, 문헌 지도, 데이터 품질, IMRaD 글쓰기, 리뷰 대응</p>
+  <p style="margin-top:1rem"><strong>최종 졸업 기준</strong>: 관심 분야 논문 20편을 6Q로 구조화하고, 미해결 문제를 찾아, PICO 연구 가설을 세우고, IMRaD 초고 + Response letter 초안까지 혼자 완성할 수 있다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch39.html'">← Ch.39 방법론 설계 + IMRaD 글쓰기</button>
+  <button class="btn btn-p" disabled>🎓 교재 완료 — 마지막 챕터</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! "Baseline comparison is insufficient"은 추가 실험을 요구하는 Type C 코멘트입니다. 먼저 유형을 분류하고, 실행 가능한 추가 실험을 계획하는 것이 올바른 첫 번째 대응입니다.'
+    : '❌ 틀렸습니다. 이 코멘트는 Type C(실험 부족)입니다. 즉각적인 반박이나 무시는 reject 가능성을 높입니다. 먼저 Type을 분류하고 추가 baseline 실험을 계획하세요.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+
+// ── Response Letter 체크리스트 ──
+const reviewItems = [
+  { id: 'rl_typeABCD',    label: '모든 리뷰 코멘트에 Type A/B/C/D 분류를 완료했다',               weight: 10 },
+  { id: 'rl_5step',       label: '각 코멘트에 5단계 구조(요약→방향→수정→위치→토론)를 적용했다',     weight: 15 },
+  { id: 'rl_typeC_exp',   label: 'Type C 코멘트에 대해 실제 추가 실험을 수행하고 결과를 제시했다',  weight: 20 },
+  { id: 'rl_typeD_limit', label: 'Type D 코멘트를 Limitation 섹션에 솔직하게 반영했다',             weight: 10 },
+  { id: 'rl_location',   label: '모든 수정 사항에 논문 내 위치(섹션·줄 번호)를 명시했다',           weight: 10 },
+  { id: 'rl_tone',        label: '전체 어조가 정중하며 "misunderstood" 등 공격적 표현이 없다',       weight: 10 },
+  { id: 'rl_disagree',    label: '반박 시 "respectfully disagree" + 근거 형식을 사용했다',           weight: 8  },
+  { id: 'rl_oldnew',      label: '주요 수정 텍스트를 Old/New 형식으로 비교 제시했다',               weight: 10 },
+  { id: 'rl_allcovered',  label: '모든 리뷰 코멘트에 최소 1개 이상의 답변을 작성했다',              weight: 7  },
+];
+
+function buildReviewItems() {
+  const container = document.getElementById('review-container');
+  reviewItems.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML = `
+      <input type="checkbox" id="${item.id}" onchange="saveCheck(this); calcReviewScore()"/>
+      <label for="${item.id}">${item.label}</label>
+      <span class="weight">+${item.weight}점</span>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function calcReviewScore() {
+  let score = 0;
+  reviewItems.forEach(item => {
+    const el = document.getElementById(item.id);
+    if (el && el.checked) score += item.weight;
+  });
+  const resultEl = document.getElementById('review-result');
+  let grade, color;
+  if (score >= 85) {
+    grade = '✅ 우수 — Response letter 완성도 높음. 제출 가능합니다.';
+    color = 'var(--accent3)';
+  } else if (score >= 65) {
+    grade = '🔶 양호 — 몇 가지 보완 후 제출하세요.';
+    color = 'var(--accent4)';
+  } else if (score >= 40) {
+    grade = '⚠️ 보통 — 미완성 항목을 집중 보완해야 합니다.';
+    color = 'var(--accent4)';
+  } else {
+    grade = '❌ Reject 가능성 높음 — 리뷰 대응을 처음부터 재작성하세요.';
+    color = 'var(--accent5)';
+  }
+  resultEl.style.color = color;
+  resultEl.innerHTML = `완성도 점수: <strong>${score} / 100</strong><br/>${grade}`;
+}
+
+// ── 초기화 ──
+buildReviewItems();
+loadChecks();
+calcReviewScore();
+</script>
+</body>
+</html>

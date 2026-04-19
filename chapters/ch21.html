@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.21 — σ-대수와 확률공간 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ σ-대수 탐색기 전용 ══ */
+.sigma-sets{margin-top:12px;}
+.sigma-set-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
+.set-chip{background:var(--surface3);border:1px solid var(--border);border-radius:6px;
+  padding:4px 10px;font-size:.82rem;color:var(--text);font-family:monospace;}
+.check-row{display:flex;flex-direction:column;gap:5px;margin-top:10px;}
+.check-item{font-size:.83rem;padding:5px 9px;border-radius:5px;background:var(--surface3);}
+.check-item.ok{color:var(--accent3);}
+.check-item.ng{color:var(--accent5);}
+.sigma-verdict{margin-top:11px;font-size:.92rem;font-weight:700;padding:8px 14px;border-radius:8px;display:inline-block;}
+.sigma-verdict.pass{background:rgba(52,211,153,.15);color:var(--accent3);border:1px solid rgba(52,211,153,.3);}
+.sigma-verdict.fail{background:rgba(248,113,113,.10);color:var(--accent5);border:1px solid rgba(248,113,113,.3);}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.21 · 측도 확률론 (레벨 2 — Phase 2-C · 7주차)</div>
+  <h1>σ-대수와 확률공간</h1>
+  <p>확률론의 수학적 기반. 논문의 "a.s. convergence", "measurable function"을 이해하는 출발점.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"확률을 말할 수 있는 사건들의 목록"이 σ-대수</strong>입니다. 목록에 없는 사건에는 확률을 붙일 수 없습니다.</p>
+  <ul>
+    <li>동전 던지기: \(\Omega = \{\text{앞},\text{뒤}\}\), \(\mathcal{F} = \{\emptyset, \{\text{앞}\}, \{\text{뒤}\}, \{\text{앞},\text{뒤}\}\}\) — 4개 사건 모두 확률 부여 가능</li>
+    <li>실수 위의 확률: 구간 \([a,b]\)에 확률을 부여하려면 Borel σ-대수가 필요하다. \(P([0, 0.5]) = 0.5\)처럼 쓸 수 있는 이유</li>
+    <li>AI: 손실함수 \(\mathcal{L}(\theta)\)가 측정가능(measurable)해야 \(\mathbb{E}[\mathcal{L}]\)이 수학적으로 정의된다. 논문의 "measurable function" 전제가 이것</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 확률 공간 == -->
+<h2 class="st"><span class="ic">(Ω,ℱ,P)</span>확률 공간 — 세 요소의 삼위일체</h2>
+<p>현대 확률론은 <strong>확률 공간(probability space)</strong> \((\Omega, \mathcal{F}, P)\)를 출발점으로 삼습니다. 단순히 "확률이 얼마"라고 말하는 것이 아니라, 어떤 대상들의 집합에서, 어떤 사건들을 골라, 그것에 어떻게 수를 붙이는지를 명확히 정의합니다. 논문에서 "Let \((\Omega, \mathcal{F}, P)\) be a probability space" 한 문장이 등장하면 이 세 요소가 모두 정해졌다는 뜻입니다.</p>
+
+<div class="fb">
+  <div class="fl">확률 공간의 정의</div>
+  \[
+    (\Omega,\, \mathcal{F},\, P)
+  \]
+  <div class="fn">
+    \(\Omega\): 표본공간(sample space) — 일어날 수 있는 모든 결과의 집합<br/>
+    \(\mathcal{F}\): σ-대수(sigma-algebra) — 확률을 부여할 수 있는 사건들의 집합족<br/>
+    \(P\): 확률측도(probability measure) — 각 사건 \(A \in \mathcal{F}\)에 \([0,1]\) 값을 부여하는 함수<br/>
+    세 요소가 갖춰져야 비로소 "\(P(A) = 0.3\)"이 수학적으로 의미를 갖는다
+  </div>
+</div>
+
+<h3 class="sub">예시 비교 — 세 가지 실험의 확률 공간</h3>
+<table>
+  <tr><th>실험</th><th>\(\Omega\) (표본공간)</th><th>\(\mathcal{F}\) (σ-대수)</th><th>\(P\) (확률측도)</th></tr>
+  <tr>
+    <td>동전 던지기</td>
+    <td>\(\{\text{H}, \text{T}\}\)</td>
+    <td>\(\{\emptyset, \{\text{H}\}, \{\text{T}\}, \{\text{H,T}\}\}\)</td>
+    <td>\(P(\{\text{H}\})=0.5\)</td>
+  </tr>
+  <tr>
+    <td>주사위 던지기</td>
+    <td>\(\{1,2,3,4,5,6\}\)</td>
+    <td>모든 부분집합 (64개)</td>
+    <td>\(P(\{k\})=1/6\)</td>
+  </tr>
+  <tr>
+    <td>연속 확률변수</td>
+    <td>\(\mathbb{R}\)</td>
+    <td>Borel σ-대수 \(\mathcal{B}(\mathbb{R})\)</td>
+    <td>\(P([a,b]) = \int_a^b f(x)\,dx\)</td>
+  </tr>
+</table>
+
+<p>이산 실험에서는 모든 부분집합에 확률을 붙여도 문제없습니다. 그러나 \(\mathbb{R}\) 위에서는 "모든 부분집합"에 일관된 확률을 붙이는 것이 불가능합니다(비측정가능 집합 존재). Borel σ-대수가 그 해결책입니다.</p>
+
+
+<!-- == 섹션 2: σ-대수의 3가지 성질 == -->
+<h2 class="st"><span class="ic">ℱ</span>σ-대수의 3가지 공리</h2>
+<p>집합족 \(\mathcal{F}\)가 σ-대수가 되려면 다음 세 조건을 모두 만족해야 합니다. 이 조건들은 "합리적인 사건 목록"의 최소 요건입니다 — 전체 집합을 포함하고, 여사건도 포함하고, 가산 합집합도 포함해야 합니다.</p>
+
+<div class="fb">
+  <div class="fl">σ-대수 (Sigma-Algebra) 의 3가지 성질</div>
+  \[
+    \begin{aligned}
+      &(1)\quad \Omega \in \mathcal{F} \\[6pt]
+      &(2)\quad A \in \mathcal{F} \implies A^c \in \mathcal{F} \\[6pt]
+      &(3)\quad A_1, A_2, \ldots \in \mathcal{F} \implies \bigcup_{n=1}^{\infty} A_n \in \mathcal{F}
+    \end{aligned}
+  \]
+  <div class="fn">
+    \((1)\): 표본공간 \(\Omega\) 자체가 사건 목록에 포함되어야 한다 (그러면 \(\emptyset = \Omega^c \in \mathcal{F}\)도 자동으로 따름)<br/>
+    \((2)\): 사건 \(A\)가 목록에 있으면 그 여사건 \(A^c\)도 목록에 있어야 한다<br/>
+    \((3)\): 가산 개(countably many)의 사건을 모두 합쳐도 목록 안에 있어야 한다 — 연속 확률변수 처리에 필수<br/>
+    유한 합집합은 (3)의 특수 경우이므로 자동으로 보장된다
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>가산 합집합이 필요한 이유:</strong> 연속 확률변수에서 \(P(X \in [a,b])\)를 정의하려면 구간 \([a,b]\)를 무한히 많은 점들의 합집합으로 봐야 합니다. 유한 합집합만 허용하면 연속분포를 다룰 수 없습니다. "가산(countable)"이 핵심 — 비가산(uncountable) 합집합까지는 요구하지 않습니다.</p></div>
+</div>
+
+<h3 class="sub">σ-대수 판별 예시 — Ω = {a, b, c}</h3>
+<div class="two-col">
+  <div class="col-box">
+    <h5>✅ 올바른 σ-대수</h5>
+    <ul>
+      <li>\(\mathcal{F}_1 = \{\emptyset, \{a,b,c\}\}\) — 최소 σ-대수</li>
+      <li>\(\mathcal{F}_2 = \{\emptyset, \{a\}, \{b,c\}, \{a,b,c\}\}\) — 중간 σ-대수</li>
+      <li>멱집합 전체 (8개 원소) — 최대 σ-대수</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>❌ σ-대수가 아닌 경우</h5>
+    <ul>
+      <li>\(\{\emptyset, \{a\}, \{a,b,c\}\}\): \(\{a\}^c = \{b,c\} \notin \mathcal{F}\)</li>
+      <li>\(\{\emptyset, \{a\}, \{b\}, \{a,b,c\}\}\): \(\{a\} \cup \{b\} = \{a,b\} \notin \mathcal{F}\)</li>
+      <li>\(\{\emptyset, \{a\}, \{b\}\}\): \(\Omega \notin \mathcal{F}\)</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 3: Borel σ-대수 == -->
+<h2 class="st"><span class="ic">ℬ</span>Borel σ-대수 — 실수 위의 표준 σ-대수</h2>
+<p>실수 \(\mathbb{R}\) 위에서 확률을 다루려면 표준화된 σ-대수가 필요합니다. <strong>Borel σ-대수 \(\mathcal{B}(\mathbb{R})\)</strong>는 모든 열린 구간 \((a,b)\)를 포함하는 가장 작은 σ-대수입니다. 이것이 논문에서 "Borel measurable", "Borel set"이라는 표현의 배경입니다.</p>
+
+<div class="fb">
+  <div class="fl">Borel σ-대수의 정의</div>
+  \[
+    \mathcal{B}(\mathbb{R}) = \sigma\!\left(\{(a,b) : a, b \in \mathbb{R}\}\right)
+  \]
+  <div class="fn">
+    \(\sigma(\cdot)\): 주어진 집합족을 포함하는 가장 작은 σ-대수를 생성(generate)한다는 연산<br/>
+    \((a,b)\): 열린 구간 — 이것들을 모두 포함하면서 σ-대수 조건을 만족하는 최소 집합족<br/>
+    결과적으로 모든 열린 집합, 닫힌 집합, 구간, 가산 합집합 등이 \(\mathcal{B}(\mathbb{R})\)에 포함된다<br/>
+    논문에서 실수값 확률변수를 다룰 때 암묵적으로 이 σ-대수를 사용한다
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 측정가능 함수 (Measurable Function)</div>
+  <p>확률변수 \(X : \Omega \to \mathbb{R}\)이 <strong>측정가능</strong>하다는 것은:</p>
+  \[
+    X^{-1}(B) = \{\omega \in \Omega : X(\omega) \in B\} \in \mathcal{F}, \quad \forall B \in \mathcal{B}(\mathbb{R})
+  \]
+  <p style="margin-top:10px;font-size:.88rem;color:var(--muted)">
+    \(X^{-1}(B)\): 집합 \(B\)의 원상(preimage) — \(B\)로 가는 \(\omega\)들의 집합<br/>
+    이 조건이 만족되어야 \(P(X \in B)\)가 의미를 가진다. 측정불가능한 함수에는 확률을 정의할 수 없다.<br/>
+    AI 논문에서 "let \(f\) be a measurable function" 전제는 \(\mathbb{E}[f(X)]\)를 쓰기 위한 필수 조건이다.
+  </p>
+</div>
+
+
+<!-- == 섹션 4: Kolmogorov 확률 공리 == -->
+<h2 class="st"><span class="ic">P</span>Kolmogorov 확률 공리 — P가 갖춰야 할 조건</h2>
+<p>표본공간 \(\Omega\)와 σ-대수 \(\mathcal{F}\)가 정해지면, 함수 \(P: \mathcal{F} \to [0,1]\)이 <strong>확률측도</strong>가 되려면 아래 세 공리를 만족해야 합니다. 1933년 Kolmogorov가 제시한 이 공리 체계가 현대 확률론의 토대입니다.</p>
+
+<div class="fb">
+  <div class="fl">Kolmogorov 확률 공리 (1933)</div>
+  \[
+    \begin{aligned}
+      &(1)\quad P(\Omega) = 1 \\[6pt]
+      &(2)\quad P(A) \geq 0 \quad \forall A \in \mathcal{F} \\[6pt]
+      &(3)\quad P\!\left(\bigsqcup_{n=1}^{\infty} A_n\right) = \sum_{n=1}^{\infty} P(A_n)
+        \quad \text{(서로소인 } A_n \text{에 대해)}
+    \end{aligned}
+  \]
+  <div class="fn">
+    \((1)\): 규범화(normalization) — 전체 공간의 확률은 반드시 1<br/>
+    \((2)\): 비음성(non-negativity) — 확률은 음수가 될 수 없다<br/>
+    \((3)\): 가산 가법성(countable additivity) — 서로소인 사건들의 합집합 확률은 각 사건 확률의 합<br/>
+    \(\bigsqcup\): 서로소인(disjoint) 합집합 기호 (\(A_i \cap A_j = \emptyset,\ i \neq j\))<br/>
+    이 세 공리에서 \(P(\emptyset)=0\), \(P(A^c)=1-P(A)\) 등 모든 확률 법칙이 유도된다
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p>논문에서 "almost surely (a.s.)"는 \(P(A)=1\)을 의미합니다. "a.s. convergence"란 \(P(\{\omega : X_n(\omega) \to X(\omega)\}) = 1\)이라는 뜻으로, 확률 1인 사건이 σ-대수 \(\mathcal{F}\)에 속해야 이 식 자체가 정의됩니다.</p></div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> "확률 공간은 수학자들만의 추상 개념"이라고 생각하기 쉽습니다. 그러나 딥러닝 논문의 Theorem에서 "under probability space \((\Omega,\mathcal{F},P)\), the loss converges a.s." 문장은 구체적으로 이 세 요소를 전제하는 것입니다. \(\mathcal{F}\)가 없으면 "a.s."라는 표현 자체가 성립하지 않습니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔬 σ-대수 구성 탐색기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    표본공간 \(\Omega = \{a, b, c\}\) 위의 세 가지 집합족을 골라보세요. 각 집합족이 σ-대수의 3가지 성질을 만족하는지 자동으로 검증합니다.
+  </p>
+
+  <div class="cr">
+    <span class="cl">예제 선택</span>
+    <input type="range" id="sig-pick" min="0" max="2" step="1" value="0" oninput="updateSigma()"/>
+    <input type="number" id="sig-pick-v" value="0" readonly style="width:44px;"/>
+  </div>
+
+  <div class="sigma-sets" id="sigma-display">
+    <!-- JS로 채워짐 -->
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">
+    \(\Omega = \{a,b,c\}\)에서 집합족 \(\mathcal{F} = \{\emptyset,\, \{a\},\, \{b,c\},\, \{a,b,c\}\}\)을 생각해봅시다.<br/>
+    이 집합족에는 \(\{b\}\)가 포함되어 있지 않습니다. 이때 \(\mathcal{F}\)는?
+  </p>
+  <div class="qo" onclick="ans(this, true)">(a) &nbsp; 여전히 올바른 σ-대수이다 — \(\{a\}^c = \{b,c\} \in \mathcal{F}\)이고 모든 공리를 만족한다</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; σ-대수가 아니다 — \(\{b\}\)가 없으므로 여사건 조건을 위반한다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; σ-대수가 아니다 — \(\{b,c\}\)가 있으면 \(\{b\}\)도 반드시 포함해야 한다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; σ-대수가 아니다 — \(\{a,c\}\)도 없으므로 두 가지 조건을 위반한다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch20.html'">← Ch.20 수렴 속도 분석</button>
+  <button class="btn btn-p" onclick="location.href='ch22.html'">Ch.22 확률변수의 수렴 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! ℱ에서 {a}의 여사건은 {b,c}이고 {b,c} ∈ ℱ입니다. {b} 자체는 없어도 됩니다. {b,c}의 여사건은 {a} ∈ ℱ. 모든 합집합도 ℱ 안에 있어 올바른 σ-대수입니다.'
+    : '❌ 틀렸습니다. σ-대수 공리에서 여사건 조건은 "A ∈ ℱ이면 Aᶜ ∈ ℱ"입니다. {a}의 여사건은 {b,c}이지 {b}가 아닙니다. {b}가 없어도 공리 위반이 아닙니다.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── σ-대수 탐색기 ──
+const OMEGA = ['a', 'b', 'c'];
+
+const EXAMPLES = [
+  {
+    label: '예제 0 — 최소 σ-대수 (자명한 σ-대수)',
+    sets: [
+      { name: '∅', members: [] },
+      { name: '{a,b,c}', members: ['a','b','c'] }
+    ]
+  },
+  {
+    label: '예제 1 — 중간 σ-대수',
+    sets: [
+      { name: '∅', members: [] },
+      { name: '{a}', members: ['a'] },
+      { name: '{b,c}', members: ['b','c'] },
+      { name: '{a,b,c}', members: ['a','b','c'] }
+    ]
+  },
+  {
+    label: '예제 2 — 최대 σ-대수 (멱집합)',
+    sets: [
+      { name: '∅', members: [] },
+      { name: '{a}', members: ['a'] },
+      { name: '{b}', members: ['b'] },
+      { name: '{c}', members: ['c'] },
+      { name: '{a,b}', members: ['a','b'] },
+      { name: '{a,c}', members: ['a','c'] },
+      { name: '{b,c}', members: ['b','c'] },
+      { name: '{a,b,c}', members: ['a','b','c'] }
+    ]
+  }
+];
+
+function setEqual(a, b) {
+  if (a.length !== b.length) return false;
+  const sa = [...a].sort().join(',');
+  const sb = [...b].sort().join(',');
+  return sa === sb;
+}
+
+function containsSet(familySets, target) {
+  return familySets.some(s => setEqual(s.members, target));
+}
+
+function checkSigmaAlgebra(sets) {
+  const results = [];
+
+  // (1) Ω ∈ ℱ
+  const hasOmega = containsSet(sets, OMEGA);
+  results.push({
+    label: '(1) Ω = {a,b,c} ∈ ℱ',
+    ok: hasOmega
+  });
+
+  // (2) A ∈ ℱ ⟹ Aᶜ ∈ ℱ
+  let complementOk = true;
+  let complementDetail = '';
+  for (const s of sets) {
+    const comp = OMEGA.filter(x => !s.members.includes(x));
+    if (!containsSet(sets, comp)) {
+      complementOk = false;
+      complementDetail = ` (위반: ${s.name}의 여사건 {${comp.join(',') || '∅'}} ∉ ℱ)`;
+      break;
+    }
+  }
+  results.push({
+    label: '(2) A ∈ ℱ ⟹ Aᶜ ∈ ℱ' + complementDetail,
+    ok: complementOk
+  });
+
+  // (3) A₁,A₂,... ∈ ℱ ⟹ ∪Aₙ ∈ ℱ (유한 합집합으로 검사)
+  let unionOk = true;
+  let unionDetail = '';
+  outer:
+  for (let i = 0; i < sets.length; i++) {
+    for (let j = i + 1; j < sets.length; j++) {
+      const union = [...new Set([...sets[i].members, ...sets[j].members])];
+      if (!containsSet(sets, union)) {
+        unionOk = false;
+        const uname = union.length === 0 ? '∅' : '{' + union.sort().join(',') + '}';
+        unionDetail = ` (위반: ${sets[i].name} ∪ ${sets[j].name} = ${uname} ∉ ℱ)`;
+        break outer;
+      }
+    }
+  }
+  results.push({
+    label: '(3) 가산 합집합이 ℱ에 포함' + unionDetail,
+    ok: unionOk
+  });
+
+  const isValid = results.every(r => r.ok);
+  return { results, isValid };
+}
+
+function updateSigma() {
+  const val = parseInt(document.getElementById('sig-pick').value);
+  document.getElementById('sig-pick-v').value = val;
+
+  const ex = EXAMPLES[val];
+  const { results, isValid } = checkSigmaAlgebra(ex.sets);
+
+  let html = `<p style="font-size:.85rem;color:var(--accent2);font-weight:600;margin-bottom:8px;">${ex.label}</p>`;
+
+  html += '<div class="sigma-set-row">';
+  for (const s of ex.sets) {
+    html += `<span class="set-chip">${s.name}</span>`;
+  }
+  html += '</div>';
+
+  html += '<div class="check-row">';
+  for (const r of results) {
+    html += `<div class="check-item ${r.ok ? 'ok' : 'ng'}">${r.ok ? '✅' : '❌'} ${r.label}</div>`;
+  }
+  html += '</div>';
+
+  if (isValid) {
+    html += `<div class="sigma-verdict pass">✅ σ-대수 조건 충족 — 올바른 σ-대수입니다</div>`;
+  } else {
+    html += `<div class="sigma-verdict fail">❌ σ-대수 조건 불충족 — σ-대수가 아닙니다</div>`;
+  }
+
+  document.getElementById('sigma-display').innerHTML = html;
+}
+
+updateSigma();
+</script>
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.37 — 선행연구 구조화와 문헌 지도 그리기 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.q6-item{display:flex;align-items:flex-start;gap:11px;padding:10px 13px;border-radius:8px;
+  border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:background .15s;}
+.q6-item:hover{background:var(--hl);}
+.q6-item input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;margin-top:3px;cursor:pointer;}
+.q6-item .q6-label{font-size:.88rem;line-height:1.5;}
+.q6-item .q6-weight{font-size:.75rem;color:var(--muted);margin-top:2px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ MAP 4-quadrant ══ */
+.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:18px 0;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.map-q{padding:18px 16px;background:var(--surface2);position:relative;}
+.map-q.highlight{background:rgba(108,138,255,.12);border:2px solid var(--accent);}
+.map-q h5{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.map-q p{font-size:.83rem;color:var(--text);margin-bottom:0;}
+.map-axis-x{text-align:center;font-size:.75rem;color:var(--muted);padding:6px 0;border-top:1px solid var(--border);}
+.map-axis-y{writing-mode:vertical-rl;text-orientation:mixed;font-size:.75rem;color:var(--muted);
+  text-align:center;padding:0 6px;border-right:1px solid var(--border);}
+.map-wrap{display:flex;gap:0;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.37 · 연구 방법론 (레벨 3 — Phase 3-C · 11주차)</div>
+  <h1>선행연구 구조화와 문헌 지도 그리기</h1>
+  <p>"공부"가 아닌 "빈칸 찾기"로 논문을 읽는다. 20편에서 나의 연구 위치를 정하고, Related Work를 학술 구조로 쓰는 완전 가이드.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>새 카페를 열기 전 <strong>"동네에 어떤 카페가 있고, 어디에 빈자리가 있는지 먼저 지도를 그리는 것"</strong> — 선행연구 구조화가 바로 이것입니다.</p>
+  <ul>
+    <li>논문을 문장 단위로 읽으면 편당 2시간이 걸리고 다 읽고 나면 기억에 남지 않습니다</li>
+    <li>6Q 틀로 15분에 핵심을 추출하면 20편을 나란히 비교할 수 있고 "빈칸"이 보입니다</li>
+    <li>AI 연구에서: Related Work는 "내 연구의 학술 지도"—기존 연구가 어디를 덮었고, 내가 어느 빈칸을 채우는지 보여주는 섹션입니다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 6Q 독해 프레임 == -->
+<h2 class="st"><span class="ic">📋</span>6Q 독해 프레임</h2>
+<p>논문을 처음부터 끝까지 읽는 것은 효율적이지 않습니다. 6Q 프레임은 논문의 핵심 정보를 6개 질문으로 15분 안에 추출하는 구조입니다. 각 질문은 Related Work 작성 시 직접 활용됩니다.</p>
+
+<div class="fb">
+  <div class="fl">6Q 독해 순서 — 논문 1편 처리 프레임워크</div>
+  \[
+    \underbrace{Q_1}_{\text{문제}} \;\to\;
+    \underbrace{Q_2}_{\text{중요성}} \;\to\;
+    \underbrace{Q_3}_{\text{기존 한계}} \;\to\;
+    \underbrace{Q_4}_{\text{기여}} \;\to\;
+    \underbrace{Q_5}_{\text{실험 검증}} \;\to\;
+    \underbrace{Q_6}_{\text{결과와 한계}}
+  \]
+  <div class="fn">
+    \(Q_1\) 문제: 이 논문이 다루는 핵심 문제는 무엇인가? (Abstract 첫 문장)<br/>
+    \(Q_2\) 중요성: 왜 이 문제가 중요한가? 실패하면 어떤 결과가 생기는가?<br/>
+    \(Q_3\) 기존 한계: 기존 방법이 왜 충분하지 않은가? (Related Work 마지막 단락)<br/>
+    \(Q_4\) 기여: 이 논문이 제안한 핵심 아이디어·방법론은 무엇인가? (Contribution)<br/>
+    \(Q_5\) 실험 검증: 어떤 데이터셋·지표로 검증했는가? (Experiments 섹션)<br/>
+    \(Q_6\) 결과와 한계: 수치 결과는 무엇이고, 저자가 인정한 한계는 무엇인가? (Conclusion)
+  </div>
+</div>
+
+<h3 class="sub">GPT-3 논문에 6Q 적용 예시</h3>
+<table>
+  <tr><th>Q</th><th>질문</th><th>GPT-3 (Brown et al., 2020) 답변</th></tr>
+  <tr><td><span class="tag tb">Q1</span></td><td>문제</td><td>소량 데이터만으로 새 태스크에 적응하는 언어 모델을 만들 수 있는가?</td></tr>
+  <tr><td><span class="tag tg">Q2</span></td><td>중요성</td><td>매 태스크마다 파인튜닝이 필요하면 대규모 배포가 불가능함</td></tr>
+  <tr><td><span class="tag tp">Q3</span></td><td>기존 한계</td><td>BERT 계열은 태스크별 파인튜닝 필수, few-shot 성능 불안정</td></tr>
+  <tr><td><span class="tag ty">Q4</span></td><td>기여</td><td>175B 파라미터 GPT-3 + in-context learning (프롬프트만으로 few-shot)</td></tr>
+  <tr><td><span class="tag tb">Q5</span></td><td>실험</td><td>SuperGLUE, TriviaQA, WinoGrande 등 다수 벤치마크, zero/one/few-shot 비교</td></tr>
+  <tr><td><span class="tag tg">Q6</span></td><td>결과·한계</td><td>few-shot SOTA 달성; 추론·편향 취약, 학습 데이터 오염 문제 인정</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">⏱️</div>
+  <div class="cb"><p><strong>6Q 속도 목표:</strong> Abstract → Q1·Q2 (3분) → Related Work 마지막 단락 → Q3 (3분) → Introduction Contribution 항목 → Q4 (3분) → Experiments 표·그래프 → Q5·Q6 (6분). 총 15분 이내에 완료한다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: 선행연구 구조화 표 == -->
+<h2 class="st"><span class="ic">🗺</span>선행연구 구조화 표</h2>
+<p>6Q로 추출한 정보를 20편 × 8열 표로 정리하면 패턴이 눈에 보입니다. 동일한 한계가 반복되는 곳, 아무도 쓰지 않은 데이터셋·지표 조합, 내 연구가 자연스럽게 들어갈 자리가 드러납니다.</p>
+
+<h3 class="sub">선행연구 구조화 표 템플릿</h3>
+<table>
+  <tr>
+    <th>논문 (연도)</th>
+    <th>문제 정의</th>
+    <th>방법론</th>
+    <th>데이터셋</th>
+    <th>평가 지표</th>
+    <th>핵심 결과</th>
+    <th>한계</th>
+    <th>내 연구 연결</th>
+  </tr>
+  <tr>
+    <td>Brown et al. 2020</td>
+    <td>few-shot 언어 이해</td>
+    <td>GPT-3, in-context</td>
+    <td>SuperGLUE</td>
+    <td>Accuracy, F1</td>
+    <td>SOTA few-shot</td>
+    <td>추론 약점</td>
+    <td>추론 강화 방향</td>
+  </tr>
+  <tr>
+    <td>Wei et al. 2022</td>
+    <td>복잡 추론 유도</td>
+    <td>Chain-of-Thought</td>
+    <td>GSM8K, MATH</td>
+    <td>Accuracy</td>
+    <td>추론 성능 ↑</td>
+    <td>긴 체인 오류</td>
+    <td>체인 검증 모듈</td>
+  </tr>
+  <tr>
+    <td style="color:var(--muted);font-style:italic;">논문 3~20…</td>
+    <td style="color:var(--muted);">…</td>
+    <td style="color:var(--muted);">…</td>
+    <td style="color:var(--muted);">…</td>
+    <td style="color:var(--muted);">…</td>
+    <td style="color:var(--muted);">…</td>
+    <td style="color:var(--muted);">…</td>
+    <td style="color:var(--muted);">…</td>
+  </tr>
+  <tr style="background:rgba(108,138,255,.08);">
+    <td><strong>내 연구</strong></td>
+    <td><strong>?</strong></td>
+    <td><strong>?</strong></td>
+    <td><strong>?</strong></td>
+    <td><strong>?</strong></td>
+    <td><strong>?</strong></td>
+    <td><strong>—</strong></td>
+    <td><strong>빈칸 채우기</strong></td>
+  </tr>
+</table>
+
+<div class="callout tip">
+  <div class="ci">🔍</div>
+  <div class="cb">
+    <p><strong>패턴 발견 체크리스트 4가지:</strong></p>
+    <p>① <strong>한계 반복</strong>: 3편 이상이 공통적으로 언급하는 한계가 내 연구 동기다<br/>
+    ② <strong>표준 지표 없음</strong>: 논문마다 다른 지표를 쓴다면 통일된 평가 기여가 가능하다<br/>
+    ③ <strong>표준 데이터셋 고착</strong>: 모두 같은 데이터셋을 쓴다면 새 도메인 적용이 기여가 된다<br/>
+    ④ <strong>미사용 조합</strong>: 방법론 A + 데이터 B 조합을 아무도 시도하지 않았다면 그 자리가 내 연구 위치다</p>
+  </div>
+</div>
+
+
+<!-- == 섹션 3: Related Work 쓰기 == -->
+<h2 class="st"><span class="ic">📍</span>Related Work 쓰기</h2>
+<p>Related Work는 논문 목록이 아닙니다. 내 연구가 학술 지형 어디에 위치하는지를 독자에게 설득하는 섹션입니다. 3가지 구조 패턴 중 하나를 선택해 일관되게 작성합니다.</p>
+
+<div class="fb">
+  <div class="fl">RELATED WORK 3가지 구조 패턴</div>
+  \[
+    \text{패턴} =
+    \begin{cases}
+      \text{흐름형} & \text{시간 순서로 발전 맥락을 서술} \\
+      \text{범주형} & \text{접근 방법별로 그룹화하여 대조} \\
+      \text{비교형} & \text{표·행렬로 차원별 직접 비교}
+    \end{cases}
+  \]
+  <div class="fn">
+    <strong>흐름형</strong>: "초기 연구 X는 Y를 제안했다. 이후 Z가 한계를 보완했으나 W 문제가 남았다." — 역사적 흐름이 명확한 분야에 적합<br/>
+    <strong>범주형</strong>: 문단을 "rule-based 접근", "통계적 접근", "딥러닝 접근" 등으로 나눔 — 접근법이 다양한 분야에 적합<br/>
+    <strong>비교형</strong>: 표로 방법론·데이터셋·지표·성능을 한눈에 보여줌 — 실험 비교가 핵심인 논문에 적합
+  </div>
+</div>
+
+<h3 class="sub">나쁜 표현 vs 좋은 표현 비교</h3>
+<table>
+  <tr><th>나쁜 표현 ❌</th><th>좋은 표현 ✅</th><th>개선 이유</th></tr>
+  <tr>
+    <td>"Brown et al. (2020)은 GPT-3를 제안하였다."</td>
+    <td>"GPT-3 [1]은 few-shot 성능을 크게 개선했으나, 복잡한 다단계 추론에서는 정확도가 불안정하다는 한계가 있다."</td>
+    <td>기여 + 한계를 명시해 내 연구 동기와 연결</td>
+  </tr>
+  <tr>
+    <td>"많은 연구가 이 문제를 다루었다."</td>
+    <td>"A, B, C 세 연구는 모두 X 방법을 사용하였으나, Y 도메인에 대한 검증은 수행하지 않았다."</td>
+    <td>구체적 그룹화 + 공통 한계로 빈칸 부각</td>
+  </tr>
+  <tr>
+    <td>"우리 연구는 기존 연구보다 더 좋다."</td>
+    <td>"기존 연구는 Z를 가정하지만 본 연구는 이 가정을 완화하여 더 광범위한 설정에서 유효함을 보인다."</td>
+    <td>구체적 차별점으로 기여를 학술적으로 서술</td>
+  </tr>
+  <tr>
+    <td>"관련 연구가 많이 있다 [1][2][3][4]."</td>
+    <td>"지도학습 접근 [1,2]과 강화학습 접근 [3,4]으로 나뉘며, 두 방향 모두 레이블 비용 문제를 해결하지 못했다."</td>
+    <td>범주화 + 공통 한계로 흐름 형성</td>
+  </tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> Related Work에서 논문을 많이 인용할수록 좋다고 생각합니다. 그러나 인용 수가 아니라 <em>"내 연구의 빈칸이 왜 존재하는지"</em>를 독자가 납득하도록 구성하는 것이 핵심입니다. 20편을 인용하고도 빈칸이 보이지 않으면 실패입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: 2×2 문헌 지도 == -->
+<h2 class="st"><span class="ic">⊕</span>2×2 문헌 지도</h2>
+<p>2×2 행렬은 선행연구 구조화의 시각화 도구입니다. X축과 Y축 각각 하나의 핵심 차원을 선택하면 4개 사분면이 생기고, 내 연구가 들어갈 빈 사분면이 드러납니다.</p>
+
+<div class="fb">
+  <div class="fl">2×2 문헌 지도 — 두 축 선택 기준</div>
+  \[
+    \text{축 선택 기준:}\quad
+    \underbrace{X}_{\text{방법론 차원}} \times \underbrace{Y}_{\text{적용 범위 차원}}
+    \;\Rightarrow\;
+    \text{내 연구} = \text{아무도 없는 사분면}
+  \]
+  <div class="fn">
+    \(X\) 축 — 방법론 차원 예시: 지도학습 ↔ 비지도학습, 규칙 기반 ↔ 신경망 기반, 단일 모달 ↔ 멀티모달<br/>
+    \(Y\) 축 — 적용 범위 차원 예시: 저자원 언어 ↔ 고자원 언어, 도메인 특화 ↔ 범용, 소규모 ↔ 대규모<br/>
+    좋은 축: 선행연구들이 한두 사분면에 몰리고, 빈 사분면이 명확해야 함<br/>
+    나쁜 축: 모든 사분면에 논문이 고르게 분포되면 차별점이 드러나지 않음
+  </div>
+</div>
+
+<h3 class="sub">2×2 지도 예시 — 언어 모델 추론 연구</h3>
+
+<div class="map-wrap">
+  <div style="writing-mode:vertical-rl;text-orientation:mixed;font-size:.75rem;color:var(--muted);
+    text-align:center;padding:0 8px;display:flex;align-items:center;justify-content:center;
+    border-right:1px solid var(--border);background:var(--surface2);border-radius:8px 0 0 8px;">
+    Y축: 저자원 ↑ / 고자원 ↓
+  </div>
+  <div style="flex:1;">
+    <div class="map-grid">
+      <div class="map-q">
+        <h5>① 지도학습 × 저자원</h5>
+        <p>Wei et al. 2022<br/>Kojima et al. 2022</p>
+      </div>
+      <div class="map-q highlight">
+        <h5>② 비지도학습 × 저자원 ✨ 내 연구</h5>
+        <p><strong style="color:var(--accent);">← 이 사분면이 비어 있다!</strong><br/>비지도 Chain-of-Thought + 저자원 설정</p>
+      </div>
+      <div class="map-q">
+        <h5>③ 지도학습 × 고자원</h5>
+        <p>Brown et al. 2020<br/>Chung et al. 2022</p>
+      </div>
+      <div class="map-q">
+        <h5>④ 비지도학습 × 고자원</h5>
+        <p>Wang et al. 2022<br/>Ho et al. 2022</p>
+      </div>
+    </div>
+    <div class="map-axis-x" style="background:var(--surface2);border-radius:0 0 8px 8px;padding:8px;">
+      X축: 지도학습 (왼쪽) ←→ 비지도학습 (오른쪽)
+    </div>
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb"><p><strong>지도 검증 체크리스트:</strong> ① 내 연구가 들어갈 사분면에 기존 논문이 없는가 ② X·Y 축이 심사위원도 동의할 수 있는 실질적 차원인가 ③ 다른 사분면의 논문이 최소 1편 이상 있어 지도가 충분히 채워졌는가</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록 — 6Q 독해 점수기
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>📋 6Q 독해 점수기 — 논문 1편 분석 완성도 측정</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    논문을 읽은 후 아래 항목을 체크하세요. 각 항목의 가중치가 합산되어 완성도 점수를 계산합니다.
+  </p>
+
+  <div id="q6-container"></div>
+
+  <div class="cres" id="q6-result">항목을 체크하면 점수가 계산됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">학술 논문에서 Related Work 섹션의 진짜 목적은 무엇인가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 논문을 최대한 많이 인용해서 연구의 폭넓음을 보여주는 것</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 기존 연구의 지형을 구조화하여 내 연구가 어느 빈칸을 채우는지 독자를 설득하는 것</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 기존 방법의 문제점을 상세히 비판해 기존 저자들과 차별화하는 것</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 논문 분량을 채우기 위해 관련 연구를 요약 나열하는 것</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch36.html'">← Ch.36 연구 설계·실험 방법론</button>
+  <button class="btn btn-p" onclick="location.href='ch38.html'">Ch.38 데이터 수집·품질·윤리 관리 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! Related Work는 단순 요약이 아닌, 내 연구가 채우는 빈칸을 독자에게 설득하는 학술 지도입니다.'
+    : '❌ 틀렸습니다. Related Work의 핵심은 인용 수나 비판이 아니라 "내 연구의 위치"를 논리적으로 보여주는 것입니다.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+
+// ── 6Q 독해 점수기 ──
+const q6items = [
+  { id: 'q6_q1', label: 'Q1 문제 파악', desc: '이 논문이 다루는 핵심 문제를 한 문장으로 요약할 수 있다', weight: 15 },
+  { id: 'q6_q2', label: 'Q2 중요성 확인', desc: '이 문제가 중요한 이유와 실패 시 결과를 설명할 수 있다', weight: 10 },
+  { id: 'q6_q3', label: 'Q3 기존 한계 추출', desc: '기존 방법의 한계를 구체적으로 1가지 이상 기술할 수 있다', weight: 15 },
+  { id: 'q6_q4', label: 'Q4 핵심 기여 정리', desc: '이 논문의 핵심 아이디어·방법론을 기존 방법과 구별해 설명할 수 있다', weight: 20 },
+  { id: 'q6_q5', label: 'Q5 실험 설계 파악', desc: '사용한 데이터셋과 평가 지표를 모두 나열할 수 있다', weight: 15 },
+  { id: 'q6_q6', label: 'Q6 결과·한계 기록', desc: '주요 수치 결과와 저자가 인정한 한계를 기록했다', weight: 15 },
+  { id: 'q6_link', label: '내 연구 연결', desc: '이 논문이 내 연구의 어느 빈칸과 연결되는지 한 줄로 썼다', weight: 10 },
+];
+
+function buildQ6() {
+  const container = document.getElementById('q6-container');
+  q6items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'q6-item';
+    div.innerHTML = `
+      <input type="checkbox" id="${item.id}" onchange="saveCheck(this); calcQ6()"/>
+      <div>
+        <div class="q6-label"><strong>${item.label}</strong> <span class="tag tb">${item.weight}점</span></div>
+        <div class="q6-weight">${item.desc}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function calcQ6() {
+  let score = 0;
+  q6items.forEach(item => {
+    const el = document.getElementById(item.id);
+    if (el && el.checked) score += item.weight;
+  });
+
+  let level, color;
+  if (score < 40) {
+    level = '📖 1회독 — 핵심 섹션을 다시 읽고 Q1~Q3부터 채우세요';
+    color = 'var(--accent5)';
+  } else if (score < 70) {
+    level = '📝 정리 단계 — 6Q 표에 추출한 내용을 기록하면 완성됩니다';
+    color = 'var(--accent4)';
+  } else if (score < 90) {
+    level = '🔬 분석 단계 — 내 연구와의 연결점을 구체화하면 완성입니다';
+    color = 'var(--accent2)';
+  } else {
+    level = '✅ 완전 독해 — 이 논문을 Related Work에 바로 활용할 수 있습니다';
+    color = 'var(--accent3)';
+  }
+
+  const el = document.getElementById('q6-result');
+  el.style.color = color;
+  el.innerHTML = `총 점수: <strong>${score}점 / 100점</strong><br/>${level}`;
+}
+
+buildQ6();
+loadChecks();
+calcQ6();
+</script>
+</body>
+</html>

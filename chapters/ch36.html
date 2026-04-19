@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.36 — 연구 설계·실험 방법론 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ CHECKLIST ══ */
+.chk-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;
+  border-radius:7px;border:1px solid var(--border);margin-bottom:7px;
+  cursor:pointer;transition:all .18s;font-size:.88rem;}
+.chk-item:hover{background:var(--hl);}
+.chk-item input[type=checkbox]{margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;cursor:pointer;}
+.chk-item label{cursor:pointer;line-height:1.5;}
+.chk-label-main{font-weight:600;color:var(--text);}
+.chk-label-weight{font-size:.75rem;color:var(--muted);margin-left:5px;}
+#res-score{margin-top:16px;padding:14px 18px;background:var(--code);
+  border-radius:8px;font-size:1rem;font-weight:700;line-height:1.6;text-align:center;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.36 · 연구 방법론 (레벨 3 — Phase 3-C · 10주차)</div>
+  <h1>연구 설계·실험 방법론</h1>
+  <p>"논문을 읽는 사람"에서 "논문을 쓰는 사람"으로. 연구 가설 생성, Ablation 설계, 통계적 결론, 재현 가능한 실험의 완전 가이드.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"요리 실험처럼, 좋은 연구는 한 번에 하나씩만 바꾼다"</strong> — 소금을 바꾸면서 불 세기도 동시에 바꾸면 뭐가 맛을 바꿨는지 모른다.</p>
+  <ul>
+    <li>❌ 잘못된 실험 — 데이터셋과 모델 구조를 동시에 바꾸면 어느 것이 성능을 올렸는지 알 수 없다</li>
+    <li>✅ 좋은 실험 — 5개 시드 평균 2.3±0.4%로 보고하면 재현 가능하고 신뢰할 수 있다</li>
+    <li>🤖 AI 연결: NeurIPS reject 사유 1위 = Ablation 부족. 구성 요소 하나씩 제거해야 "왜 작동하는가"를 증명할 수 있다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 연구 가설 설계 == -->
+<h2 class="st"><span class="ic">H</span>연구 가설 설계 — PICO 프레임워크</h2>
+<p>좋은 연구는 명확한 가설에서 시작합니다. PICO 프레임워크는 Population(대상), Intervention(개입), Comparison(비교), Outcome(결과) 4가지를 명확히 정의해 가설의 구조를 잡아줍니다. 이를 통해 실험 설계의 범위와 목표가 처음부터 명확해집니다.</p>
+
+<div class="fb">
+  <div class="fl">PICO 프레임워크 — 연구 가설 구조화</div>
+  \[
+    \text{Hypothesis} = \{P,\; I,\; C,\; O\}
+  \]
+  \[
+    \begin{aligned}
+      P &= \text{Population (대상 데이터/도메인)} \\
+      I &= \text{Intervention (새 방법/모델)} \\
+      C &= \text{Comparison (기존 베이스라인)} \\
+      O &= \text{Outcome (측정 가능한 지표)}
+    \end{aligned}
+  \]
+  <div class="fn">
+    \(P\): 어떤 데이터셋/태스크/도메인에서 실험하는가 (예: ImageNet 분류, SQuAD 독해)<br/>
+    \(I\): 제안하는 새 방법이나 모델 구성 요소 (예: Self-Attention + LoRA 추가)<br/>
+    \(C\): 공정한 비교를 위한 베이스라인 — 동일한 FLOPs·파라미터 수 유지가 원칙<br/>
+    \(O\): Top-1 Accuracy, F1, BLEU, FLOPs 등 수치로 측정 가능한 결과 지표
+  </div>
+</div>
+
+<h3 class="sub">가설 품질 체크리스트</h3>
+<table>
+  <tr><th>기준</th><th>좋은 예시</th><th>나쁜 예시</th><th>왜 중요한가</th></tr>
+  <tr><td><strong>구체성</strong></td><td>"ImageNet Top-1 정확도 1% 향상"</td><td>"성능이 좋아진다"</td><td>모호한 가설은 검증 불가</td></tr>
+  <tr><td><strong>측정가능성</strong></td><td>BLEU-4 ↑ 2.3점</td><td>"더 자연스럽다"</td><td>주관적 평가는 재현 불가</td></tr>
+  <tr><td><strong>반증가능성</strong></td><td>귀무가설: 두 방법 차이 없음</td><td>"항상 더 좋다"</td><td>반증 불가능한 가설은 과학이 아님</td></tr>
+  <tr><td><strong>공정성</strong></td><td>동일 FLOPs·데이터·시드 비교</td><td>파라미터 10배 많은 모델과 비교</td><td>불공정 비교는 리뷰어가 즉시 reject</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb"><p><strong>귀무가설(H₀) 명시:</strong> "제안 방법과 베이스라인 사이에 통계적으로 유의미한 차이가 없다"를 먼저 설정하고, 이를 기각하는 방식으로 실험을 설계해야 합니다. 귀무가설 없이 "우리가 더 좋다"는 주장은 peer review에서 인정받지 못합니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: Ablation Study == -->
+<h2 class="st"><span class="ic">✂</span>Ablation Study — 구성 요소 기여도 분석</h2>
+<p>Ablation Study는 모델에서 구성 요소를 하나씩 제거하며 각 요소의 기여도를 측정하는 실험입니다. "왜 이 모델이 작동하는가"를 증명하는 핵심 수단으로, NeurIPS·ICML 논문에서 빠지면 거의 반드시 reject됩니다.</p>
+
+<div class="fb">
+  <div class="fl">Ablation Study 수식 정의</div>
+  \[
+    M = \text{Component}_1 + \text{Component}_2 + \cdots + \text{Component}_k
+  \]
+  \[
+    \text{Ablation}_i = M \setminus \text{Component}_i
+  \]
+  \[
+    \Delta_i = \text{Score}(M) - \text{Score}(\text{Ablation}_i)
+  \]
+  <div class="fn">
+    \(M\): 완전한 제안 모델 (full model)<br/>
+    \(\text{Component}_i\): 모델의 \(i\)번째 구성 요소 (예: Multi-Head Attention, LayerNorm 등)<br/>
+    \(M \setminus \text{Component}_i\): \(i\)번째 요소만 제거한 ablated 모델<br/>
+    \(\Delta_i\): \(i\)번째 요소가 전체 성능에 기여하는 양 — 클수록 핵심 구성 요소
+  </div>
+</div>
+
+<h3 class="sub">Transformer Ablation 예시 (BERT-base 기준)</h3>
+<table>
+  <tr><th>제거된 구성 요소</th><th>GLUE 평균 점수</th><th>성능 하락 (\(\Delta\))</th><th>해석</th></tr>
+  <tr><td>없음 (Full Model)</td><td>82.4</td><td>—</td><td>기준선</td></tr>
+  <tr><td>Multi-Head Attention 제거</td><td>71.2</td><td>−11.2</td><td>핵심 구성 요소 ⭐</td></tr>
+  <tr><td>Feed-Forward Network 제거</td><td>76.8</td><td>−5.6</td><td>중요한 구성 요소</td></tr>
+  <tr><td>LayerNorm 제거</td><td>79.1</td><td>−3.3</td><td>안정성 기여</td></tr>
+  <tr><td>Positional Encoding 제거</td><td>74.5</td><td>−7.9</td><td>순서 정보 필수</td></tr>
+</table>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>좋은 Ablation의 3가지 요소:</strong> ①<strong>독립 제거</strong> — 한 번에 하나만 제거해야 순수한 기여도를 측정할 수 있다. ②<strong>공정한 비교</strong> — 파라미터 수·학습 데이터·시드가 동일해야 한다. ③<strong>음성 결과 포함</strong> — 제거해도 성능이 유지되면 "불필요한 요소"임을 솔직히 보고한다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: 통계적으로 올바른 결론 == -->
+<h2 class="st"><span class="ic">📊</span>통계적으로 올바른 결론 — 신뢰구간과 효과 크기</h2>
+<p>단일 수치 비교는 충분하지 않습니다. 신뢰구간(CI)과 Cohen's d 효과 크기를 함께 보고해야 통계적으로 의미 있는 결론을 내릴 수 있습니다. "평균 2.3%가 좋다"가 아니라 "평균 2.3±0.4%, p=0.003, d=0.82"로 써야 합니다.</p>
+
+<div class="fb">
+  <div class="fl">신뢰구간 (Confidence Interval)</div>
+  \[
+    CI = \bar{x} \pm t_{n-1,\,\alpha/2} \cdot \frac{s}{\sqrt{n}}
+  \]
+  <div class="fn">
+    \(\bar{x}\): 표본 평균 (예: 5개 시드 실험 평균 정확도)<br/>
+    \(t_{n-1,\,\alpha/2}\): 자유도 \(n-1\)인 t분포의 \(\alpha/2\) 임계값 (95% CI면 \(\alpha=0.05\))<br/>
+    \(s\): 표본 표준편차<br/>
+    \(n\): 반복 실험 횟수 (시드 수) — 최소 5개 권장, 많을수록 CI가 좁아짐
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">Cohen's d — 효과 크기 (Effect Size)</div>
+  \[
+    d = \frac{\bar{x}_A - \bar{x}_B}{s_{\text{pooled}}}
+  \]
+  \[
+    s_{\text{pooled}} = \sqrt{\frac{(n_A - 1)s_A^2 + (n_B - 1)s_B^2}{n_A + n_B - 2}}
+  \]
+  <div class="fn">
+    \(\bar{x}_A - \bar{x}_B\): 두 방법 A, B의 평균 성능 차이<br/>
+    \(s_{\text{pooled}}\): 두 그룹의 합동(pooled) 표준편차<br/>
+    해석 기준: \(d < 0.2\) — 작은 효과 (실용적으로 무의미할 수 있음)<br/>
+    \(\quad\quad\quad\quad d \approx 0.5\) — 중간 효과 / \(d > 0.8\) — 큰 효과 (실질적으로 의미 있음)
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>p-value만 보고할 때의 함정</h5>
+    <ul>
+      <li>p &lt; 0.05라도 효과 크기가 0.05면 실용적으로 무의미</li>
+      <li>샘플 수가 많으면 아주 작은 차이도 유의미해짐</li>
+      <li>p-value는 "차이가 존재하는가"만 말함</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>올바른 보고 방식</h5>
+    <ul>
+      <li>평균 ± 표준오차 (또는 95% CI) 명시</li>
+      <li>Cohen's d 또는 η² 효과 크기 함께 보고</li>
+      <li>시드별 개별 결과도 Appendix에 포함</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: 재현 가능한 실험 == -->
+<h2 class="st"><span class="ic">🔁</span>재현 가능한 실험 — 재현성 점수와 체크리스트</h2>
+<p>재현성(Reproducibility)은 현대 AI 연구의 최우선 가치입니다. 2018년 이후 NeurIPS는 코드 공개와 시드 보고를 사실상 필수로 요구합니다. 재현성 점수는 논문이 얼마나 다른 연구자에게 재현 가능한지를 수치화합니다.</p>
+
+<div class="fb">
+  <div class="fl">재현 가능성 스코어</div>
+  \[
+    \text{RepScore} = \sum_{i=1}^{k} w_i \cdot \mathbf{1}[\text{기준}_i \text{ 충족}]
+  \]
+  <div class="fn">
+    \(w_i\): \(i\)번째 재현성 기준의 가중치 (중요도에 따라 다름)<br/>
+    \(\mathbf{1}[\cdot]\): 지시 함수 — 기준 충족 시 1, 미충족 시 0<br/>
+    \(\text{RepScore} \in [0,\, 100]\): 높을수록 재현 가능성이 높음<br/>
+    예시 기준: 코드 공개, 다중 시드, 하이퍼파라미터 명시, 데이터 버전 고정 등
+  </div>
+</div>
+
+<h3 class="sub">재현성 수준별 비교</h3>
+<table>
+  <tr><th>수준</th><th>특징</th><th>재현성</th><th>NeurIPS 기준</th></tr>
+  <tr><td><span class="tag ty">기본 미만</span> 단일 시드</td><td>랜덤 초기화 한 번만 실행</td><td>⚠️ 매우 낮음</td><td>❌ reject 위험</td></tr>
+  <tr><td><span class="tag tp">기본</span> 3~5 시드 평균</td><td>평균 ± 표준편차 보고</td><td>✅ 보통</td><td>⚠️ 최소 조건</td></tr>
+  <tr><td><span class="tag tg">양호</span> 코드 공개</td><td>GitHub + 환경 설정 파일 포함</td><td>✅✅ 높음</td><td>✅ 권장</td></tr>
+  <tr><td><span class="tag tb">우수</span> 사전 등록</td><td>실험 전 가설·방법 공개 등록</td><td>✅✅✅ 최고</td><td>🏆 Outstanding</td></tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>랜덤 시드 고정의 함정:</strong> <code>torch.manual_seed(42)</code>만으로는 불충분합니다. GPU 연산의 비결정성, CUDA 버전, cuDNN 설정까지 고정해야 완전한 재현이 가능합니다. <code>torch.backends.cudnn.deterministic = True</code>를 함께 설정하고 라이브러리 버전을 <code>requirements.txt</code>로 고정하세요.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔬 연구 방법론 점수 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;">
+    아래 체크리스트에서 해당 항목을 선택하면 연구 방법론 점수(0~100)를 실시간으로 계산합니다.
+    NeurIPS·ICML 수준의 논문은 80점 이상을 목표로 하세요.
+  </p>
+
+  <div id="research-checklist"></div>
+
+  <div id="res-score" style="color:var(--muted);">항목을 선택하면 점수가 계산됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">논문에서 단일 랜덤 시드 결과만 보고할 때 발생하는 가장 큰 문제점은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 모델 학습 속도가 느려진다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 초기화에 따른 분산이 숨겨져 재현 가능성을 알 수 없다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 검증 데이터셋이 부족해진다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 하이퍼파라미터 탐색이 어려워진다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch35.html'">← Ch.35 논문 비판 독해 방법론</button>
+  <button class="btn btn-p" disabled>Ch.37 준비 중 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+/* ── 퀴즈 (공통) ── */
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 단일 시드 결과는 초기화 운에 따라 크게 달라질 수 있습니다. 최소 5개 시드 평균 ± 표준편차를 보고해야 재현 가능성을 확보할 수 있습니다.'
+    : '❌ 틀렸습니다. 단일 시드의 핵심 문제는 초기화 분산이 숨겨진다는 것입니다. 결과가 우연히 좋은 초기화에서 나온 것인지 구조적으로 우수한 것인지 알 수 없습니다.';
+}
+
+/* ── 체크박스 저장 (공통) ── */
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+
+/* ── 연구 방법론 체크리스트 ── */
+const researchCriteria = [
+  { id: 'rc_pico',       weight: 10, label: '가설이 PICO 프레임워크로 명확하게 정의되어 있다',          badge: 'tb' },
+  { id: 'rc_h0',         weight: 10, label: '귀무가설(H₀)이 명시되어 있다',                            badge: 'tb' },
+  { id: 'rc_ablation',   weight: 15, label: 'Ablation에서 구성 요소를 독립적으로 하나씩 제거했다',       badge: 'tp' },
+  { id: 'rc_seeds',      weight: 10, label: '5개 이상의 랜덤 시드로 실험하고 평균±표준편차를 보고했다', badge: 'tg' },
+  { id: 'rc_ci',         weight: 10, label: '신뢰구간(95% CI) 또는 효과 크기(Cohen\'s d)를 보고했다',  badge: 'tg' },
+  { id: 'rc_flops',      weight: 15, label: '베이스라인과 동일한 FLOPs·파라미터 수로 공정 비교했다',    badge: 'tp' },
+  { id: 'rc_code',       weight: 10, label: '코드와 학습 스크립트를 공개했다 (GitHub 등)',              badge: 'tg' },
+  { id: 'rc_hparam',     weight: 10, label: '모든 하이퍼파라미터와 학습 설정을 논문에 명시했다',         badge: 'tb' },
+  { id: 'rc_negative',   weight:  5, label: '음성 결과(negative results)도 포함하여 보고했다',          badge: 'ty' },
+  { id: 'rc_compute',    weight:  5, label: '계산 자원(GPU 종류·시간·비용)을 명시했다',                 badge: 'ty' },
+];
+
+function buildResearchChecklist() {
+  const container = document.getElementById('research-checklist');
+  researchCriteria.forEach(c => {
+    const item = document.createElement('div');
+    item.className = 'chk-item';
+    item.innerHTML = `
+      <input type="checkbox" id="${c.id}" onchange="saveCheck(this); calcResScore()"/>
+      <label for="${c.id}">
+        <span class="chk-label-main">${c.label}</span>
+        <span class="tag ${c.badge} chk-label-weight">+${c.weight}점</span>
+      </label>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function calcResScore() {
+  let score = 0;
+  researchCriteria.forEach(c => {
+    const el = document.getElementById(c.id);
+    if (el && el.checked) score += c.weight;
+  });
+
+  let emoji, label, color;
+  if (score < 30) {
+    emoji = '⚠️'; label = '부족 — 논문 제출 전 개선 필요'; color = 'var(--accent5)';
+  } else if (score < 60) {
+    emoji = '📄'; label = '기본 — 학회 워크숍 수준'; color = 'var(--accent4)';
+  } else if (score < 80) {
+    emoji = '📊'; label = '양호 — 일반 학회 논문 수준'; color = 'var(--accent2)';
+  } else {
+    emoji = '🏆'; label = '우수 — NeurIPS·ICML 메인 트랙 수준'; color = 'var(--accent3)';
+  }
+
+  const scoreEl = document.getElementById('res-score');
+  scoreEl.style.color = color;
+  scoreEl.innerHTML = `${emoji} 연구 방법론 점수: <strong>${score} / 100</strong><br/><span style="font-size:.85rem;font-weight:400;">${label}</span>`;
+}
+
+/* ── 초기화 ── */
+buildResearchChecklist();
+loadChecks();
+calcResScore();
+</script>
+</body>
+</html>

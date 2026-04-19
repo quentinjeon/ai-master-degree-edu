@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.02D — 경사하강법 직접 구현 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CODE BLOCK ══ */
+.cb-code{background:var(--code);border:1px solid var(--border);border-radius:8px;
+  padding:16px 20px;margin:14px 0;overflow-x:auto;}
+.cb-code pre{margin:0;font-size:.82rem;color:var(--accent3);line-height:1.7;font-family:'Fira Code','Cascadia Code','Consolas',monospace;}
+.cb-code .cm{color:var(--muted);}
+.cb-code .ck{color:var(--accent2);}
+.cb-code .cs{color:var(--accent4);}
+.cb-code .cv{color:var(--accent);}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ CHECKLIST ══ */
+.checklist{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.checklist h5{font-size:.82rem;font-weight:700;color:var(--accent4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+.checklist label{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;cursor:pointer;font-size:.88rem;line-height:1.55;}
+.checklist input[type=checkbox]{accent-color:var(--accent3);width:15px;height:15px;flex-shrink:0;margin-top:2px;}
+.check-code{color:var(--accent3);font-family:'Fira Code','Consolas',monospace;font-size:.82rem;}
+.check-math{color:var(--muted);font-size:.8rem;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.02D · 최적화 실습 (Phase 1 보강 · 90일 Day 51~60)</div>
+  <h1>경사하강법 직접 구현<br/>\(\theta = \theta - \eta\nabla J(\theta)\)를 numpy로</h1>
+  <p>수식이 코드가 됩니다. 경사하강법을 scratch로 구현하면 모든 ML 논문의 Algorithm 섹션이 읽힙니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>산에서 눈 감고 내려오기 — <strong>"발아래 경사가 가파르면 크게 이동, 평탄하면 조금 이동"</strong></p>
+  <ul>
+    <li>경사(gradient) = 지금 서 있는 곳의 기울기. 이 방향이 "가장 빠르게 올라가는 방향"이다</li>
+    <li>학습률(η) = 한 걸음의 크기. 너무 크면 산을 건너뛰어 버리고, 너무 작으면 며칠이 걸린다</li>
+    <li>반복 = 한 걸음씩 계속 내려가기. 반복이 쌓이면 결국 가장 낮은 곳(손실 최솟값)에 도달한다</li>
+    <li>AI에서: 모든 딥러닝 학습의 핵심이 이것. "Adam", "SGD", "RMSProp" 등 다 이 원리의 변형이다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 수식 → 코드 1:1 번역 == -->
+<h2 class="st"><span class="ic">🔄</span>\(\theta = \theta - \eta\nabla J(\theta)\) 를 한 줄씩 코드로</h2>
+<p>논문에서 "Algorithm 1"로 등장하는 경사하강법을 그대로 Python 코드로 옮깁니다. 수식의 각 기호가 코드의 어느 부분에 대응되는지 1:1로 연결합니다.</p>
+
+<!-- ════ [4] FORMULA BOX 1 ════ -->
+<div class="fb">
+  <div class="fl">경사하강법 업데이트 규칙</div>
+  \[
+    \theta^{(t+1)} = \theta^{(t)} - \eta \cdot \nabla_\theta J\!\left(\theta^{(t)}\right)
+  \]
+  <div class="fn">
+    \(\theta\): 학습 파라미터 — 선형회귀에서는 \(w\)(가중치)와 \(b\)(편향)<br/>
+    \(\eta\) (eta): 학습률 — 한 번에 얼마나 이동할지 결정하는 하이퍼파라미터<br/>
+    \(\nabla_\theta J(\theta)\): 손실 \(J\)의 \(\theta\)에 대한 gradient (현재 위치의 기울기 벡터)<br/>
+    \(t \to t+1\): 한 번의 업데이트 = 한 스텝. 이를 반복해 최솟값으로 수렴한다
+  </div>
+</div>
+
+<h3 class="sub">수식 → 코드 1:1 대응 구현</h3>
+
+<div class="cc">
+  <div class="ct">🔑 4단계 루프 — 모든 딥러닝의 뼈대</div>
+  <p>Forward → Loss → Gradient → Update. 아래 코드의 각 단계가 수식의 어느 부분인지 주석으로 연결했습니다.</p>
+</div>
+
+<div class="cb-code">
+<pre><span class="cm"># θ = θ - η · ∇J(θ) 그대로 코드로</span>
+<span class="cm"># 선형회귀: J(w,b) = (1/n)Σ(ŷᵢ - yᵢ)²</span>
+
+<span class="ck">import</span> numpy <span class="ck">as</span> np
+
+<span class="cm"># 합성 데이터 생성 (공부시간 → 점수)</span>
+np.random.seed(<span class="cs">42</span>)
+X = np.random.rand(<span class="cs">100</span>, <span class="cs">1</span>) * <span class="cs">10</span>   <span class="cm"># 공부시간 0~10시간</span>
+y = <span class="cs">5</span> * X.squeeze() + <span class="cs">50</span> + np.random.randn(<span class="cs">100</span>) * <span class="cs">3</span>  <span class="cm"># y = 5x + 50 + 노이즈</span>
+
+<span class="cm"># 파라미터 초기화 (θ = [w, b])</span>
+w = <span class="cs">0.0</span>   <span class="cm"># 가중치 초기값</span>
+b = <span class="cs">0.0</span>   <span class="cm"># 편향 초기값</span>
+lr = <span class="cs">0.01</span>  <span class="cm"># η (학습률)</span>
+n = len(X)
+
+<span class="cm"># 반복 학습 루프</span>
+<span class="ck">for</span> epoch <span class="ck">in</span> range(<span class="cs">100</span>):
+    <span class="cm"># 1. 예측 (Forward) — ŷ = wᵀx + b</span>
+    y_pred = w * X.squeeze() + b
+
+    <span class="cm"># 2. 손실 계산 (MSE) — J(θ) = (1/n)Σ(ŷ - y)²</span>
+    loss = np.mean((y_pred - y) ** <span class="cs">2</span>)
+
+    <span class="cm"># 3. Gradient 계산 (∇J(θ))</span>
+    grad_w = (<span class="cs">2</span>/n) * np.dot(X.squeeze(), (y_pred - y))  <span class="cm"># ∂J/∂w</span>
+    grad_b = (<span class="cs">2</span>/n) * np.sum(y_pred - y)                 <span class="cm"># ∂J/∂b</span>
+
+    <span class="cm"># 4. 파라미터 업데이트 (θ = θ - η·∇J) ← 이것이 경사하강법</span>
+    w = w - lr * grad_w
+    b = b - lr * grad_b
+
+    <span class="ck">if</span> epoch % <span class="cs">10</span> == <span class="cs">0</span>:
+        print(<span class="cv">f"Epoch {epoch:3d} | Loss: {loss:.4f} | w={w:.3f} | b={b:.3f}"</span>)
+
+print(<span class="cv">f"\n최종: w={w:.3f} (정답: 5.0), b={b:.3f} (정답: 50.0)"</span>)</pre>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>코드의 4단계가 모든 딥러닝의 뼈대다.</strong> Forward → Loss → Gradient → Update. PyTorch에서는 <code>model(x)</code> → <code>loss = criterion(...)</code> → <code>loss.backward()</code> → <code>optimizer.step()</code>으로 표현한다. 같은 4단계다. 프레임워크가 바뀌어도 이 구조는 절대 바뀌지 않는다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: 학습률 실험 == -->
+<h2 class="st"><span class="ic">⚖️</span>학습률 \(\eta\) — 너무 크면 발산, 너무 작으면 안 수렴</h2>
+<p>학습률(η)은 경사하강법에서 가장 중요한 하이퍼파라미터입니다. 너무 크면 최솟값을 넘어서 발산하고, 너무 작으면 수렴이 너무 느립니다. 이 값을 "적절히" 설정하는 것이 실제 ML 엔지니어링의 핵심 과제입니다.</p>
+
+<h3 class="sub">학습률에 따른 결과 비교</h3>
+<table>
+  <tr><th>학습률 η</th><th>결과</th><th>이유</th></tr>
+  <tr><td>0.001</td><td>느리게 수렴</td><td>한 걸음이 너무 작다 — 많은 에폭이 필요</td></tr>
+  <tr><td>0.01</td><td>✅ 적절히 수렴</td><td>균형 잡힌 이동 — 실전에서 자주 쓰이는 기본값</td></tr>
+  <tr><td>0.1</td><td>빠르게 수렴 또는 불안정</td><td>데이터·모델에 따라 다름 — 주의 필요</td></tr>
+  <tr><td>1.0</td><td>⚠️ 발산 (loss 증가)</td><td>너무 크게 건너뜀 — 최솟값을 지나쳐버림</td></tr>
+</table>
+
+<div class="cb-code">
+<pre><span class="cm"># 학습률에 따른 차이 실험</span>
+<span class="ck">for</span> lr <span class="ck">in</span> [<span class="cs">0.001</span>, <span class="cs">0.01</span>, <span class="cs">0.1</span>, <span class="cs">1.0</span>]:
+    w, b = <span class="cs">0.0</span>, <span class="cs">0.0</span>
+    <span class="ck">for</span> epoch <span class="ck">in</span> range(<span class="cs">50</span>):
+        y_pred = w * X.squeeze() + b
+        loss = np.mean((y_pred - y) ** <span class="cs">2</span>)
+        grad_w = (<span class="cs">2</span>/n) * np.dot(X.squeeze(), (y_pred - y))
+        grad_b = (<span class="cs">2</span>/n) * np.sum(y_pred - y)
+        w -= lr * grad_w
+        b -= lr * grad_b
+    final_loss = np.mean((w * X.squeeze() + b - y) ** <span class="cs">2</span>)
+    print(<span class="cv">f"η={lr}: 최종 loss={final_loss:.2f}"</span>)</pre>
+</div>
+
+<!-- ════ [4] FORMULA BOX 2 ════ -->
+<div class="fb">
+  <div class="fl">수렴 조건 (논문 연결)</div>
+  \[
+    \text{수렴 조건 (볼록 함수):} \quad \eta < \frac{2}{L}
+    \quad \text{where } L = \text{Lipschitz constant of } \nabla J
+  \]
+  <div class="fn">
+    \(L\): 기울기 변화의 최대 속도 — Lipschitz 상수 (함수가 "얼마나 빠르게 구부러지는가")<br/>
+    \(\eta &lt; 2/L\): 이 조건을 만족하면 수렴이 수학적으로 보장된다<br/>
+    이것이 Phase 2 Ch.15~16에서 배울 수렴 이론의 기초<br/>
+    논문의 "we set learning rate \(\eta = 0.01\)" 뒤에 이 수학이 있다 — 임의의 선택이 아니다
+  </div>
+</div>
+
+
+<!-- == 섹션 3: Mini-batch와 SGD == -->
+<h2 class="st"><span class="ic">🎲</span>SGD — 전체 데이터 대신 일부만 써서 업데이트</h2>
+<p>지금까지 배운 것은 "전체 데이터의 gradient"로 업데이트하는 Batch GD입니다. 실제 딥러닝에서는 데이터 일부(mini-batch)만 써서 빠르게 업데이트하는 SGD(Stochastic Gradient Descent)를 씁니다. ImageNet(130만 장)을 한 번에 올릴 수 없기 때문입니다.</p>
+
+<h3 class="sub">GD 종류 비교</h3>
+<table>
+  <tr><th>종류</th><th>한 번에 쓰는 데이터</th><th>장점</th><th>단점</th></tr>
+  <tr><td>Batch GD</td><td>전체 (n개)</td><td>정확한 gradient</td><td>느림, 메모리 많이 필요</td></tr>
+  <tr><td>SGD</td><td>1개</td><td>빠름, 노이즈로 local minimum 탈출</td><td>매우 불안정, 수렴 보장 어려움</td></tr>
+  <tr><td><strong>Mini-batch GD</strong></td><td>k개 (32, 64, 128...)</td><td>균형 — GPU 병렬 연산 효율 최적</td><td>batch size 튜닝 필요</td></tr>
+</table>
+
+<div class="cb-code">
+<pre><span class="cm"># Mini-batch GD 구현</span>
+batch_size = <span class="cs">32</span>
+w, b = <span class="cs">0.0</span>, <span class="cs">0.0</span>
+lr = <span class="cs">0.01</span>
+
+<span class="ck">for</span> epoch <span class="ck">in</span> range(<span class="cs">50</span>):
+    <span class="cm"># 데이터 섞기</span>
+    idx = np.random.permutation(n)
+    X_shuffle, y_shuffle = X[idx], y[idx]
+
+    <span class="cm"># mini-batch로 나눠서 업데이트</span>
+    <span class="ck">for</span> i <span class="ck">in</span> range(<span class="cs">0</span>, n, batch_size):
+        X_batch = X_shuffle[i:i+batch_size].squeeze()
+        y_batch = y_shuffle[i:i+batch_size]
+
+        y_pred = w * X_batch + b
+        grad_w = (<span class="cs">2</span>/len(X_batch)) * np.dot(X_batch, (y_pred - y_batch))
+        grad_b = (<span class="cs">2</span>/len(X_batch)) * np.sum(y_pred - y_batch)
+        w -= lr * grad_w
+        b -= lr * grad_b
+
+    loss = np.mean((w * X.squeeze() + b - y) ** <span class="cs">2</span>)
+    <span class="ck">if</span> epoch % <span class="cs">10</span> == <span class="cs">0</span>:
+        print(<span class="cv">f"Epoch {epoch} | Loss: {loss:.4f}"</span>)</pre>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p>논문에서 <em>"We train with batch size 256, learning rate 0.001..."</em>처럼 쓰인다. 이제 이 문장이 "256개씩 mini-batch로 경사하강법을 적용했다"는 뜻임을 안다. 이 챕터를 마치면 논문의 <strong>Training Details</strong> 섹션을 완전히 읽을 수 있다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: 수식 → 코드 체크리스트 == -->
+<h2 class="st"><span class="ic">✅</span>코드 완성 체크리스트 — 이것을 혼자 쓸 수 있으면 완료</h2>
+<p>90일 플랜 Day 51~60의 목표입니다. 아래 7가지를 백지에서 스스로 구현할 수 있다면 경사하강법 구현은 완료입니다. 체크박스를 클릭해 진행 상황을 기록하세요.</p>
+
+<div class="checklist">
+  <h5>✅ 구현 체크리스트 (90일 Day 51~60)</h5>
+
+  <label>
+    <input type="checkbox" id="chk_1" onchange="saveCheck(this)"/>
+    <span><span class="check-code">y_pred = w * X + b</span> &nbsp;<span class="check-math">← ŷ = wᵀx + b</span></span>
+  </label>
+  <label>
+    <input type="checkbox" id="chk_2" onchange="saveCheck(this)"/>
+    <span><span class="check-code">loss = np.mean((y_pred - y)**2)</span> &nbsp;<span class="check-math">← J(θ) = (1/n)Σ(ŷᵢ-yᵢ)²</span></span>
+  </label>
+  <label>
+    <input type="checkbox" id="chk_3" onchange="saveCheck(this)"/>
+    <span><span class="check-code">grad_w = (2/n) * np.dot(X, y_pred-y)</span> &nbsp;<span class="check-math">← ∂J/∂w</span></span>
+  </label>
+  <label>
+    <input type="checkbox" id="chk_4" onchange="saveCheck(this)"/>
+    <span><span class="check-code">w = w - lr * grad_w</span> &nbsp;<span class="check-math">← θ = θ - η∇J</span></span>
+  </label>
+  <label>
+    <input type="checkbox" id="chk_5" onchange="saveCheck(this)"/>
+    <span><span class="check-code">for epoch in range(N): ...</span> &nbsp;<span class="check-math">← t = 0, 1, ..., T</span></span>
+  </label>
+  <label>
+    <input type="checkbox" id="chk_6" onchange="saveCheck(this)"/>
+    <span>loss가 에폭마다 감소하는 것 확인 &nbsp;<span class="check-math">← 수렴 확인</span></span>
+  </label>
+  <label>
+    <input type="checkbox" id="chk_7" onchange="saveCheck(this)"/>
+    <span>η를 10배 키워서 발산하는 것 확인 &nbsp;<span class="check-math">← 수렴 조건 체험</span></span>
+  </label>
+</div>
+
+<!-- ════ [4] FORMULA BOX 3 — MSE Gradient ════ -->
+<div class="fb">
+  <div class="fl">MSE 손실의 Gradient (편미분)</div>
+  \[
+    J(w, b) = \frac{1}{n}\sum_{i=1}^{n}(\hat{y}_i - y_i)^2
+    \quad \Rightarrow \quad
+    \frac{\partial J}{\partial w} = \frac{2}{n}\sum_{i=1}^{n}(\hat{y}_i - y_i)x_i,
+    \quad
+    \frac{\partial J}{\partial b} = \frac{2}{n}\sum_{i=1}^{n}(\hat{y}_i - y_i)
+  \]
+  <div class="fn">
+    \(J(w,b)\): 평균 제곱 오차(MSE) — 예측값과 실제값의 차이를 제곱해서 평균낸 것<br/>
+    \(\partial J / \partial w\): \(w\)에 대한 편미분 — gradient의 \(w\) 성분. 코드에서 <code>grad_w</code><br/>
+    \(\partial J / \partial b\): \(b\)에 대한 편미분 — gradient의 \(b\) 성분. 코드에서 <code>grad_b</code><br/>
+    이 두 gradient를 계산하고 \(w, b\)를 각각 업데이트하면 경사하강법 1스텝이 완성된다
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 실수 — <code>w -= lr * grad_w</code> vs <code>w += lr * grad_w</code>:</strong> gradient 방향이 loss가 증가하는 방향이므로 반드시 <strong>빼야</strong> 합니다. "경사하강"은 gradient의 반대 방향으로 이동하는 것입니다. <code>+=</code>를 쓰면 loss가 증가(gradient ascent)합니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 학습률과 에폭 수에 따른 수렴 — loss가 어떻게 줄어드나</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">슬라이더를 조절해 학습률(η)과 에폭 수를 바꿔보세요. loss 수렴 과정과 최종 파라미터를 실시간으로 확인합니다.</p>
+
+  <div class="cr">
+    <span class="cl">학습률 \(\eta\)</span>
+    <input type="range" id="lr_val" min="0.001" max="0.5" step="0.001" value="0.01" oninput="updateGD()"/>
+    <input type="number" id="lr_val-v" value="0.010" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">에폭 수</span>
+    <input type="range" id="epochs_val" min="10" max="200" step="10" value="50" oninput="updateGD()"/>
+    <input type="number" id="epochs_val-v" value="50" readonly/>
+  </div>
+
+  <div class="cres" id="gd-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">경사하강법 코드에서 <code>w = w - lr * grad_w</code>를 수행하는 이유는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; w를 랜덤하게 바꾸기 위해</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; gradient 방향으로 이동하면 loss가 증가하기 때문에 반대로 이동</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; lr이 클수록 더 정확한 값에 수렴하기 때문</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 수식에서 덧셈 대신 뺄셈을 써야 코드가 작동하기 때문</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch03b.html'">← Ch.03B 선형회귀·최소제곱법</button>
+  <button class="btn btn-p" onclick="location.href='ch09.html'">Ch.09 Logistic Regression →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! gradient는 loss가 가장 빠르게 증가하는 방향입니다. loss를 줄이려면 그 반대 방향으로 이동해야 하므로 - lr * grad를 뺍니다. "경사하강"(Gradient Descent)의 핵심입니다.'
+    : '❌ 틀렸습니다. gradient는 loss가 증가하는 방향이므로, loss를 낮추려면 반대 방향(-lr * grad)으로 이동해야 합니다.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+function updateGD() {
+  const lr = parseFloat(document.getElementById('lr_val').value);
+  const epochs = parseInt(document.getElementById('epochs_val').value);
+  document.getElementById('lr_val-v').value = lr.toFixed(3);
+  document.getElementById('epochs_val-v').value = epochs;
+
+  // 합성 데이터 (y = 5x + 50, 고정)
+  const n = 30;
+  const Xs = [], ys = [];
+  for (let i = 0; i < n; i++) {
+    const x = (i / n) * 10;
+    Xs.push(x);
+    ys.push(5 * x + 50 + (Math.sin(i * 3.7) * 3));
+  }
+
+  // 경사하강법
+  let w = 0, b = 0;
+  const lossHistory = [];
+
+  for (let e = 0; e < epochs; e++) {
+    const preds = Xs.map(x => w * x + b);
+    const loss = preds.reduce((s, p, i) => s + (p - ys[i]) ** 2, 0) / n;
+    lossHistory.push(loss);
+
+    if (!isFinite(loss) || loss > 1e8) break; // 발산 감지
+
+    let gw = 0, gb = 0;
+    for (let i = 0; i < n; i++) {
+      gw += (2 / n) * Xs[i] * (preds[i] - ys[i]);
+      gb += (2 / n) * (preds[i] - ys[i]);
+    }
+    w -= lr * gw;
+    b -= lr * gb;
+  }
+
+  const finalLoss = lossHistory[lossHistory.length - 1];
+  const initLoss = lossHistory[0];
+  const converged = isFinite(finalLoss) && finalLoss < initLoss * 0.1;
+  const diverged = !isFinite(finalLoss) || finalLoss > initLoss * 10;
+
+  // loss 추이 샘플 (최대 5개 지점)
+  const step = Math.max(1, Math.floor(lossHistory.length / 5));
+  const sample = lossHistory
+    .filter((_, i) => i % step === 0 || i === lossHistory.length - 1)
+    .slice(0, 6)
+    .map(v => (isFinite(v) ? v.toFixed(1) : '∞'))
+    .join(' → ');
+
+  const finalLossStr = isFinite(finalLoss) ? finalLoss.toFixed(2) : '∞ (발산)';
+  const wStr = isFinite(w) ? w.toFixed(3) : '∞';
+  const bStr = isFinite(b) ? b.toFixed(3) : '∞';
+
+  let statusMsg = '';
+  if (diverged) {
+    statusMsg = '<span style="color:var(--accent5)">⚠️ 발산! — 학습률이 너무 큽니다. η를 줄여보세요</span>';
+  } else if (converged) {
+    statusMsg = '<span style="color:var(--accent3)">✅ 수렴 완료 — 손실이 충분히 줄었습니다</span>';
+  } else {
+    statusMsg = '<span style="color:var(--accent4)">🔄 아직 수렴 중 — epochs를 늘려보세요</span>';
+  }
+
+  document.getElementById('gd-res').innerHTML =
+    `η = ${lr.toFixed(3)}, epochs = ${epochs}<br/>
+     초기 loss: ${initLoss.toFixed(2)} &rarr; 최종 loss: ${finalLossStr}<br/>
+     loss 추이: ${sample}<br/>
+     최종 파라미터: w = ${wStr} <span style="color:var(--muted);font-size:.82rem">(정답: 5.0)</span>,  b = ${bStr} <span style="color:var(--muted);font-size:.82rem">(정답: 50.0)</span><br/>
+     ${statusMsg}`;
+}
+updateGD();
+</script>
+</body>
+</html>

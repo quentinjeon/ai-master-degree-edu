@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.31 — Transformer Attention 완전 유도 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.31 · 딥러닝 이론 심화 (Phase 3 — 5주차)</div>
+  <h1>Transformer Attention 완전 유도</h1>
+  <p>Scaled Dot-Product Attention, Multi-Head, Positional Encoding의 수학. "Attention is All You Need" 논문을 수식 수준으로 읽습니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>도서관에서 책을 찾을 때 <strong>"쿼리(찾는 키워드)"로 "키(책 제목)"를 검색하면 관련도(attention score)가 나오고, 그 점수에 따라 "값(책 내용)"을 가져온다 — 이것이 Attention의 전부다.</strong></p>
+  <ul>
+    <li><strong>Query</strong>: 현재 처리하는 단어 ("the cat sat") — 지금 뭘 찾고 있는지</li>
+    <li><strong>Key / Value</strong>: 모든 단어의 검색 표현(Key)과 실제 내용(Value) — 가중치 합으로 문맥 정보를 가져옴</li>
+    <li>AI에서: ChatGPT, BERT, GPT-4 모두 이 메커니즘을 수십 레이어 쌓은 것 — 수식 수준으로 이해하면 어떤 논문도 읽을 수 있다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: Scaled Dot-Product Attention == -->
+<h2 class="st"><span class="ic">⊙</span>Scaled Dot-Product Attention</h2>
+<p>Attention 메커니즘은 Query(Q), Key(K), Value(V) 행렬을 사용하여 각 위치에서 다른 모든 위치의 정보를 가중합합니다. Scaling이 없으면 softmax의 그라디언트가 소멸합니다.</p>
+
+<div class="fb">
+  <div class="fl">SCALED DOT-PRODUCT ATTENTION</div>
+  \[
+    \mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+  \]
+  <div class="fn">
+    \(Q \in \mathbb{R}^{n \times d_k}\): 쿼리 행렬 — \(n\)=시퀀스 길이, \(d_k\)=키 차원<br/>
+    \(K \in \mathbb{R}^{m \times d_k}\): 키 행렬 — \(m\)개 위치의 검색 가능한 표현<br/>
+    \(V \in \mathbb{R}^{m \times d_v}\): 값 행렬 — 각 위치의 실제 정보<br/>
+    \(\sqrt{d_k}\): 스케일링 인자 — \(QK^\top\)의 분산이 \(d_k\)에 비례 → \(1/\sqrt{d_k}\)로 표준화<br/>
+    결과: \(\mathbb{R}^{n \times d_v}\) — 각 쿼리 위치에서의 문맥화된 표현
+  </div>
+</div>
+
+<h3 class="sub">Scaling이 필요한 이유 — 분산 분석</h3>
+<p>내적 \(q_i \cdot k_j\)의 분산은 차원 \(d_k\)에 비례하여 커집니다. 스케일 없이 softmax를 적용하면 특정 위치에 확률이 극단적으로 집중되어 그라디언트가 거의 0이 됩니다.</p>
+
+<div class="fb">
+  <div class="fl">SCALING NECESSITY — VARIANCE ANALYSIS</div>
+  \[
+    \mathrm{Var}[q_i \cdot k_j] = d_k \cdot \mathrm{Var}[q] \cdot \mathrm{Var}[k] = d_k
+    \quad\Rightarrow\quad
+    \frac{q_i \cdot k_j}{\sqrt{d_k}} \sim \mathcal{N}(0,1) \text{ (근사)}
+  \]
+  <div class="fn">
+    \(q\)와 \(k\)의 각 차원이 \(\mathcal{N}(0,1)\)이면 내적의 분산 \(= d_k\)<br/>
+    \(\sqrt{d_k}\)로 나누면 분산 \(= 1\) → softmax 포화(saturation) 방지<br/>
+    \(d_k\)가 크면 스케일 없을 때 softmax가 극단적으로 집중됨 → 그라디언트 소멸<br/>
+    원논문: "We suspect that for large values of \(d_k\), the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients."
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p><strong>직관적 이해:</strong> \(d_k = 64\)이면 내적 분산이 64, 표준편차가 8이 됩니다. \(\sqrt{64} = 8\)로 나누어야 분산이 1이 되어 softmax가 안정적으로 작동합니다. 이것이 원논문에서 \(d_k = 64\) (=512/8)를 선택한 이유이기도 합니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: Multi-Head Attention == -->
+<h2 class="st"><span class="ic">H</span>Multi-Head Attention</h2>
+<p>단일 Attention 대신 \(h\)개의 헤드로 서로 다른 서브공간에서 동시에 Attention을 계산합니다. 각 헤드는 다른 종류의 관계(구문적, 의미적, 장거리 의존성 등)를 독립적으로 포착합니다.</p>
+
+<div class="fb">
+  <div class="fl">MULTI-HEAD ATTENTION</div>
+  \[
+    \mathrm{MultiHead}(Q,K,V) = \mathrm{Concat}(\text{head}_1, \ldots, \text{head}_h)\,W^O
+  \]
+  \[
+    \text{where} \quad \text{head}_i = \mathrm{Attention}(QW_i^Q,\; KW_i^K,\; VW_i^V)
+  \]
+  <div class="fn">
+    \(W_i^Q \in \mathbb{R}^{d_{\text{model}} \times d_k}\): \(i\)번째 헤드의 쿼리 투영 행렬<br/>
+    \(W_i^K \in \mathbb{R}^{d_{\text{model}} \times d_k}\), \(W_i^V \in \mathbb{R}^{d_{\text{model}} \times d_v}\): 키, 값 투영 (\(d_k = d_v = d_{\text{model}}/h\))<br/>
+    \(W^O \in \mathbb{R}^{h d_v \times d_{\text{model}}}\): 출력 투영 행렬<br/>
+    \(h\)개 헤드를 연결(Concat) 후 선형 투영 → \(d_{\text{model}}\) 차원 출력<br/>
+    계산 비용: 단일 Attention과 동일 — 각 헤드 차원이 \(1/h\)로 줄어들기 때문
+  </div>
+</div>
+
+<h3 class="sub">Transformer 원논문 하이퍼파라미터 (Vaswani et al., 2017)</h3>
+<table>
+  <tr><th>파라미터</th><th>값</th><th>의미</th></tr>
+  <tr><td>\(d_{\text{model}}\)</td><td>512</td><td>모델 전체 차원 (Embedding + 모든 레이어)</td></tr>
+  <tr><td>\(h\)</td><td>8</td><td>헤드 수 — 8가지 서브공간에서 동시 Attention</td></tr>
+  <tr><td>\(d_k = d_v\)</td><td>64</td><td>헤드당 차원 (= 512 / 8)</td></tr>
+  <tr><td>\(d_{\text{ff}}\)</td><td>2048</td><td>FFN 내부 차원 (= 4 × d_model)</td></tr>
+  <tr><td>\(N\) (레이어)</td><td>6</td><td>인코더/디코더 레이어 수</td></tr>
+</table>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>Multi-Head의 장점</h5>
+    <ul>
+      <li>각 헤드가 다른 유형의 관계를 학습</li>
+      <li>일부 헤드: 인접 단어 의존성 (구문)</li>
+      <li>일부 헤드: 장거리 의존성 (의미)</li>
+      <li>앙상블 효과 — 단일 Attention보다 강인</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>파라미터 수 계산 (d_model=512, h=8)</h5>
+    <ul>
+      <li>헤드당: \(W^Q, W^K, W^V\) 각 512×64 = 32768</li>
+      <li>8헤드 × 3행렬 × 32768 ≈ 786K</li>
+      <li>출력 투영 \(W^O\): 512×512 = 262K</li>
+      <li>한 층 총합 ≈ 1.05M 파라미터</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 3: Positional Encoding == -->
+<h2 class="st"><span class="ic">📍</span>Positional Encoding</h2>
+<p>Attention 자체는 입력 순서에 무관합니다 — 단어 순서를 바꿔도 동일한 결과가 나옵니다. 위치 정보를 Embedding에 더하는 것이 Positional Encoding입니다.</p>
+
+<div class="fb">
+  <div class="fl">SINUSOIDAL POSITIONAL ENCODING</div>
+  \[
+    PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
+    \qquad
+    PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right)
+  \]
+  <div class="fn">
+    \(pos\): 시퀀스에서의 위치 (0부터 시작)<br/>
+    \(i\): 차원 인덱스 (\(0 \leq i < d_{\text{model}}/2\))<br/>
+    각기 다른 주파수의 sin/cos — 멀리 떨어진 위치는 서로 다른 패턴을 가짐<br/>
+    장점: 학습 시 보지 못한 긴 시퀀스도 외삽(extrapolation) 가능<br/>
+    최신: 대부분 학습 가능한 Positional Embedding 또는 RoPE를 사용
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">🔄</div>
+  <div class="cb"><p><strong>RoPE (Rotary Position Embedding) (Su et al., 2021):</strong> 위치를 복소수 회전으로 표현합니다. 상대 위치 정보를 Attention 점수 자체에 직접 주입 → 절대 위치가 아닌 상대 위치를 자연스럽게 인코딩. LLaMA, GPT-NeoX, Mistral 등 최신 LLM에서 채택.</p></div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> Positional Encoding은 Embedding에 <em>더하는</em> 것이지 연결(concat)하는 것이 아닙니다. 입력 \(X\)의 각 위치 벡터에 \(PE_{pos}\)를 원소별로 더합니다: \(\tilde{x}_{pos} = x_{pos} + PE_{pos}\). 따라서 차원이 변하지 않습니다.</p></div>
+</div>
+
+
+<!-- == 섹션 4: Transformer 블록의 완전한 구조 == -->
+<h2 class="st"><span class="ic">🏗</span>Transformer 블록의 완전한 구조</h2>
+<p>Transformer 인코더 블록은 Self-Attention과 Feed-Forward Network(FFN)를 Residual Connection + LayerNorm으로 연결합니다. 디코더는 추가로 Causal Mask와 Cross-Attention을 포함합니다.</p>
+
+<div class="fb">
+  <div class="fl">TRANSFORMER ENCODER BLOCK</div>
+  \[
+    \begin{aligned}
+      \mathbf{Z} &= \mathrm{LayerNorm}(\mathbf{X} + \mathrm{MultiHead}(\mathbf{X},\mathbf{X},\mathbf{X})) \\
+      \mathbf{Y} &= \mathrm{LayerNorm}(\mathbf{Z} + \mathrm{FFN}(\mathbf{Z})) \\
+      \mathrm{FFN}(\mathbf{z}) &= \max(0,\, \mathbf{z}W_1 + b_1)W_2 + b_2
+    \end{aligned}
+  \]
+  <div class="fn">
+    Self-Attention: \(Q = K = V = \mathbf{X}\) — 자기 자신에 대한 Attention<br/>
+    Residual connection: \(\mathbf{X}\)를 더해 그라디언트 흐름 보장 (vanishing gradient 방지)<br/>
+    LayerNorm: 각 위치의 특징 차원으로 정규화 — BatchNorm과 달리 배치 크기에 독립적<br/>
+    FFN: 2레이어 MLP — 각 위치에 독립적으로 적용 (위치 간 정보 교환 없음)<br/>
+    \(W_1 \in \mathbb{R}^{d_{\text{model}} \times d_{ff}}\), \(W_2 \in \mathbb{R}^{d_{ff} \times d_{\text{model}}}\)
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">MASKED SELF-ATTENTION — CAUSAL MASK</div>
+  \[
+    \mathrm{score}_{ij} =
+    \begin{cases}
+      \dfrac{q_i \cdot k_j}{\sqrt{d_k}} & j \leq i \\[8pt]
+      -\infty & j > i
+    \end{cases}
+  \]
+  <div class="fn">
+    자기회귀 생성: 위치 \(i\)는 위치 \(j \leq i\)의 정보만 볼 수 있음 (미래 정보 차단)<br/>
+    \(j > i\)에 \(-\infty\)를 넣으면 softmax 후 가중치가 정확히 0이 됨<br/>
+    GPT 계열: 디코더 전용 구조, 항상 Causal Mask 사용<br/>
+    BERT: 마스킹 없는 Bidirectional Attention — 양방향으로 문맥을 볼 수 있음
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 BERT vs GPT — 구조 비교</div>
+  <div class="two-col" style="margin-top:10px;">
+    <div class="col-box">
+      <h5>BERT (인코더 전용)</h5>
+      <ul>
+        <li>Bidirectional Attention (마스크 없음)</li>
+        <li>MLM(Masked Language Modeling)으로 사전학습</li>
+        <li>분류, NER, QA 등 이해 태스크에 강함</li>
+        <li>텍스트 생성에는 부적합</li>
+      </ul>
+    </div>
+    <div class="col-box">
+      <h5>GPT (디코더 전용)</h5>
+      <ul>
+        <li>Causal Mask — 왼쪽 토큰만 봄</li>
+        <li>다음 토큰 예측으로 사전학습</li>
+        <li>텍스트 생성, 대화, 요약에 강함</li>
+        <li>ChatGPT, GPT-4 모두 이 구조</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 Scaled Dot-Product Attention — 3토큰 예시</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    키 차원 \(d_k\)와 온도 배율을 조절하며 Attention 가중치의 변화를 확인하세요.
+    토큰1은 쿼리와 유사, 토큰2는 직교, 토큰3은 반대 방향으로 설정됩니다.
+  </p>
+
+  <div class="cr">
+    <span class="cl">키 차원 \(d_k\)</span>
+    <input type="range" id="att-dk" min="1" max="16" step="1" value="4" oninput="updateAtt()"/>
+    <input type="number" id="att-dk-v" value="4" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">온도 배율</span>
+    <input type="range" id="att-temp" min="0.1" max="3.0" step="0.1" value="1.0" oninput="updateAtt()"/>
+    <input type="number" id="att-temp-v" value="1.0" readonly/>
+  </div>
+
+  <div class="cres" id="att-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">Transformer에서 \(\sqrt{d_k}\)로 나누는 이유는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 학습 속도를 높이기 위해</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(QK^\top\)의 분산이 \(d_k\)에 비례하므로, softmax 포화를 막기 위해 표준화</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; Attention 가중치 합이 1이 되도록 정규화하기 위해</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 위치 정보를 인코딩하기 위해</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch30.html'">← Ch.30 딥러닝 일반화 미스터리</button>
+  <button class="btn btn-p" onclick="location.href='ch32.html'">Ch.32 정보 기하학 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! q·k 내적의 분산은 dₖ에 비례합니다. √dₖ로 나눔으로써 분산을 1로 표준화하여 softmax 포화와 그라디언트 소멸을 방지합니다.'
+    : '❌ 틀렸습니다. 본문의 "Scaling Necessity — Variance Analysis" 섹션을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Attention 가중치 계산기 ──
+function updateAtt() {
+  const dk = parseInt(document.getElementById('att-dk').value);
+  const tempV = parseFloat(document.getElementById('att-temp').value);
+  document.getElementById('att-dk-v').value = dk;
+  document.getElementById('att-temp-v').value = tempV.toFixed(1);
+
+  const scale = tempV / Math.sqrt(dk);
+  const rawScores = [dk * 0.3, 0.0, -dk * 0.3];
+  const scores = rawScores.map(s => s * scale);
+  const maxS = Math.max(...scores);
+  const exps = scores.map(s => Math.exp(s - maxS));
+  const sumExp = exps.reduce((a, b) => a + b, 0);
+  const weights = exps.map(e => e / sumExp);
+
+  document.getElementById('att-res').innerHTML =
+    `dₖ=${dk}, 온도 배율=${tempV.toFixed(1)} (스케일 = ${scale.toFixed(3)})<br/>
+     Attention 점수 (qKᵀ/√dₖ · 온도): [${scores.map(s => s.toFixed(3)).join(', ')}]<br/>
+     Softmax 가중치: [<strong>${weights.map(w => w.toFixed(3)).join(', ')}</strong>]<br/>
+     해석: 토큰1(유사)=${(weights[0] * 100).toFixed(1)}%, 토큰2(직교)=${(weights[1] * 100).toFixed(1)}%, 토큰3(반대)=${(weights[2] * 100).toFixed(1)}%<br/>
+     <span style="font-size:.78rem;color:var(--muted)">온도를 높이면 가중치가 균등해지고, dₖ가 커지면 스케일이 중요해짐</span>`;
+}
+updateAtt();
+</script>
+</body>
+</html>

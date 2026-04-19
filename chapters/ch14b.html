@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.14B — 논문 5-question 해석 프레임워크 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ STEPS ══ */
+.steps{margin:18px 0;}
+.step{display:flex;gap:14px;margin-bottom:12px;align-items:flex-start;}
+.sn{min-width:28px;height:28px;background:var(--accent);color:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.sb{font-size:.9rem;line-height:1.65;}
+.sb strong{color:var(--accent2);}
+
+/* ══ CODE BLOCK ══ */
+.codeblock{background:var(--code);border:1px solid var(--border);border-radius:8px;
+  padding:16px 20px;margin:14px 0;font-family:'Courier New',Courier,monospace;
+  font-size:.82rem;color:var(--accent3);line-height:1.7;overflow-x:auto;white-space:pre;}
+.codeblock .cm{color:var(--muted);}
+.codeblock .ck{color:var(--accent);}
+.codeblock .cs{color:var(--accent4);}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+textarea{width:100%;background:var(--code);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);padding:12px 14px;font-size:.85rem;
+  line-height:1.6;resize:vertical;font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;}
+textarea:focus{outline:none;border-color:var(--accent);}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.88rem;color:var(--accent3);font-weight:500;line-height:1.8;}
+.analyze-btn{margin-top:10px;padding:10px 22px;background:var(--accent);color:#fff;
+  border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.analyze-btn:hover{background:#5a78f0;transform:translateY(-1px);}
+
+/* ══ Q-BADGE ══ */
+.qbadge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;
+  font-weight:700;margin-right:6px;background:var(--hl);color:var(--accent);}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.14B · 논문 실전 (Phase 1 보강 · 90일 Day 71~90)</div>
+  <h1>논문 5-question 해석 프레임워크</h1>
+  <p>논문을 끝까지 읽는 것이 아닙니다. 5개 질문에 답하는 것이 목표입니다. 이 프레임워크로 어떤 논문이든 15분 안에 핵심을 파악합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"영화를 3시간 다 보지 않아도, 5가지를 알면 그 영화를 이해한다 — 장르, 주인공의 문제, 해결 방법, 결말, 왜 재밌는지"</strong></p>
+  <ul>
+    <li>Q1. 문제가 무엇인가? → "기존 번역기는 긴 문장을 잘 못 번역한다"</li>
+    <li>Q2. 기존 방법은? → "RNN으로 순서대로 처리했다" / Q3. 무엇이 개선? → "Attention으로 전체 문장을 동시에 본다"</li>
+    <li>Q4. 어떻게 구현? → "Self-attention + Multi-head + Positional encoding" / Q5. 왜 좋아졌나? → "BLEU score 28.4 → 41.0, 학습 속도 10배 빠름"</li>
+    <li>AI에서: 이것이 "Attention is All You Need" 논문이다. 5개 답변으로 핵심 파악 완료</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 5-question 프레임워크 정의 == -->
+<h2 class="st"><span class="ic">❓</span>5-question 프레임워크 — 논문 분해의 5가지 열쇠</h2>
+<p>모든 ML 논문은 같은 논리 구조를 따릅니다. "문제가 있다 → 기존 방법으로는 부족하다 → 우리는 이렇게 했다 → 이렇게 구현했다 → 성능이 좋아졌다". 이 5단계를 질문으로 바꾸면 어떤 논문이든 분해할 수 있습니다.</p>
+
+<table>
+  <tr>
+    <th>#</th>
+    <th>질문</th>
+    <th>논문의 어디에 있나</th>
+    <th>답변 형식</th>
+  </tr>
+  <tr>
+    <td><span class="qbadge">Q1</span></td>
+    <td><strong>문제는 무엇인가?</strong></td>
+    <td>Abstract 1~2번째 문장, Introduction</td>
+    <td>"기존 ~가 ~문제가 있다"</td>
+  </tr>
+  <tr>
+    <td><span class="qbadge">Q2</span></td>
+    <td><strong>기존 방법은 무엇인가?</strong></td>
+    <td>Related Work, Introduction</td>
+    <td>"~방법이 있었지만 ~이 한계다"</td>
+  </tr>
+  <tr>
+    <td><span class="qbadge">Q3</span></td>
+    <td><strong>무엇이 개선되었는가?</strong></td>
+    <td>Abstract 마지막 문장, Conclusion</td>
+    <td>"우리는 ~를 제안한다. 기여: ①②③"</td>
+  </tr>
+  <tr>
+    <td><span class="qbadge">Q4</span></td>
+    <td><strong>어떻게 구현했는가?</strong></td>
+    <td>Method, Algorithm 박스</td>
+    <td>핵심 수식/알고리즘 1~2개</td>
+  </tr>
+  <tr>
+    <td><span class="qbadge">Q5</span></td>
+    <td><strong>왜 성능이 좋아졌는가?</strong></td>
+    <td>Experiments, Table/Figure</td>
+    <td>"~데이터셋에서 ~% 향상"</td>
+  </tr>
+</table>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb">
+    <p><strong>Q1~Q3은 Abstract에서 모두 찾을 수 있다.</strong> 잘 쓴 논문일수록 Abstract 5~7문장 안에 이 세 가지가 다 들어있다. Q4는 Method, Q5는 Experiments에서 찾는다.</p>
+  </div>
+</div>
+
+
+<!-- == 섹션 2: Abstract 해석 실습 == -->
+<h2 class="st"><span class="ic">📄</span>Abstract 5분 해석법 — 읽는 순서와 찾을 것</h2>
+<p>Abstract는 보통 5~8문장입니다. 각 문장이 Q1~Q3 중 어디에 해당하는지 찾으면 됩니다.</p>
+
+<table>
+  <tr>
+    <th>Abstract의 문장 위치</th>
+    <th>보통 담긴 내용</th>
+    <th>해당 Q</th>
+  </tr>
+  <tr>
+    <td>1번째 문장</td>
+    <td>분야 배경 + 큰 문제</td>
+    <td><span class="qbadge">Q1</span> 배경</td>
+  </tr>
+  <tr>
+    <td>2~3번째 문장</td>
+    <td>구체적인 문제 / 기존 한계</td>
+    <td><span class="qbadge">Q1</span> + <span class="qbadge">Q2</span></td>
+  </tr>
+  <tr>
+    <td>4~5번째 문장</td>
+    <td>우리의 제안 (Contribution)</td>
+    <td><span class="qbadge">Q3</span></td>
+  </tr>
+  <tr>
+    <td>마지막 1~2 문장</td>
+    <td>실험 결과 요약</td>
+    <td><span class="qbadge">Q5</span></td>
+  </tr>
+</table>
+
+<h3 class="sub">실제 Abstract 분석 예시 — LoRA 논문</h3>
+
+<div class="cc">
+  <div class="ct">📌 예시 Abstract (LoRA: Hu et al., 2021)</div>
+  <p style="font-size:.85rem;color:var(--muted);font-style:italic;margin-bottom:12px;">
+    "Large language models (LLMs) have achieved remarkable results on many NLP benchmarks.
+    However, fine-tuning these models requires substantial computational resources, limiting their adoption.
+    We propose LoRA, a method that freezes pretrained model weights and injects trainable rank decomposition matrices.
+    LoRA reduces trainable parameters by 10,000x with no inference latency."
+  </p>
+  <table style="margin:0;">
+    <tr>
+      <th>Q</th>
+      <th>해당 내용</th>
+    </tr>
+    <tr>
+      <td><span class="qbadge">Q1</span> 문제</td>
+      <td>LLM fine-tuning에 엄청난 계산 자원이 필요하다</td>
+    </tr>
+    <tr>
+      <td><span class="qbadge">Q2</span> 기존</td>
+      <td>전체 파라미터를 fine-tuning (implicit)</td>
+    </tr>
+    <tr>
+      <td><span class="qbadge">Q3</span> 개선</td>
+      <td>LoRA — 가중치를 고정하고 작은 행렬만 학습</td>
+    </tr>
+    <tr>
+      <td><span class="qbadge">Q4</span> 구현</td>
+      <td>rank decomposition matrices (r &lt;&lt; d)</td>
+    </tr>
+    <tr>
+      <td><span class="qbadge">Q5</span> 성능</td>
+      <td>파라미터 10,000배 감소, inference 지연 없음</td>
+    </tr>
+  </table>
+</div>
+
+<div class="callout info">
+  <div class="ci">📎</div>
+  <div class="cb">
+    <p>실제 논문 "LoRA: Low-Rank Adaptation of Large Language Models" (Hu et al., 2021)의 Abstract를 위와 같이 분해할 수 있다. 5개 답변을 쓰는 데 10분이면 충분하다.</p>
+  </div>
+</div>
+
+
+<!-- == 섹션 3: 핵심 수식 → 코드 연결 == -->
+<h2 class="st"><span class="ic">⚙️</span>Method 수식을 코드로 — 논문 재현의 시작</h2>
+<p>Q4(어떻게 구현했는가)에서 핵심 수식을 찾으면, 그것을 numpy/PyTorch로 구현해보는 것이 "논문 재현"의 시작입니다.</p>
+
+<table>
+  <tr>
+    <th>수식 패턴</th>
+    <th>numpy 코드</th>
+    <th>논문 예시</th>
+  </tr>
+  <tr>
+    <td>\(\hat{y} = X\mathbf{w}\)</td>
+    <td><code>y_pred = X @ w</code></td>
+    <td>선형 모델</td>
+  </tr>
+  <tr>
+    <td>\(\sigma(z) = \frac{1}{1+e^{-z}}\)</td>
+    <td><code>1/(1+np.exp(-z))</code></td>
+    <td>Logistic, Sigmoid</td>
+  </tr>
+  <tr>
+    <td>\(\text{softmax}(z)_i = \frac{e^{z_i}}{\sum e^{z_j}}\)</td>
+    <td><code>np.exp(z)/np.exp(z).sum()</code></td>
+    <td>다중분류</td>
+  </tr>
+  <tr>
+    <td>\(H(p,q) = -\sum p \log q\)</td>
+    <td><code>-np.sum(p * np.log(q))</code></td>
+    <td>Cross-entropy</td>
+  </tr>
+  <tr>
+    <td>\(\mathrm{KL}(P\|Q) = \sum p \log\frac{p}{q}\)</td>
+    <td><code>np.sum(p * np.log(p/q))</code></td>
+    <td>KL Divergence</td>
+  </tr>
+</table>
+
+<!-- ════════════════════════════════════════
+  [4] FORMULA BOX 블록
+════════════════════════════════════════ -->
+<div class="fb">
+  <div class="fl">LoRA — RANK DECOMPOSITION (Q4 핵심 수식)</div>
+  \[
+    h = W_0 x + \Delta W x = W_0 x + BA x
+  \]
+  <div class="fn">
+    \(h\): 레이어의 출력 벡터<br/>
+    \(W_0\): 사전학습 가중치 행렬 (고정, frozen) — 학습 중 업데이트되지 않음<br/>
+    \(B \in \mathbb{R}^{d \times r},\; A \in \mathbb{R}^{r \times k}\): 학습 가능한 저차원(rank \(r\)) 행렬 — \(r \ll \min(d,k)\)<br/>
+    \(\Delta W = BA\): 원래 가중치에 추가되는 작은 변화량 — 이 두 행렬만 학습하므로 파라미터 수가 극적으로 감소
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb">
+    <p>처음부터 논문의 모든 수식을 구현하려고 하지 마세요. 핵심 수식 <strong>1개</strong>만 구현해보는 것이 목표입니다. 나머지는 라이브러리가 처리합니다.</p>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: 실전 논문 선택 가이드 == -->
+<h2 class="st"><span class="ic">🎯</span>90일 플랜 Day 71~90을 위한 논문 선택법</h2>
+<p>처음 논문을 고를 때는 "아이디어가 직관적이고 수식이 단순한" 논문부터 시작하세요. 단계별 추천 논문을 따라가면 자연스럽게 난이도가 올라갑니다.</p>
+
+<table>
+  <tr>
+    <th>단계</th>
+    <th>논문</th>
+    <th>이유</th>
+  </tr>
+  <tr>
+    <td>Day 71~80 (입문용)</td>
+    <td>"A Neural Algorithm of Artistic Style" <span style="color:var(--muted);font-size:.8rem;">(Gatys et al., 2015)</span></td>
+    <td>아이디어가 직관적, 수식 단순</td>
+  </tr>
+  <tr>
+    <td>Day 71~80 (입문용)</td>
+    <td>"Word2Vec" <span style="color:var(--muted);font-size:.8rem;">(Mikolov et al., 2013)</span></td>
+    <td>개념이 익숙하고 구현이 쉬움</td>
+  </tr>
+  <tr>
+    <td>Day 81~90 (실전)</td>
+    <td>"BERT" <span style="color:var(--muted);font-size:.8rem;">(Devlin et al., 2018)</span></td>
+    <td>현대 NLP의 기초, 구조가 명확</td>
+  </tr>
+  <tr>
+    <td>Day 81~90 (실전)</td>
+    <td>"ResNet" <span style="color:var(--muted);font-size:.8rem;">(He et al., 2015)</span></td>
+    <td>컴퓨터 비전 기초, Figure 직관적</td>
+  </tr>
+  <tr>
+    <td>Day 81~90 (실전)</td>
+    <td>"Attention is All You Need" <span style="color:var(--muted);font-size:.8rem;">(Vaswani et al., 2017)</span></td>
+    <td>LLM의 출발점</td>
+  </tr>
+</table>
+
+<h3 class="sub">논문 찾는 방법</h3>
+<div class="steps">
+  <div class="step">
+    <div class="sn">1</div>
+    <div class="sb"><strong>arxiv.org</strong> — 분야 + "survey" 또는 "tutorial" 검색. 리뷰 논문으로 시작하면 전체 맥락 파악이 쉽다.</div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><strong>Papers With Code (paperswithcode.com)</strong> — 코드가 공개된 논문 우선 선택. 구현을 바로 확인할 수 있어 Q4 이해에 도움.</div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><strong>Semantic Scholar</strong> — 인용수 높은 것 우선 (검증된 논문). 처음에는 1,000회 이상 인용된 논문이 안전하다.</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 5-question 프레임워크 실습 — Abstract를 붙여넣고 분해해보세요</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">읽고 싶은 논문의 Abstract를 아래에 붙여넣고 [분석 시작] 버튼을 누르세요. Q1(문제), Q3(제안), Q5(결과) 키워드를 자동으로 감지합니다.</p>
+
+  <textarea id="abstract-input" rows="6"
+    placeholder="예시: Large language models (LLMs) have achieved remarkable results on many NLP benchmarks. However, fine-tuning these models requires substantial computational resources, limiting their adoption. We propose LoRA, a method that freezes pretrained model weights and injects trainable rank decomposition matrices. LoRA reduces trainable parameters by 10,000x with no inference latency."></textarea>
+
+  <button class="analyze-btn" onclick="analyzeAbstract()">🔍 분석 시작</button>
+
+  <div class="cres" id="analysis-res" style="display:none;"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">5-question 프레임워크에서 "Q4. 어떻게 구현했는가?"의 답은 주로 어느 섹션에서 찾나?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; Abstract — 요약이 있으므로</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; Introduction — 배경 설명에 있으므로</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; Method (Methodology) — 구체적인 수식과 알고리즘이 있으므로</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; Conclusion — 구현 요약이 있으므로</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch14.html'">← Ch.14 논문 읽기·쓰기</button>
+  <button class="btn btn-p" onclick="location.href='ch15.html'">Ch.15 수열과 극한 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! Method 섹션에 핵심 수식, Algorithm 박스, 모델 구조 Figure가 있다. Q4는 여기에서 핵심 수식 1~2개를 뽑으면 된다.'
+    : '❌ 틀렸습니다. Q4(구현)는 Method 섹션에서 찾습니다. Abstract에는 Q1~Q3만 있고 Q4의 세부 내용은 없습니다.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Abstract 분석기 ──
+function analyzeAbstract() {
+  const text = document.getElementById('abstract-input').value.trim();
+  const resEl = document.getElementById('analysis-res');
+
+  if (!text) {
+    resEl.style.display = 'block';
+    resEl.style.color = 'var(--accent5)';
+    resEl.innerHTML = '⚠️ Abstract 텍스트를 입력해주세요.';
+    return;
+  }
+
+  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 10);
+  const wordCount = text.split(/\s+/).length;
+
+  const problemKeywords = ['problem', 'challenge', 'difficult', 'however', 'but', 'limitation', 'suffer', 'issue', 'lack', 'fail'];
+  const proposalKeywords = ['propose', 'present', 'introduce', 'our', 'we ', 'novel', 'new method', 'framework', 'approach'];
+  const resultKeywords = ['achieve', 'outperform', 'improve', 'state-of-the-art', 'sota', 'better', '%', 'surpass', 'exceed', 'reduce'];
+
+  const hasProblem = sentences.some(s =>
+    problemKeywords.some(k => s.toLowerCase().includes(k))
+  );
+  const hasProposal = sentences.some(s =>
+    proposalKeywords.some(k => s.toLowerCase().includes(k))
+  );
+  const hasResult = sentences.some(s =>
+    resultKeywords.some(k => s.toLowerCase().includes(k))
+  );
+
+  const completeness = [hasProblem, hasProposal, hasResult].filter(Boolean).length;
+  const qualityMsg = completeness === 3
+    ? '✅ 잘 쓴 Abstract입니다! Q1·Q3·Q5가 모두 감지됩니다.'
+    : completeness === 2
+    ? '🔶 Q1·Q3·Q5 중 2개 감지. 나머지는 직접 찾아보세요.'
+    : '🔴 키워드 감지가 적습니다. 다른 논문이나 더 긴 Abstract를 시도해보세요.';
+
+  resEl.style.display = 'block';
+  resEl.style.color = 'var(--accent3)';
+  resEl.innerHTML =
+    `<strong>Abstract 분석 결과</strong><br/>
+     문장 수: ${sentences.length}개 &nbsp;|&nbsp; 단어 수: ${wordCount}개<br/><br/>
+     <strong>자동 감지 (키워드 기반)</strong><br/>
+     Q1. 문제 서술: ${hasProblem ? '✅ 감지됨 (however/but/limitation 등)' : '⚠️ 명확하지 않음 — 첫 2문장 확인'}<br/>
+     Q3. 제안 방법: ${hasProposal ? '✅ 감지됨 (we propose/present 등)' : '⚠️ 명확하지 않음 — "we" 또는 "our" 찾기'}<br/>
+     Q5. 실험 결과: ${hasResult ? '✅ 감지됨 (% 향상 또는 outperform)' : '⚠️ 명확하지 않음 — 숫자나 비교 표현 찾기'}<br/><br/>
+     ${qualityMsg}<br/><br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       자동 감지는 참고용입니다. 직접 5개 답변을 작성하세요.<br/>
+       Q2 (기존 방법)와 Q4 (구현)는 Related Work와 Method 섹션에서 찾으세요.
+     </span>`;
+}
+
+// ── iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용) ──
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+</script>
+</body>
+</html>

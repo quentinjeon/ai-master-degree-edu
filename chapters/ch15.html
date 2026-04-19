@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.15 — 수열과 극한의 엄밀한 정의 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.15 · 해석학 기초 (레벨 2 — Phase 2-A · 1주차)</div>
+  <h1>수열과 극한의 엄밀한 정의</h1>
+  <p>"수렴한다"는 말을 수학적으로 증명할 수 있게 됩니다. 논문의 Theorem·Proof 섹션을 따라가는 첫 걸음.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"점점 가까워지는 것"을 수학이 얼마나 정확하게 말할 수 있는지</strong>가 이 챕터의 전부입니다.</p>
+  <ul>
+    <li>0.9, 0.99, 0.999, 0.9999... → 1에 "수렴"한다. 1이 되진 않지만 원하는 만큼 가까워질 수 있다</li>
+    <li>ε = 0.001이라면, 3번째 항부터 |aₙ − 1| &lt; 0.001 — 이걸 수학으로 쓴 게 ε-N 논증이다</li>
+    <li>AI에서: 경사하강법이 "수렴한다"는 주장도 이 언어로 증명한다. 논문의 Theorem 1이 바로 이것</li>
+  </ul>
+</div>
+
+<div class="callout tip">
+  <div class="ci">🔗</div>
+  <div class="cb"><p><strong>레벨 1 연결:</strong> Ch.02에서 경사하강법이 "수렴한다"고 배웠습니다. 이 챕터에서는 그 "수렴"의 수학적 의미를 ε-N 정의로 엄밀하게 이해합니다. 논문의 Convergence Theorem이 왜 이렇게 쓰이는지 알게 됩니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 수열과 수렴의 직관 == -->
+<h2 class="st"><span class="ic">∞</span>수열이란 무엇인가?</h2>
+<p>수열(sequence)은 자연수 인덱스로 배열된 수들의 목록입니다. \((a_n)_{n=1}^{\infty}\)처럼 씁니다. 수열이 수렴한다는 것은 항이 특정 값 \(L\)에 "충분히 가까워진다"는 것이지만, "충분히"를 정확히 정의하는 것이 해석학의 핵심입니다.</p>
+
+<h3 class="sub">핵심 수열 예시 — 논문과의 연결</h3>
+<table>
+  <tr><th>수열</th><th>수렴 여부</th><th>극한값</th><th>논문 연결</th></tr>
+  <tr><td>\(a_n = 1/n\)</td><td>✅ 수렴</td><td>0</td><td>학습률 감소 스케줄</td></tr>
+  <tr><td>\(a_n = (-1)^n\)</td><td>❌ 발산</td><td>없음</td><td>발산하는 학습</td></tr>
+  <tr><td>\(a_n = (1 + 1/n)^n\)</td><td>✅ 수렴</td><td>\(e \approx 2.718\)</td><td>자연상수 정의</td></tr>
+  <tr><td>\(a_{t+1} = a_t - \alpha \nabla f(a_t)\)</td><td>조건부</td><td>\(f\)의 최솟값</td><td>경사하강법</td></tr>
+</table>
+
+<p>이 표에서 주목할 것은 마지막 행입니다. 경사하강법 반복이 수렴하는지 여부는 "조건부"입니다. 어떤 조건에서 수렴하는지를 엄밀하게 서술하는 것이 바로 논문의 Convergence Theorem이고, 그 언어가 ε-N 정의입니다.</p>
+
+
+<!-- == 섹션 2: ε-N 정의 == -->
+<h2 class="st"><span class="ic">ε</span>극한의 엄밀한 정의 — ε-N 논증</h2>
+<p>수열 \((a_n)\)이 \(L\)로 수렴한다는 것은 다음을 의미합니다. 아무리 작은 양수 \(\varepsilon\)을 주어도, 충분히 큰 \(N\)이 존재해서 \(n > N\)이면 항상 \(|a_n - L| < \varepsilon\)이 됩니다.</p>
+
+<!-- ════ [4] FORMULA BOX 1 ════ -->
+<div class="fb">
+  <div class="fl">수열 극한의 ε-N 정의</div>
+  \[
+    \lim_{n \to \infty} a_n = L
+    \iff
+    \forall \varepsilon > 0,\ \exists N \in \mathbb{N}\ \text{s.t.}\ n > N \Rightarrow |a_n - L| < \varepsilon
+  \]
+  <div class="fn">
+    \(\forall \varepsilon > 0\): 어떤 작은 \(\varepsilon\)을 골라도 (상대방이 아무리 까다롭게 골라도)<br/>
+    \(\exists N\): 충분히 큰 출발점 \(N\)이 <strong>존재한다</strong><br/>
+    \(n > N \Rightarrow |a_n - L| < \varepsilon\): 그 이후 모든 항이 \(L\)의 \(\varepsilon\)-근방에 있다<br/>
+    이 정의로 "수렴"이 수학적으로 증명 가능한 명제가 된다
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">🎮</div>
+  <div class="cb"><p><strong>ε은 상대방이 고르고, N은 내가 고른다.</strong> "얼마나 가까워야 하냐"(\(\varepsilon\))를 먼저 받고, 그에 맞는 \(N\)을 제시하는 게임이다. 논문에서 "for any \(\varepsilon > 0\), there exists \(N\) such that..."은 이 정의를 그대로 쓴 것이다.</p></div>
+</div>
+
+<h3 class="sub">예시 증명: \(a_n = 1/n\)은 0으로 수렴한다</h3>
+<p><strong>목표:</strong> \(\lim_{n \to \infty} \frac{1}{n} = 0\)을 ε-N 정의로 증명한다.</p>
+<p><strong>증명:</strong> 임의의 \(\varepsilon > 0\)이 주어졌다고 하자. \(N = \lceil 1/\varepsilon \rceil\)로 잡으면, \(n > N\)일 때 \(n > 1/\varepsilon\)이므로 \(1/n < \varepsilon\)이다. 즉 \(|1/n - 0| = 1/n < \varepsilon\). □</p>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p>이 증명 구조가 논문에서 반복됩니다. "Given \(\varepsilon > 0\), let \(N = \lceil C/\varepsilon^2 \rceil\)..."처럼 쓰인 문장을 보면, 저자가 방금 ε-N 게임을 하고 있는 것입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: Cauchy 수열 == -->
+<h2 class="st"><span class="ic">🔗</span>Cauchy 수열 — 극한값을 몰라도 수렴을 증명하는 법</h2>
+<p>극한값 \(L\)을 알지 못해도 수렴을 증명할 수 있습니다. Cauchy 수열은 항들끼리 서로 충분히 가까워지면 됩니다. 완비 공간(\(\mathbb{R}\) 등)에서 Cauchy 수열 \(\Leftrightarrow\) 수렴 수열입니다.</p>
+
+<!-- ════ [4] FORMULA BOX 2 ════ -->
+<div class="fb">
+  <div class="fl">Cauchy 수열의 정의</div>
+  \[
+    (a_n) \text{ is Cauchy}
+    \iff
+    \forall \varepsilon > 0,\ \exists N\ \text{s.t.}\ m, n > N \Rightarrow |a_m - a_n| < \varepsilon
+  \]
+  <div class="fn">
+    극한값 \(L\)이 필요 없다 — 항들끼리의 거리만 본다<br/>
+    \(m, n > N\): 두 항 모두 \(N\) 이후여야 한다<br/>
+    \(\mathbb{R}\)(실수)은 완비(complete): 모든 Cauchy 수열이 수렴한다<br/>
+    AI 연결: SGD 반복이 Cauchy 수열처럼 수렴함을 보이는 게 수렴 증명의 핵심
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 완비성 (Completeness) — 왜 중요한가</div>
+  <p>\(\mathbb{R}\)은 완비 공간이다 = Cauchy 수열은 반드시 수렴한다. 이것이 실수 해석학의 근간.</p>
+  <p>유리수 \(\mathbb{Q}\)는 완비가 아니다: \(\sqrt{2}\)로 수렴하는 유리수 수열이 \(\mathbb{Q}\) 안에서는 극한값이 없다.</p>
+  <p>ML 이론에서 함수 공간의 완비성이 중요하게 등장한다. 예: RKHS(재현핵 힐베르트 공간)의 완비성은 커널 방법의 수학적 토대다.</p>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>ε-N 정의</h5>
+    <ul>
+      <li>극한값 \(L\)을 알아야 함</li>
+      <li>\(|a_n - L| < \varepsilon\)으로 확인</li>
+      <li>목표가 명확할 때 사용</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>Cauchy 수열</h5>
+    <ul>
+      <li>극한값 몰라도 됨</li>
+      <li>\(|a_m - a_n| < \varepsilon\)으로 확인</li>
+      <li>수렴 여부만 보고 싶을 때 사용</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: 논문에서의 수렴 표기 == -->
+<h2 class="st"><span class="ic">📄</span>AI 논문에서의 수렴 표기법</h2>
+<p>ε-N 정의를 배우면 논문의 수렴 표기들이 자동으로 읽히기 시작합니다. 다음 표는 실제 논문에서 자주 등장하는 수렴 표기들을 정리한 것입니다.</p>
+
+<table>
+  <tr><th>표기</th><th>읽는 법</th><th>의미</th></tr>
+  <tr><td>\(a_n \to L\)</td><td>\(a_n\)이 \(L\)로 수렴</td><td>\(\lim a_n = L\)</td></tr>
+  <tr><td>\(a_n = O(1/n)\)</td><td>\(a_n\)은 \(O(1/n)\)</td><td>\(c/n\)보다 빠르게 0에 수렴</td></tr>
+  <tr><td>\(a_n = o(1)\)</td><td>\(a_n\)은 \(o(1)\)</td><td>\(a_n \to 0\) (little-o)</td></tr>
+  <tr><td>\(\|\theta_t - \theta^*\| \leq C/\sqrt{T}\)</td><td>오차 경계</td><td>\(T\)번 후 최적해 \(\theta^*\)로부터의 거리</td></tr>
+  <tr><td>\(\lim_{t \to \infty} f(\theta_t) = f^*\)</td><td>수렴</td><td>목적함수가 최솟값으로 수렴</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb"><p>논문에서 <em>"Theorem 1 (Convergence): Under Assumption A1–A3, the iterates satisfy \(\|\theta_t - \theta^*\| \leq C/\sqrt{T}\)"</em>처럼 쓰인다. 여기서 \(T\)는 반복 횟수, \(C\)는 상수다. 이것이 경사하강법 수렴 속도를 ε-N 언어로 표현한 것이다. \(\varepsilon\)을 원하는 오차 크기로 보면, \(T \geq C^2/\varepsilon^2\)번 반복하면 된다는 뜻이다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 수렴 시각화 — ε을 조절하면 N이 바뀐다</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">수열 \(a_n = 1/n\)에서 허용 오차 ε을 바꿔보세요. ε이 작아질수록 필요한 N이 커집니다.</p>
+
+  <div class="cr">
+    <span class="cl">허용 오차 \(\varepsilon\)</span>
+    <input type="range" id="eps" min="0.001" max="0.5" step="0.001" value="0.1" oninput="updateEps()"/>
+    <input type="number" id="eps-v" value="0.100" readonly/>
+  </div>
+
+  <div class="cres" id="eps-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">수열 \(a_n = 1/n\)에서 \(\varepsilon = 0.01\)일 때, ε-N 정의에서 필요한 최소 \(N\)은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; N = 10</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; N = 50</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; N = 100 &nbsp;<span style="font-size:.8rem;color:var(--muted)">(\(= \lceil 1/0.01 \rceil\))</span></div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; N = 1000</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch14.html'">← Ch.14 논문 읽기·쓰기</button>
+  <button class="btn btn-p" onclick="location.href='ch16.html'">Ch.16 연속성과 미분의 엄밀한 정의 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! ε = 0.01이면 1/n < 0.01을 만족하는 최소 n은 n > 100, 즉 N = 100입니다.'
+    : '❌ 틀렸습니다. |1/n − 0| = 1/n < ε = 0.01이 되려면 n > 1/0.01 = 100이어야 합니다. N = ⌈1/ε⌉ = 100.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+function updateEps() {
+  const eps = parseFloat(document.getElementById('eps').value);
+  document.getElementById('eps-v').value = eps.toFixed(3);
+
+  const N = Math.ceil(1 / eps);
+  const aN = (1 / N).toFixed(5);
+  const aN1 = (1 / (N + 1)).toFixed(5);
+  const aN_ok = parseFloat(aN) < eps;
+  const aN1_ok = parseFloat(aN1) < eps;
+
+  document.getElementById('eps-res').innerHTML =
+    `수열 \u03b1<sub>n</sub> = 1/n, 극한 L = 0<br/>
+     \u03b5 = ${eps.toFixed(3)} 일 때, <strong>N = ${N}</strong>으로 설정하면:<br/>
+     a<sub>${N}</sub> = 1/${N} = ${aN} &nbsp;&rarr;&nbsp; |a<sub>${N}</sub> &minus; 0| = ${aN} &nbsp; ${aN_ok ? '&lt; \u03b5 ✅' : '&ge; \u03b5 ❌'}<br/>
+     a<sub>${N+1}</sub> = 1/${N+1} = ${aN1} &nbsp;&rarr;&nbsp; |a<sub>${N+1}</sub> &minus; 0| = ${aN1} &nbsp; ${aN1_ok ? '&lt; \u03b5 ✅' : '&ge; \u03b5 ❌'}<br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       \u03b5을 작게 하면 N이 커진다 &mdash; 더 많은 항이 지나야 수렴 조건을 만족한다
+     </span>`;
+}
+updateEps();
+</script>
+</body>
+</html>

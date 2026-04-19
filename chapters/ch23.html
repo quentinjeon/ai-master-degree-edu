@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.23 — 기대값의 측도론적 정의 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.23 · 측도 확률론 (레벨 2 — Phase 2-C · 9주차)</div>
+  <h1>기대값의 측도론적 정의</h1>
+  <p>Lebesgue 적분, Fubini 정리. 연속·이산 확률변수를 통합하는 기대값의 일반 이론.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>넓이를 재는 방법이 두 가지 있습니다. <strong>Riemann은 x축(가로)을 잘게 자르고, Lebesgue는 y축(세로)을 잘게 자릅니다.</strong> Lebesgue 방식이 더 강력해서 이산과 연속 확률변수를 하나의 공식으로 다룰 수 있습니다.</p>
+  <ul>
+    <li>① 이산 확률변수: \(E[X] = \sum_i x_i \cdot P(X = x_i)\) — 가능한 값에 확률을 곱해 더한다</li>
+    <li>② 연속 확률변수: \(E[X] = \int x \cdot f(x)\,dx\) — 밀도함수로 적분한다</li>
+    <li>③ AI: \(E[\mathcal{L}(\theta, \omega)] = \int \mathcal{L}\,dP\) — 모델의 기대 손실을 Lebesgue 적분으로 계산하며, 이것이 경험적 위험 최소화(ERM)의 수학적 기초다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: Lebesgue 적분 == -->
+<h2 class="st"><span class="ic">∫</span>Lebesgue 적분과 기대값의 일반 정의</h2>
+<p>Riemann 적분은 x축 방향으로 구간을 분할합니다. 반면 Lebesgue 적분은 y축(함수값) 방향으로 분할합니다. 이 차이가 불연속 함수나 이산 확률변수에서도 동일한 공식을 사용할 수 있게 만들어줍니다.</p>
+
+<div class="cc">
+  <div class="ct">🔑 핵심 개념 — 확률공간 위의 기대값</div>
+  <p>확률공간 \((\Omega, \mathcal{F}, P)\)에서 확률변수 \(X: \Omega \to \mathbb{R}\)의 기대값은 다음과 같이 정의됩니다.</p>
+  \[ E[X] = \int_\Omega X(\omega)\, dP(\omega) \]
+  <p style="font-size:.88rem;color:var(--muted);margin-bottom:0;">이 정의 하나가 이산형 \(\sum\)과 연속형 \(\int\) 양쪽을 모두 포괄합니다.</p>
+</div>
+
+<div class="fb">
+  <div class="fl">Lebesgue 적분 — 기대값의 측도론적 정의</div>
+  \[
+    E[X] = \int_\Omega X(\omega)\, dP(\omega)
+  \]
+  <div class="fn">
+    \(\Omega\): 표본공간 — 모든 가능한 결과(outcome)의 집합<br/>
+    \(X(\omega)\): 확률변수 — 각 결과 \(\omega\)에 실수를 대응시키는 함수<br/>
+    \(dP(\omega)\): 확률측도 — 각 결과에 부여된 확률의 "무게"<br/>
+    이산형이면 \(\sum_i x_i P(\omega_i)\), 연속형이면 \(\int x f(x)dx\)와 동치
+  </div>
+</div>
+
+<h3 class="sub">Riemann vs Lebesgue 비교</h3>
+<table>
+  <tr><th>비교 항목</th><th>Riemann 적분</th><th>Lebesgue 적분</th></tr>
+  <tr><td>분할 방향</td><td>x축 (정의역) 분할</td><td>y축 (치역) 분할</td></tr>
+  <tr><td>적용 범위</td><td>연속 또는 거의 연속 함수</td><td>측도론적 가측 함수 전체</td></tr>
+  <tr><td>불연속 처리</td><td>유한 개 불연속만 허용</td><td>영측도(null set) 불연속 허용</td></tr>
+  <tr><td>이산 확률변수</td><td>직접 적용 어려움</td><td>\(\sum\)과 동일하게 처리</td></tr>
+  <tr><td>AI 활용</td><td>단순 수치 적분</td><td>기대 손실·ELBO·KL 계산</td></tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">🔗</div>
+  <div class="cb"><p><strong>Ch.21 연결:</strong> Ch.21에서 배운 σ-대수와 확률공간 \((\Omega, \mathcal{F}, P)\)가 이 적분의 토대입니다. 가측(measurable) 함수만이 Lebesgue 적분 가능하며, 이것이 확률변수의 정의와 일치합니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: 기대값 핵심 성질 == -->
+<h2 class="st"><span class="ic">E</span>기대값의 핵심 성질 4가지</h2>
+<p>Lebesgue 적분의 성질로부터 기대값의 핵심 성질들이 자동으로 도출됩니다. 이 성질들은 논문에서 부등식 유도와 알고리즘 분석에 반복적으로 사용됩니다.</p>
+
+<div class="fb">
+  <div class="fl">성질 1 — 선형성 (Linearity of Expectation)</div>
+  \[
+    E[aX + bY] = a\,E[X] + b\,E[Y]
+  \]
+  <div class="fn">
+    \(a, b \in \mathbb{R}\): 임의의 실수 상수<br/>
+    \(X, Y\): 기대값이 존재하는 확률변수 (독립 여부 무관)<br/>
+    독립성 조건이 필요 없다는 점이 강력한 성질 — 배치 손실 계산에 직접 활용
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">성질 2 — 단조성 (Monotonicity)</div>
+  \[
+    X \leq Y \text{ a.s.} \implies E[X] \leq E[Y]
+  \]
+  <div class="fn">
+    a.s. (almost surely): 확률 1로 — 영측도 예외는 무시<br/>
+    부등식이 거의 모든 \(\omega\)에서 성립하면 기대값 부등식도 성립<br/>
+    Jensen 부등식, Markov 부등식의 증명에 핵심적으로 사용됨
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">성질 3 — LOTUS (Law of the Unconscious Statistician)</div>
+  \[
+    E[g(X)] = \int_{-\infty}^{\infty} g(x)\, f_X(x)\, dx
+  \]
+  <div class="fn">
+    \(g: \mathbb{R} \to \mathbb{R}\): 보렐 가측 함수 (예: \(g(x) = x^2\), \(g(x) = \log x\))<br/>
+    \(f_X(x)\): \(X\)의 확률밀도함수 (연속형일 때)<br/>
+    \(X\)를 \(g(X)\)로 변환할 때 새 분포를 구할 필요 없이 바로 적분 — KL divergence \(\int \log\frac{p}{q}\,p\,dx\)도 LOTUS 응용
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">성질 4 — 독립 확률변수의 곱 기대값</div>
+  \[
+    X \perp Y \implies E[XY] = E[X]\cdot E[Y]
+  \]
+  <div class="fn">
+    \(X \perp Y\): \(X\)와 \(Y\)가 독립 (joint pdf = marginal pdf의 곱)<br/>
+    역은 일반적으로 성립하지 않음 — \(E[XY]=E[X]E[Y]\)라도 독립이 아닐 수 있음<br/>
+    배치 내 독립 샘플 가정에서 손실 분해에 활용
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해:</strong> \(E[g(X)] = g(E[X])\)는 \(g\)가 선형일 때만 성립합니다. 볼록 함수에서는 Jensen 부등식에 의해 \(E[g(X)] \geq g(E[X])\)가 됩니다. 예: \(E[X^2] \geq (E[X])^2\) — 이것이 분산 \(\geq 0\)의 근거입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: Fubini 정리 == -->
+<h2 class="st"><span class="ic">⇄</span>Fubini 정리 — 이중 기대값의 순서 교환</h2>
+<p>Fubini 정리는 이중 적분에서 적분 순서를 바꿀 수 있는 조건을 제시합니다. 확률론에서는 이중 기대값 \(E_{X,Y}[\cdot]\)의 순서를 교환하는 근거가 됩니다. 배치 학습에서 손실의 기대값을 계산할 때 핵심적으로 등장합니다.</p>
+
+<div class="fb">
+  <div class="fl">Fubini 정리 — 이중 기대값</div>
+  \[
+    E_{X,Y}[f(X,Y)]
+    = E_X\bigl[E_Y[f(X,Y)\mid X]\bigr]
+    = E_Y\bigl[E_X[f(X,Y)\mid Y]\bigr]
+  \]
+  <div class="fn">
+    적용 조건: \(f \geq 0\) 이거나 \(E[|f(X,Y)|] &lt; \infty\) (절대 적분 가능)<br/>
+    \(E_Y[\cdot \mid X]\): \(X\)를 고정했을 때 \(Y\)에 대한 조건부 기대값<br/>
+    두 방향 모두 같은 결과를 줌 — 계산 편의에 따라 순서 선택 가능<br/>
+    AI 활용: 미니배치 손실 \(\frac{1}{B}\sum_b \ell(\theta, z_b)\)의 기댓값 계산에서 데이터 분포와 배치 샘플링 순서 교환
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">전체 기대값 법칙 (Law of Total Expectation)</div>
+  \[
+    E[X] = E_Y\bigl[E[X \mid Y]\bigr]
+  \]
+  <div class="fn">
+    Fubini 정리의 특수 케이스 — 조건부 기대값의 기대값 = 무조건 기대값<br/>
+    \(Y\): 조건을 거는 확률변수 (예: 클래스 레이블, 배치 인덱스)<br/>
+    AI 활용: 클래스별 조건부 손실 \(E[\ell \mid Y=k]\)를 평균내면 전체 손실과 동일<br/>
+    EM 알고리즘의 E-step이 이 법칙을 반복 적용하는 과정
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>Fubini 핵심 조건:</strong> 함수 \(f\)가 비음수(\(f \geq 0\))이거나, 이중 적분 \(E[|f(X,Y)|] &lt; \infty\)인 경우에만 순서 교환이 보장됩니다. 이 조건 없이 순서를 바꾸면 다른 결과가 나올 수 있습니다.</p></div>
+</div>
+
+<h3 class="sub">Fubini 정리 — AI 적용 예시</h3>
+<div class="two-col">
+  <div class="col-box">
+    <h5>배치 학습 손실</h5>
+    <ul>
+      <li>배치 내 샘플 인덱스 \(i\)와 에폭 \(t\)의 순서 교환</li>
+      <li>\(E_t[E_i[\ell_i]] = E_i[E_t[\ell_i]]\)</li>
+      <li>SGD 수렴 분석에서 핵심 도구</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>EM 알고리즘</h5>
+    <ul>
+      <li>잠재변수 \(Z\)와 관측 데이터 \(X\)에 대한 이중 기대값</li>
+      <li>E-step: \(E_Z[Q(\theta \mid X, Z)]\) 계산</li>
+      <li>전체 기대값 법칙으로 수렴 보장</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: Radon-Nikodym == -->
+<h2 class="st"><span class="ic">🔄</span>Radon-Nikodym 도함수 — 측도 변환</h2>
+<p>두 확률측도 \(P\)와 \(Q\)가 있을 때, \(Q\)가 \(P\)에 대해 절대연속이면 \(Q\)를 \(P\)로 "표현"할 수 있습니다. 이 변환 비율이 Radon-Nikodym 도함수 \(\frac{dQ}{dP}\)이며, 중요도 샘플링(importance sampling)의 수학적 근거입니다.</p>
+
+<div class="fb">
+  <div class="fl">Radon-Nikodym 도함수 — 측도 변환 기대값</div>
+  \[
+    E_Q[f(X)] = E_P\!\left[f(X)\cdot \frac{dQ}{dP}(X)\right]
+  \]
+  <div class="fn">
+    \(E_Q[\cdot]\): 측도 \(Q\) 아래에서의 기대값<br/>
+    \(E_P[\cdot]\): 측도 \(P\) 아래에서의 기대값 (샘플링하기 쉬운 분포)<br/>
+    \(\frac{dQ}{dP}(X)\): Radon-Nikodym 도함수 — 중요도 가중치(importance weight)<br/>
+    \(Q \ll P\): \(Q\)가 \(P\)에 대해 절대연속일 때 존재 보장 (Radon-Nikodym 정리)<br/>
+    KL divergence: \(D_{KL}(Q \| P) = E_Q\!\left[\log\frac{dQ}{dP}\right]\) = Radon-Nikodym 로그의 \(Q\)-기대값
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 AI 연결 — 중요도 샘플링·PPO·KL Divergence</div>
+  <p><strong>중요도 샘플링:</strong> 분포 \(Q\)에서 샘플링이 어려울 때 분포 \(P\)에서 샘플링하고 가중치 \(\frac{dQ}{dP}\)를 곱합니다. 몬테카를로 추정의 분산 감소 기법입니다.</p>
+  <p><strong>PPO (Proximal Policy Optimization):</strong> 정책 비율 \(r_t(\theta) = \frac{\pi_\theta(a|s)}{\pi_{\theta_{old}}(a|s)} = \frac{d\pi_\theta}{d\pi_{\theta_{old}}}\)이 Radon-Nikodym 도함수입니다. PPO는 이 비율을 클리핑해 안정성을 확보합니다.</p>
+  <p style="margin-bottom:0;"><strong>KL Divergence:</strong> \(D_{KL}(Q \| P) = E_Q\!\left[\log\frac{dQ}{dP}\right]\)는 두 분포의 차이를 측도 변환 관점에서 측정합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 이중 기대값 계산기 — Fubini 정리 확인</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">X, Y가 독립이면 \(E[XY] = E[X] \cdot E[Y]\). 두 방향으로 계산해 같은 결과가 나오는지 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">\(E[X]\) 값</span>
+    <input type="range" id="fub-ex" min="0" max="5" step="0.1" value="2" oninput="updateFubini()"/>
+    <input type="number" id="fub-ex-v" value="2.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">\(E[Y]\) 값</span>
+    <input type="range" id="fub-ey" min="0" max="5" step="0.1" value="3" oninput="updateFubini()"/>
+    <input type="number" id="fub-ey-v" value="3.0" readonly/>
+  </div>
+
+  <div class="cres" id="fub-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">Fubini 정리에서 이중 기대값 \(E_{X,Y}[f(X,Y)]\)의 적분 순서를 교환할 수 있는 핵심 조건은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(X\)와 \(Y\)가 독립일 때만 순서 교환 가능</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(f \geq 0\)이거나 \(E[|f(X,Y)|] &lt; \infty\) (절대 적분 가능)일 때</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \(f\)가 연속함수일 때만 순서 교환 가능</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 항상 순서 교환 가능 — 조건 없음</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch22.html'">← Ch.22 확률변수의 수렴</button>
+  <button class="btn btn-p" onclick="location.href='ch24.html'">Ch.24 고유값 분해·스펙트럼 이론 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! Fubini 정리는 f≥0이거나 E[|f|]<∞ (절대 적분 가능) 조건에서 적분 순서 교환을 보장합니다. 독립성과는 무관합니다.'
+    : '❌ 틀렸습니다. 독립성이나 연속성은 Fubini의 조건이 아닙니다. 핵심 조건은 절대 적분 가능성(E[|f|]<∞)입니다.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+function updateFubini() {
+  const ex = parseFloat(document.getElementById('fub-ex').value);
+  const ey = parseFloat(document.getElementById('fub-ey').value);
+  document.getElementById('fub-ex-v').value = ex.toFixed(1);
+  document.getElementById('fub-ey-v').value = ey.toFixed(1);
+
+  const exy = ex * ey;
+
+  // 방법 1: E_X[E_Y[XY]] = E_X[X * E[Y]] = E[X] * E[Y]
+  const method1 = ex * ey;
+  // 방법 2: E_Y[E_X[XY]] = E_Y[E[X] * Y] = E[X] * E[Y]
+  const method2 = ey * ex;
+
+  document.getElementById('fub-res').innerHTML =
+    `<span style="color:var(--muted);font-size:.82rem;">X, Y 독립 가정: E[X] = ${ex.toFixed(1)}, E[Y] = ${ey.toFixed(1)}</span><br/><br/>` +
+    `방법 1 — E<sub>X</sub>[E<sub>Y</sub>[XY|X]]<br/>` +
+    `&nbsp;&nbsp;= E<sub>X</sub>[X · E[Y]] = E[X] · E[Y] = ${ex.toFixed(1)} × ${ey.toFixed(1)} = <strong>${method1.toFixed(4)}</strong><br/><br/>` +
+    `방법 2 — E<sub>Y</sub>[E<sub>X</sub>[XY|Y]]<br/>` +
+    `&nbsp;&nbsp;= E<sub>Y</sub>[E[X] · Y] = E[X] · E[Y] = ${ex.toFixed(1)} × ${ey.toFixed(1)} = <strong>${method2.toFixed(4)}</strong><br/><br/>` +
+    `<span style="color:var(--accent3);">✅ 두 방법 모두 E[XY] = ${exy.toFixed(4)} — Fubini 정리로 순서 교환 가능!</span>`;
+}
+updateFubini();
+</script>
+</body>
+</html>

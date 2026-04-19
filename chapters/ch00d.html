@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.00D — Python 데이터 과학 도구 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CODE BLOCK ══ */
+.cb-code{background:var(--code);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin:14px 0;overflow-x:auto;}
+.cb-code pre{font-family:'Consolas','Fira Code',monospace;font-size:.84rem;color:var(--accent3);line-height:1.7;margin:0;}
+.cb-code .kw{color:var(--accent);}
+.cb-code .cm{color:var(--muted);}
+.cb-code .st{color:var(--accent4);}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+code{font-family:'Consolas','Fira Code',monospace;font-size:.83rem;background:var(--code);padding:2px 6px;border-radius:4px;color:var(--accent3);}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.00D · 브릿지 (Level 0→1 · 도구 편)</div>
+  <h1>Python 데이터 과학 도구<br/>numpy, pandas, matplotlib</h1>
+  <p>지금까지 직접 짠 코드를 강력한 도구로 바꿉니다. 이 세 가지를 알면 AI 논문의 실험 코드가 읽힙니다.</p>
+</div>
+
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>지금까지 직접 삽으로 땅을 팠다면, 이제 <strong>"포클레인을 배우는 것"</strong>입니다. 같은 일을 훨씬 빠르고 쉽게 할 수 있습니다.</p>
+  <ul>
+    <li>리스트 평균을 직접 짜면 5줄 코드 → <code>np.mean(data)</code> 한 줄로 끝</li>
+    <li>100개 학생 성적 표 만들기 → 딕셔너리 100개 vs <code>pd.DataFrame</code> 한 방</li>
+    <li><strong>AI 연결</strong>: 논문에서 <code>import numpy as np</code>, <code>import torch</code>가 첫 두 줄인 이유가 있다. 모든 AI 연구 코드의 뼈대가 이 도구들이며, numpy를 모르면 논문 코드를 읽을 수 없다.</li>
+  </ul>
+</div>
+
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1: numpy -->
+<h2 class="st"><span class="ic">🔢</span> numpy — 수학을 코드로 옮기는 가장 빠른 방법</h2>
+<p>numpy(Numerical Python)는 숫자 배열을 다루는 라이브러리입니다. Python 리스트보다 훨씬 빠르고, 수학 연산을 한 줄로 처리합니다. AI 논문의 모든 행렬 연산 코드는 numpy(또는 이를 기반으로 한 PyTorch/TensorFlow)로 구현됩니다.</p>
+
+<h3 class="sub">Python 리스트 vs numpy 비교</h3>
+<table>
+  <thead>
+    <tr><th>작업</th><th>순수 Python</th><th>numpy</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>배열 만들기</td><td><code>[1, 2, 3, 4, 5]</code></td><td><code>np.array([1, 2, 3, 4, 5])</code></td></tr>
+    <tr><td>평균</td><td><code>sum(x)/len(x)</code></td><td><code>np.mean(x)</code></td></tr>
+    <tr><td>표준편차</td><td>10줄 이상 코드</td><td><code>np.std(x)</code></td></tr>
+    <tr><td>행렬 곱</td><td>이중 for문</td><td><code>np.dot(A, B)</code></td></tr>
+    <tr><td>모든 원소 +1</td><td><code>[v+1 for v in x]</code></td><td><code>x + 1</code></td></tr>
+  </tbody>
+</table>
+
+<h3 class="sub">numpy 기본 코드 예시</h3>
+<div class="cb-code">
+<pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+scores = np.array([90, 85, 92, 78, 95])
+<span class="kw">print</span>(np.mean(scores))   <span class="cm"># 88.0</span>
+<span class="kw">print</span>(np.std(scores))    <span class="cm"># 5.97...</span>
+<span class="kw">print</span>(np.max(scores))    <span class="cm"># 95</span>
+<span class="kw">print</span>(scores + 5)        <span class="cm"># [95 90 97 83 100] — 모든 원소에 +5 (브로드캐스팅)</span></pre>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>Phase 1 연결:</strong> Phase 1의 모든 수식 박스에는 수식과 numpy 코드가 함께 등장합니다. 예: 평균 \(\bar{x} = \frac{1}{n}\sum x_i\) → <code>np.mean(x)</code>. numpy를 알면 수식이 코드로 바로 보입니다.</p></div>
+</div>
+
+
+<!-- 섹션 2: pandas -->
+<h2 class="st"><span class="ic">📊</span> pandas — 엑셀을 Python으로</h2>
+<p>pandas는 "DataFrame"이라는 표 구조로 데이터를 다룹니다. CSV 파일을 읽거나, 조건으로 필터링하거나, 그룹별로 계산하는 것이 모두 pandas의 역할입니다. 실제 AI 프로젝트의 데이터 전처리는 거의 pandas로 합니다.</p>
+
+<h3 class="sub">pandas 기본 작업</h3>
+<table>
+  <thead>
+    <tr><th>작업</th><th>코드</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>DataFrame 만들기</td><td><code>pd.DataFrame({"이름": [...], "점수": [...]})</code></td></tr>
+    <tr><td>CSV 읽기</td><td><code>pd.read_csv("data.csv")</code></td></tr>
+    <tr><td>특정 열 선택</td><td><code>df["점수"]</code></td></tr>
+    <tr><td>조건 필터링</td><td><code>df[df["점수"] >= 90]</code></td></tr>
+    <tr><td>평균 계산</td><td><code>df["점수"].mean()</code></td></tr>
+    <tr><td>그룹별 평균</td><td><code>df.groupby("반")["점수"].mean()</code></td></tr>
+  </tbody>
+</table>
+
+<h3 class="sub">pandas 코드 예시</h3>
+<div class="cb-code">
+<pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+df = pd.DataFrame({
+    <span class="st">"이름"</span>: [<span class="st">"김철수"</span>, <span class="st">"이영희"</span>, <span class="st">"박민준"</span>],
+    <span class="st">"점수"</span>: [90, 85, 92],
+    <span class="st">"반"</span>: [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"A"</span>]
+})
+<span class="kw">print</span>(df[df[<span class="st">"점수"</span>] >= 90])           <span class="cm"># 90점 이상만</span>
+<span class="kw">print</span>(df.groupby(<span class="st">"반"</span>)[<span class="st">"점수"</span>].mean()) <span class="cm"># 반별 평균</span></pre>
+</div>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>논문 연결:</strong> 논문의 "Experiments" 섹션에서 "We use the MNIST dataset with 60,000 training samples..."처럼 쓰인다. 이 데이터를 불러오고 전처리하는 코드가 pandas + numpy 조합이다. 데이터 로딩 코드를 읽을 수 있으면 논문 재현이 훨씬 쉬워진다.</p></div>
+</div>
+
+
+<!-- 섹션 3: matplotlib -->
+<h2 class="st"><span class="ic">📈</span> matplotlib — 데이터를 눈으로 보는 법</h2>
+<p>matplotlib은 데이터를 그래프로 그리는 라이브러리입니다. 논문의 Figure가 대부분 matplotlib(또는 seaborn)으로 만들어집니다. 선 그래프, 막대 그래프, 히스토그램, 산점도를 한 줄 코드로 그릴 수 있습니다.</p>
+
+<h3 class="sub">자주 쓰는 그래프 유형</h3>
+<table>
+  <thead>
+    <tr><th>그래프</th><th>코드</th><th>언제 쓰나</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>선 그래프</td><td><code>plt.plot(x, y)</code></td><td>학습 곡선, 수렴 추이</td></tr>
+    <tr><td>막대 그래프</td><td><code>plt.bar(labels, values)</code></td><td>모델 비교</td></tr>
+    <tr><td>히스토그램</td><td><code>plt.hist(data)</code></td><td>데이터 분포 확인</td></tr>
+    <tr><td>산점도</td><td><code>plt.scatter(x, y)</code></td><td>두 변수 관계</td></tr>
+  </tbody>
+</table>
+
+<h3 class="sub">matplotlib 코드 예시</h3>
+<div class="cb-code">
+<pre><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+x = np.arange(1, 11)               <span class="cm"># 1~10</span>
+y = 1 / x                          <span class="cm"># 수열 aₙ = 1/n</span>
+
+plt.plot(x, y, marker=<span class="st">'o'</span>)
+plt.xlabel(<span class="st">"n"</span>)
+plt.ylabel(<span class="st">"1/n"</span>)
+plt.title(<span class="st">"수열 aₙ = 1/n의 수렴"</span>)
+plt.axhline(y=0, color=<span class="st">'red'</span>, linestyle=<span class="st">'--'</span>, label=<span class="st">'극한값 L=0'</span>)
+plt.legend()
+plt.savefig(<span class="st">"convergence.png"</span>)</pre>
+</div>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>논문 Figure 연결:</strong> 논문에서 "Figure 2(a) shows the training loss curve..."를 보면, 그 그림이 바로 <code>plt.plot(epoch, loss)</code> 한 줄로 만들어진 것입니다. 코드와 논문 Figure가 어떻게 연결되는지 이해하면 논문 재현 능력이 생깁니다.</p></div>
+</div>
+
+
+<!-- [4] FORMULA BOX -->
+<div class="fb">
+  <div class="fl">NUMPY와 수학 표기의 대응</div>
+  \[
+    \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
+    \quad \Leftrightarrow \quad
+    \texttt{np.mean(x)}
+  \]
+  \[
+    \sigma = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x})^2}
+    \quad \Leftrightarrow \quad
+    \texttt{np.std(x)}
+  \]
+  <div class="fn">
+    \(\bar{x}\): 평균 (x bar) — <code>np.mean(x)</code>로 계산<br/>
+    \(\sigma\): 표준편차 (sigma) — <code>np.std(x)</code>로 계산<br/>
+    \(\Sigma\): 합산 기호 — numpy가 내부에서 루프 없이 처리<br/>
+    \(n\): 원소 개수 — <code>len(x)</code> 또는 <code>x.shape[0]</code><br/>
+    \((x_i - \bar{x})^2\): 편차 제곱 — numpy 브로드캐스팅으로 <code>(x - x.mean())**2</code> 한 줄
+  </div>
+</div>
+
+
+<!-- [5] INTERACTIVE -->
+<div class="calc">
+  <h4>🔢 numpy의 힘 — 평균과 표준편차 직접 계산해보기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">데이터 개수를 바꾸며 numpy가 계산하는 평균, 표준편차, 최솟값, 최댓값을 실시간으로 확인해보세요.</p>
+
+  <div class="cr">
+    <span class="cl">데이터 개수 \(n\)</span>
+    <input type="range" id="ndata" min="5" max="100" step="5" value="20" oninput="updateNumpyDemo()"/>
+    <input type="number" id="ndata-v" value="20" readonly/>
+  </div>
+
+  <div class="cres" id="numpy-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">numpy 배열 <code>x = np.array([10, 20, 30, 40, 50])</code>에서 <code>x + 5</code>의 결과는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 15 (첫 번째 원소만 +5)</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; [10, 20, 30, 40, 55] (마지막 원소만 +5)</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; [15, 25, 35, 45, 55] (모든 원소에 +5 — 브로드캐스팅)</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 오류 발생 (리스트와 숫자는 더할 수 없음)</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" disabled>← Level 0 완료</button>
+  <button class="btn btn-p" onclick="location.href='ch00e.html'">Ch.00E 수학 브릿지 →</button>
+</div>
+
+
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! numpy의 "브로드캐스팅" — 스칼라(단일 값)와 배열을 연산하면 모든 원소에 적용됩니다. y = wx + b를 numpy로 쓸 때 y = w * x + b 한 줄이 되는 이유입니다.'
+    : '❌ 틀렸습니다. numpy는 "브로드캐스팅"을 지원합니다 — 스칼라와 배열을 연산하면 배열의 모든 원소에 적용됩니다. (c)가 정답입니다.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── iframe 부모에 현재 챕터 파일명 알리기 (사이드바 싱크용) ──
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// ── numpy 데모 계산기 ──
+function updateNumpyDemo() {
+  const n = parseInt(document.getElementById('ndata').value);
+  document.getElementById('ndata-v').value = n;
+
+  // 무작위 점수 생성 (sin 기반으로 재현 가능한 패턴)
+  const data = [];
+  for (let i = 0; i < n; i++) {
+    data.push(Math.round(50 + 40 * Math.sin(i * 1.7 + 0.5)));
+  }
+
+  const mean = data.reduce((a, b) => a + b, 0) / n;
+  const variance = data.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
+  const std = Math.sqrt(variance);
+  const minV = Math.min(...data);
+  const maxV = Math.max(...data);
+
+  const preview = data.slice(0, 5).join(', ') + (n > 5 ? ', ...' : '');
+
+  document.getElementById('numpy-res').innerHTML =
+    `데이터 ${n}개 생성: [${preview}]<br/>
+     <strong>평균 (np.mean)</strong>: ${mean.toFixed(2)}<br/>
+     <strong>표준편차 (np.std)</strong>: ${std.toFixed(2)}<br/>
+     <strong>최소 (np.min)</strong>: ${minV} &nbsp;|&nbsp; <strong>최대 (np.max)</strong>: ${maxV}<br/>
+     <span style="font-size:.78rem;color:var(--muted)">
+       순수 Python: 이 계산에 약 ${n * 3}줄 코드 필요 → numpy: 5줄로 완료
+     </span>`;
+}
+updateNumpyDemo();
+</script>
+</body>
+</html>

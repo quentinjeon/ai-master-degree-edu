@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.00E — 수학 브릿지: 기호와 표기법 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;padding:44px 56px;max-width:900px;margin:0 auto;}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+.step{display:flex;gap:14px;margin-bottom:18px;}
+.sn{width:30px;height:30px;background:var(--accent);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+.sb p{margin-bottom:0;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- [1] HERO -->
+<div class="hero">
+  <div class="badge">Ch.00E · 브릿지 (Level 0→1 · 수학 편)</div>
+  <h1>수학 브릿지 — 기호와 표기법 읽는 법</h1>
+  <p>논문에서 ∀, ∃, Σ, f: X→Y 같은 기호를 봐도 두렵지 않게 됩니다. Level 0에서 배운 직관을 수학 언어로 번역합니다.</p>
+</div>
+
+
+<!-- [2] EASY BOX -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>수학 기호는 새로운 내용이 아니라, <strong>"한국어로 알고 있는 것을 영어로 말하는 것처럼 — 번역이다."</strong></p>
+  <ul>
+    <li>"모든 학생의 점수가 0~100 사이" → <code>∀s ∈ Students, 0 ≤ score(s) ≤ 100</code></li>
+    <li>"평균 = 합 / 개수" → \(\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i\)</li>
+    <li>"입력 넣으면 출력 나오는 기계" → <code>f: X → Y</code>, <code>f(x) = wx + b</code></li>
+    <li><strong>AI 연결</strong>: 논문의 모든 Theorem이 이 기호들로 쓰인다. 기호를 읽을 수 있으면 Theorem이 읽힌다.</li>
+  </ul>
+</div>
+
+
+<!-- [3] MAIN CONTENT -->
+
+<!-- 섹션 1: 집합 기호 -->
+<h2 class="st"><span class="ic">∈</span> 집합 기호 — ∈, ⊂, ∪, ∩</h2>
+<p>집합은 "원소의 모임"입니다. 수학에서 "어떤 것이 어디에 속하는가"를 표현할 때 집합 기호를 씁니다.</p>
+
+<table>
+  <thead>
+    <tr><th>기호</th><th>읽는 법</th><th>의미</th><th>예시</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>∈</td><td>"원소이다", "에 속한다"</td><td>x가 집합 A의 원소</td><td>x ∈ ℝ → "x는 실수"</td></tr>
+    <tr><td>∉</td><td>"원소가 아니다"</td><td>x가 집합 A에 없음</td><td>-1 ∉ ℕ → "-1은 자연수 아님"</td></tr>
+    <tr><td>⊂</td><td>"부분집합이다"</td><td>A의 모든 원소가 B에도 있음</td><td>ℕ ⊂ ℝ</td></tr>
+    <tr><td>∪</td><td>"합집합"</td><td>A 또는 B에 있는 원소</td><td>A ∪ B</td></tr>
+    <tr><td>∩</td><td>"교집합"</td><td>A 이면서 B인 원소</td><td>A ∩ B</td></tr>
+    <tr><td>ℕ</td><td>자연수 집합</td><td>{1, 2, 3, ...}</td><td>n ∈ ℕ → "n은 자연수"</td></tr>
+    <tr><td>ℝ</td><td>실수 집합</td><td>모든 실수</td><td>x ∈ ℝ → "x는 실수"</td></tr>
+  </tbody>
+</table>
+
+<div class="callout info">
+  <span class="ci">💡</span>
+  <div class="cb">
+    <p><strong>논문 독해 팁:</strong> "Let x ∈ ℝⁿ be the input vector"를 보면 "x는 n차원 실수 벡터"라는 뜻이다. ℝⁿ = n개의 실수로 이루어진 집합. [1, 2, 3]은 ℝ³의 원소다.</p>
+  </div>
+</div>
+
+
+<!-- 섹션 2: 한정사 -->
+<h2 class="st"><span class="ic">∀</span> ∀ (모든)과 ∃ (어떤) — 논문 정리에서 가장 많이 나오는 기호</h2>
+<p>수학에서 "모든"과 "어떤"을 기호로 씁니다. 논문의 Theorem과 Assumption은 거의 모두 이 두 기호로 시작합니다.</p>
+
+<!-- [4] FORMULA BOX 1: 한정사 기호 -->
+<div class="fb">
+  <div class="fl">한정사 기호 (Quantifiers)</div>
+  \[
+    \forall x \in \mathbb{R},\ f(x) \geq 0
+    \quad\text{("모든 실수 } x \text{에 대해 } f(x) \text{는 0 이상이다")}
+  \]
+  \[
+    \exists\, x \in \mathbb{R}\ \text{s.t.}\ f(x) = 0
+    \quad\text{("0이 되는 } x \text{가 실수 중 하나 존재한다")}
+  \]
+  <div class="fn">
+    \(\forall\) (for all): "모든 ~ 에 대해"<br/>
+    \(\exists\) (there exists): "~ 이 존재한다"<br/>
+    s.t. (such that): "~ 를 만족하는"<br/>
+    논문 예: "∀x ∈ 𝒳, ‖f(x)‖ ≤ L" → "모든 입력에 대해 f(x)의 크기가 L 이하"
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>Level 0 표현</h5>
+    <p>"모든 학생의 점수는 0 이상이다"</p>
+    <p>"어떤 학생은 100점을 받았다"</p>
+  </div>
+  <div class="col-box">
+    <h5>Level 1 수학 표기</h5>
+    <p>\(\forall s \in \text{Students},\ \text{score}(s) \geq 0\)</p>
+    <p>\(\exists s \in \text{Students}\ \text{s.t.}\ \text{score}(s) = 100\)</p>
+  </div>
+</div>
+
+<div class="callout tip">
+  <span class="ci">✅</span>
+  <div class="cb">
+    <p><strong>극한의 ε-N 정의:</strong> \(\forall\varepsilon > 0,\ \exists N\ \text{s.t.}\ n > N \Rightarrow |a_n - L| < \varepsilon\) — 암호처럼 보이지만 번역하면 "아무리 작은 ε을 줘도 N이 존재해서 그 이후 모든 항이 L에서 ε 이내에 있다"이다. 기호만 알면 읽힌다.</p>
+  </div>
+</div>
+
+
+<!-- 섹션 3: 함수 정의 -->
+<h2 class="st"><span class="ic">f</span> f: X → Y — 함수를 수학으로 정의하는 법</h2>
+<p>Level 0에서 <code>def predict(x): return w*x + b</code>로 함수를 만들었습니다. 수학에서는 이것을 <code>f: ℝ → ℝ, f(x) = wx + b</code>로 씁니다. 같은 개념입니다.</p>
+
+<h3 class="sub">Python 코드 ↔ 수학 표기 번역표</h3>
+<table>
+  <thead>
+    <tr><th>Python</th><th>수학 표기</th><th>읽는 법</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>def f(x):</code></td><td>\(f: X \to Y\)</td><td>f는 X에서 Y로 가는 함수</td></tr>
+    <tr><td><code>return w*x + b</code></td><td>\(f(x) = wx + b\)</td><td>f(x)의 값은 wx + b</td></tr>
+    <tr><td><code>f(3)</code></td><td>\(f(3) = w \cdot 3 + b\)</td><td>x=3일 때 f의 값</td></tr>
+    <tr><td><code>max(scores)</code></td><td>\(\arg\max f(x)\)</td><td>f를 최대로 하는 x</td></tr>
+    <tr><td><code>min(loss)</code></td><td>\(\arg\min_\theta L(\theta)\)</td><td>손실 L을 최소로 하는 θ</td></tr>
+  </tbody>
+</table>
+
+<!-- [4] FORMULA BOX 2: 함수의 수학적 정의 -->
+<div class="fb">
+  <div class="fl">함수의 수학적 정의</div>
+  \[
+    f: \mathbb{R}^n \to \mathbb{R}
+    \quad\text{where}\quad
+    f(\mathbf{x}) = \mathbf{w}^\top \mathbf{x} + b
+  \]
+  <div class="fn">
+    \(f: \mathbb{R}^n \to \mathbb{R}\): n개의 숫자를 입력받아 숫자 하나를 출력<br/>
+    \(\mathbf{w}^\top \mathbf{x}\): 가중치 벡터와 입력 벡터의 내적 (weighted sum)<br/>
+    \(b\): 편향 (기본값 오프셋)<br/>
+    이것이 선형회귀, 로지스틱 회귀 등 모든 선형 모델의 공통 형태
+  </div>
+</div>
+
+
+<!-- 섹션 4: Σ 표기법 -->
+<h2 class="st"><span class="ic">Σ</span> Σ 표기 — 반복 합산을 한 줄로</h2>
+<p>Level 0에서 <code>sum(scores)</code>를 썼습니다. 수학에서는 Σ(시그마)를 씁니다. 새로운 개념이 아니라 같은 연산을 기호로 쓴 것입니다.</p>
+
+<!-- [4] FORMULA BOX 3: Σ 표기법 -->
+<div class="fb">
+  <div class="fl">Σ 표기법과 Python 대응</div>
+  \[
+    \sum_{i=1}^{n} x_i = x_1 + x_2 + \cdots + x_n
+    \quad\Leftrightarrow\quad
+    \texttt{sum(x)}
+  \]
+  \[
+    \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i
+    \quad\Leftrightarrow\quad
+    \texttt{np.mean(x)}
+  \]
+  <div class="fn">
+    \(i=1\) (아래): 시작값 — i가 1부터 증가<br/>
+    \(n\) (위): 끝값 — n까지 증가<br/>
+    \(x_i\): i번째 원소를 더함<br/>
+    \(\bar{x}\) (x bar): 평균 — 전체 합을 개수로 나눈 값
+  </div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 Σ 읽는 법 4단계</div>
+  <div class="step" style="margin-top:10px;">
+    <div class="sn">1</div>
+    <div class="sb"><p><strong>아래 확인</strong>: 시작값 (i=1 → 1부터)</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">2</div>
+    <div class="sb"><p><strong>위 확인</strong>: 끝값 (n → n까지)</p></div>
+  </div>
+  <div class="step">
+    <div class="sn">3</div>
+    <div class="sb"><p><strong>뒤 확인</strong>: 더할 것 (xᵢ → i번째 원소)</p></div>
+  </div>
+  <div class="step" style="margin-bottom:0;">
+    <div class="sn">4</div>
+    <div class="sb"><p><strong>전체</strong>: i를 1~n까지 바꿔가며 xᵢ를 모두 더함</p></div>
+  </div>
+</div>
+
+
+<!-- [5] INTERACTIVE -->
+<div class="calc">
+  <h4>🔢 함수 시각화 — w와 b를 바꿔보세요</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">슬라이더로 가중치 \(w\)와 편향 \(b\)를 조절하면 \(f(x) = wx + b\) 함수값이 실시간으로 바뀝니다.</p>
+
+  <div class="cr">
+    <span class="cl">가중치 \(w\)</span>
+    <input type="range" id="w_val" min="-3" max="3" step="0.1" value="1" oninput="updateLinear()"/>
+    <input type="number" id="w_val-v" value="1.0" readonly/>
+  </div>
+
+  <div class="cr">
+    <span class="cl">편향 \(b\)</span>
+    <input type="range" id="b_val" min="-5" max="5" step="0.5" value="0" oninput="updateLinear()"/>
+    <input type="number" id="b_val-v" value="0.0" readonly/>
+  </div>
+
+  <div class="cres" id="linear-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- [6] QUIZ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">수학 표기 \(f: \mathbb{R}^2 \to \mathbb{R}\)이 의미하는 것은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 실수 2개를 출력하는 함수</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; 자연수를 입력받아 실수를 출력하는 함수</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 실수 1개를 입력받아 2개를 출력하는 함수</div>
+  <div class="qo" onclick="ans(this, true)">(d) &nbsp; 실수 2개를 입력받아 실수 1개를 출력하는 함수</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- [7] NAV BUTTONS -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch00d.html'">← Ch.00D Python 데이터 과학 도구</button>
+  <button class="btn btn-p" onclick="location.href='ch00f.html'">Ch.00F ML 실습 입문 →</button>
+</div>
+
+
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! ℝ²는 실수 2개 (입력), ℝ는 실수 1개 (출력). 예: 키와 몸무게(2개)를 입력받아 건강점수(1개)를 출력. 선형회귀도 f: ℝⁿ→ℝ 형태다.'
+    : '❌ 틀렸습니다. f: ℝ²→ℝ에서 화살표 왼쪽이 입력(ℝ²=실수 2개), 오른쪽이 출력(ℝ=실수 1개)입니다.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) { localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0'); }
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── iframe 부모에 현재 챕터 파일명 알리기 ──
+function notifyParent() {
+  const filename = location.pathname.split("/").pop();
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: "chapterLoaded", filename }, "*");
+  }
+}
+window.addEventListener("load", notifyParent);
+
+// ── 인터랙티브: y = wx + b ──
+function updateLinear() {
+  const w = parseFloat(document.getElementById('w_val').value);
+  const b = parseFloat(document.getElementById('b_val').value);
+  document.getElementById('w_val-v').value = w.toFixed(1);
+  document.getElementById('b_val-v').value = b.toFixed(1);
+
+  const xs = [-3, -2, -1, 0, 1, 2, 3];
+  const ys = xs.map(x => (w * x + b).toFixed(2));
+  const table = xs.map((x, i) =>
+    `x=${x}: f(x) = ${w.toFixed(1)}×${x} + ${b.toFixed(1)} = <strong>${ys[i]}</strong>`
+  ).join('<br/>');
+
+  const slope = w > 0 ? '우상향 ↗' : w < 0 ? '우하향 ↘' : '수평 →';
+  const intercept = b > 0 ? `y절편: +${b.toFixed(1)}` : b < 0 ? `y절편: ${b.toFixed(1)}` : 'y절편: 0 (원점 통과)';
+
+  document.getElementById('linear-res').innerHTML =
+    `<strong>f(x) = ${w.toFixed(1)}x + ${b.toFixed(1)}</strong>
+     &nbsp;|&nbsp; 기울기: ${slope} &nbsp;|&nbsp; ${intercept}<br/><br/>
+     ${table}`;
+}
+updateLinear();
+</script>
+</body>
+</html>

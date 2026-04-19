@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.18 — 볼록 집합과 볼록 함수 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+/* ══ Jensen 시각화 ══ */
+.jensen-display{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.jval{background:var(--surface3);border-radius:8px;padding:11px 14px;font-size:.85rem;}
+.jval .jlabel{font-size:.75rem;color:var(--muted);margin-bottom:4px;}
+.jval .jnum{font-weight:700;font-size:1.05rem;}
+.jval.left-val .jnum{color:var(--accent);}
+.jval.right-val .jnum{color:var(--accent4);}
+.jineq{margin-top:10px;padding:12px 16px;border-radius:8px;font-size:.9rem;font-weight:600;text-align:center;}
+.jineq.ok{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);color:var(--accent3);}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.18 · 볼록 최적화 (레벨 2 — Phase 2-B · 4주차)</div>
+  <h1>볼록 집합과 볼록 함수</h1>
+  <p>"오목한 그릇"에 공을 굴리면 반드시 바닥에 도달한다. 볼록 함수의 최솟값은 항상 유일하고 보장됩니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"오목한 그릇"에 공을 놓으면 어디서 놓아도 바닥으로 굴러간다</strong> — 이것이 볼록 함수의 핵심입니다.</p>
+  <ul>
+    <li>① \(x^2\)은 볼록: 두 점을 직선으로 이으면 그 선이 항상 함수 위에 있다 → 공이 중앙 바닥으로 굴러감</li>
+    <li>② \(\sin(x)\)은 비볼록: 여러 봉우리와 골짜기가 있어서 공이 어느 골짜기에 멈출지 모른다</li>
+    <li>③ AI: Logistic loss(로지스틱 손실)는 볼록함수 → 경사하강법으로 반드시 최적해에 도달. 딥러닝은 비볼록 → 국소 최솟값이나 안장점에 걸릴 수 있다</li>
+  </ul>
+</div>
+
+<div class="callout info">
+  <div class="ci">🔗</div>
+  <div class="cb"><p><strong>Ch.17 연결:</strong> 앞 챕터에서 경사하강법이 "수렴한다"는 주장을 배웠습니다. 그 수렴 보장의 핵심 조건이 바로 <strong>볼록성(convexity)</strong>입니다. 볼록 함수에서만 국소 최솟값 = 전역 최솟값이 보장됩니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 볼록 집합 == -->
+<h2 class="st"><span class="ic">⬡</span>볼록 집합 (Convex Set)</h2>
+<p>집합 \(C\)가 볼록(convex)이라는 것은 집합 안의 임의의 두 점을 연결하는 선분이 모두 집합 안에 들어온다는 뜻입니다. 직관적으로 "움푹 파인 곳 없이 꽉 찬 모양"이 볼록 집합입니다.</p>
+
+<div class="fb">
+  <div class="fl">볼록 집합의 정의</div>
+  \[
+    C \text{ 가 볼록} \iff \forall x, y \in C,\ \forall \lambda \in [0,1]:\ \lambda x + (1-\lambda) y \in C
+  \]
+  <div class="fn">
+    \(C\): 볼록 여부를 판단할 집합<br/>
+    \(x, y \in C\): 집합 안의 임의의 두 점<br/>
+    \(\lambda \in [0,1]\): 두 점 사이를 보간하는 가중치 (0이면 \(y\), 1이면 \(x\))<br/>
+    \(\lambda x + (1-\lambda)y\): 두 점 \(x\)와 \(y\)를 잇는 선분 위의 점<br/>
+    선분 전체가 집합 안에 있어야 볼록 집합
+  </div>
+</div>
+
+<h3 class="sub">볼록 집합 vs 비볼록 집합 예시</h3>
+<table>
+  <tr><th>구분</th><th>예시</th><th>이유</th><th>AI 연결</th></tr>
+  <tr><td><span class="tag tg">볼록</span> \(\mathbb{R}^n\) 전체</td><td>실수 공간 전체</td><td>모든 선분이 실수 공간 안에 존재</td><td>파라미터 공간 \(\theta \in \mathbb{R}^n\)</td></tr>
+  <tr><td><span class="tag tg">볼록</span> 공(Ball)</td><td>\(\{x : \|x\| \leq r\}\)</td><td>두 점 연결 선분이 항상 공 안에 있음</td><td>L2 정규화의 feasible set</td></tr>
+  <tr><td><span class="tag tg">볼록</span> 정육면체</td><td>\([0,1]^n\)</td><td>선분이 항상 내부에 존재</td><td>파라미터 클리핑 범위</td></tr>
+  <tr><td><span class="tag ty">비볼록</span> 도넛</td><td>중앙 구멍이 있는 형태</td><td>구멍을 가로지르는 선분이 집합 밖을 지남</td><td>비볼록 feasible set → NP-hard</td></tr>
+  <tr><td><span class="tag ty">비볼록</span> 정수 격자</td><td>\(\mathbb{Z}^n\)</td><td>두 정수 사이의 선분에 실수가 포함됨</td><td>정수 프로그래밍 문제</td></tr>
+</table>
+
+<div class="callout tip">
+  <div class="ci">✅</div>
+  <div class="cb"><p><strong>볼록 집합의 교집합은 볼록:</strong> \(C_1\)과 \(C_2\)가 둘 다 볼록이면 \(C_1 \cap C_2\)도 볼록입니다. ML에서 여러 제약 조건(L1, L2 노름 제약 등)의 교집합이 볼록임을 보장하는 핵심 성질입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: 볼록 함수 == -->
+<h2 class="st"><span class="ic">∪</span>볼록 함수 (Convex Function)</h2>
+<p>함수 \(f\)가 볼록(convex)이라는 것은 함수의 그래프가 "아래로 볼록한 그릇" 모양이라는 것입니다. 임의의 두 점 \(x, y\)를 이은 현(chord)이 항상 함수 그래프 위에 있거나 같아야 합니다.</p>
+
+<div class="fb">
+  <div class="fl">볼록 함수의 정의 (Jensen 부등식)</div>
+  \[
+    f \text{ 가 볼록} \iff f\!\bigl(\lambda x + (1-\lambda)y\bigr) \leq \lambda f(x) + (1-\lambda)f(y),\quad \forall x,y,\ \forall \lambda \in [0,1]
+  \]
+  <div class="fn">
+    \(f(\lambda x + (1-\lambda)y)\): 두 점 사이의 중간점에서의 함수값 (그래프 위의 점)<br/>
+    \(\lambda f(x) + (1-\lambda)f(y)\): 두 함수값의 가중 평균 (현 위의 점)<br/>
+    "함수값 ≤ 현" — 그래프가 현보다 아래에 있어야 볼록<br/>
+    등호는 \(f\)가 선형일 때 성립 (아핀 함수는 볼록이자 오목)
+  </div>
+</div>
+
+<h3 class="sub">볼록 함수의 황금 성질</h3>
+<div class="cc">
+  <div class="ct">🔑 황금 성질 — 왜 볼록성이 중요한가</div>
+  <p><strong>국소 최솟값 = 전역 최솟값:</strong> 볼록 함수에서는 경사하강법이 찾은 극솟값이 반드시 전역 최솟값입니다. 더 낮은 곳이 없습니다.</p>
+  <p><strong>경사하강법 수렴 보장:</strong> 볼록 함수 + 적절한 학습률 → 경사하강법이 반드시 최솟값으로 수렴합니다.</p>
+  <p><strong>Hessian 조건:</strong> 두 번 미분 가능한 함수라면, Hessian 행렬이 양반정치(positive semidefinite)인 것과 볼록성이 동치입니다.</p>
+</div>
+
+<div class="fb">
+  <div class="fl">볼록 함수의 2계 조건 (Hessian)</div>
+  \[
+    f \text{ 가 볼록} \iff \nabla^2 f(x) \succeq 0 \quad \forall x \in \text{dom}(f)
+  \]
+  <div class="fn">
+    \(\nabla^2 f(x)\): \(f\)의 Hessian 행렬 (2차 편미분 행렬)<br/>
+    \(\succeq 0\): 양반정치(positive semidefinite) — 모든 고유값 \(\geq 0\)<br/>
+    \(f(x) = x^2\): \(\nabla^2 f = 2 > 0\) → 볼록 ✅<br/>
+    \(f(x) = -x^2\): \(\nabla^2 f = -2 < 0\) → 오목 (convex 아님)<br/>
+    다변수: \(\mathbf{v}^\top \nabla^2 f(x)\, \mathbf{v} \geq 0\) for all \(\mathbf{v}\) 이면 볼록
+  </div>
+</div>
+
+<h3 class="sub">볼록 함수 예시 비교</h3>
+<table>
+  <tr><th>함수</th><th>볼록?</th><th>Hessian</th><th>AI 활용</th></tr>
+  <tr><td>\(f(x) = x^2\)</td><td><span class="tag tg">볼록</span></td><td>\(\nabla^2 f = 2 > 0\)</td><td>L2 손실</td></tr>
+  <tr><td>\(f(x) = e^x\)</td><td><span class="tag tg">볼록</span></td><td>\(\nabla^2 f = e^x > 0\)</td><td>Softmax 분모</td></tr>
+  <tr><td>\(f(x) = -\log x\)</td><td><span class="tag tg">볼록</span></td><td>\(\nabla^2 f = 1/x^2 > 0\)</td><td>음의 로그우도(NLL)</td></tr>
+  <tr><td>Logistic loss</td><td><span class="tag tg">볼록</span></td><td>양반정치</td><td>로지스틱 회귀: 최적해 보장</td></tr>
+  <tr><td>\(f(x) = \sin(x)\)</td><td><span class="tag ty">비볼록</span></td><td>양수/음수 반복</td><td>비선형 활성화</td></tr>
+  <tr><td>딥러닝 손실</td><td><span class="tag ty">비볼록</span></td><td>양반정치 보장 안 됨</td><td>국소 최솟값 위험</td></tr>
+</table>
+
+
+<!-- == 섹션 3: Jensen 부등식 == -->
+<h2 class="st"><span class="ic">J</span>Jensen 부등식과 AI 응용</h2>
+<p>Jensen 부등식은 볼록 함수의 정의를 기대값으로 확장한 것입니다. 볼록 함수에서는 함수의 기대값이 기대값의 함수보다 항상 크거나 같습니다.</p>
+
+<div class="fb">
+  <div class="fl">Jensen 부등식</div>
+  \[
+    f \text{ 가 볼록} \implies f\!\bigl(\mathbb{E}[X]\bigr) \leq \mathbb{E}\!\bigl[f(X)\bigr]
+  \]
+  <div class="fn">
+    \(X\): 임의의 확률변수<br/>
+    \(\mathbb{E}[X]\): \(X\)의 기댓값 (평균)<br/>
+    \(f(\mathbb{E}[X])\): 평균값에서의 함수값 (그래프의 중간점)<br/>
+    \(\mathbb{E}[f(X)]\): 함수값의 평균 (현의 중간점)<br/>
+    볼록 → 함수값의 평균 ≥ 평균의 함수값 (현이 그래프 위에 있으므로)<br/>
+    \(f\)가 오목(concave)이면 부등호 방향 반전: \(f(\mathbb{E}[X]) \geq \mathbb{E}[f(X)]\)
+  </div>
+</div>
+
+<h3 class="sub">KL 발산이 항상 0 이상인 이유 — Jensen으로 증명</h3>
+<p>정보이론에서 KL 발산 \(\mathrm{KL}(p \| q) \geq 0\)은 매우 중요한 성질입니다. 이를 Jensen 부등식으로 한 줄에 증명할 수 있습니다.</p>
+
+<div class="fb">
+  <div class="fl">KL ≥ 0 증명 (Jensen 적용)</div>
+  \[
+    \mathrm{KL}(p \| q)
+    = -\mathbb{E}_p\!\left[\log\frac{q}{p}\right]
+    \geq -\log\,\mathbb{E}_p\!\left[\frac{q}{p}\right]
+    = -\log 1 = 0
+  \]
+  <div class="fn">
+    \(\mathrm{KL}(p \| q) = \mathbb{E}_p[\log(p/q)] = -\mathbb{E}_p[\log(q/p)]\): KL 발산 정의<br/>
+    \(\log\) 함수는 <strong>오목(concave)</strong> 함수 → Jensen 부등식 적용 시 부등호 반전<br/>
+    오목함수에서 Jensen: \(\mathbb{E}[\log Z] \leq \log \mathbb{E}[Z]\) (즉 \(-\mathbb{E}[\log Z] \geq -\log \mathbb{E}[Z]\))<br/>
+    \(\mathbb{E}_p[q/p] = \int p \cdot (q/p)\,dx = \int q\,dx = 1\): \(q\)가 확률분포이므로<br/>
+    따라서 \(\mathrm{KL}(p \| q) \geq -\log 1 = 0\) — Jensen 한 줄로 증명 완료
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">📄</div>
+  <div class="cb"><p><strong>논문 연결:</strong> VAE(Variational Autoencoder) 논문에서 ELBO(Evidence Lower BOund)가 Jensen 부등식으로 유도됩니다. \(\log p(x) \geq \mathbb{E}_q[\log p(x,z)] - \mathbb{E}_q[\log q(z)]\) — 이것이 VAE의 핵심 식입니다.</p></div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>볼록 함수에서 Jensen</h5>
+    <ul>
+      <li>\(f(\mathbb{E}[X]) \leq \mathbb{E}[f(X)]\)</li>
+      <li>예: \(f = e^x\) (지수함수는 볼록)</li>
+      <li>\(e^{\mathbb{E}[X]} \leq \mathbb{E}[e^X]\)</li>
+      <li>→ moment generating function 하한</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>오목 함수에서 Jensen</h5>
+    <ul>
+      <li>\(f(\mathbb{E}[X]) \geq \mathbb{E}[f(X)]\)</li>
+      <li>예: \(f = \log x\) (로그는 오목)</li>
+      <li>\(\log \mathbb{E}[X] \geq \mathbb{E}[\log X]\)</li>
+      <li>→ KL ≥ 0 증명의 핵심</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 Jensen 부등식 시각화 — \(f(x) = x^2\)</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">두 점 \(x_1, x_2\)와 가중치 \(\lambda\)를 조절해보세요. \(f(\lambda x_1 + (1-\lambda)x_2)\)가 항상 \(\lambda f(x_1) + (1-\lambda)f(x_2)\) 이하임을 확인하세요.</p>
+
+  <div class="cr">
+    <span class="cl">점 \(x_1\)</span>
+    <input type="range" id="jen-x1" min="-3" max="3" step="0.1" value="-2" oninput="updateJensen()"/>
+    <input type="number" id="jen-x1-v" value="-2.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">점 \(x_2\)</span>
+    <input type="range" id="jen-x2" min="-3" max="3" step="0.1" value="2" oninput="updateJensen()"/>
+    <input type="number" id="jen-x2-v" value="2.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">가중치 \(\lambda\)</span>
+    <input type="range" id="jen-lam" min="0" max="1" step="0.01" value="0.5" oninput="updateJensen()"/>
+    <input type="number" id="jen-lam-v" value="0.50" readonly/>
+  </div>
+
+  <div class="jensen-display">
+    <div class="jval left-val">
+      <div class="jlabel">좌변: \(f(\lambda x_1 + (1-\lambda)x_2)\)</div>
+      <div class="jnum" id="jen-left">—</div>
+    </div>
+    <div class="jval right-val">
+      <div class="jlabel">우변: \(\lambda f(x_1) + (1-\lambda)f(x_2)\)</div>
+      <div class="jnum" id="jen-right">—</div>
+    </div>
+  </div>
+  <div class="jineq ok" id="jen-ineq">계산 중...</div>
+
+  <div class="cres" id="jen-res">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">딥러닝 손실함수가 비볼록(non-convex)일 때, 경사하강법을 실행하면 어떻게 되는가?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 항상 전역 최솟값(global minimum)으로 수렴한다</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; 반드시 발산한다</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; 국소 최솟값(local minimum)이나 안장점(saddle point)에 수렴할 수 있다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 항상 수렴하지 않는다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch17.html'">← Ch.17 적분과 급수</button>
+  <button class="btn btn-p" onclick="location.href='ch19.html'">Ch.19 Lagrangian·KKT 조건 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 비볼록 함수에서는 전역 최솟값 수렴이 보장되지 않습니다. 경사하강법은 국소 최솟값이나 안장점에서 멈출 수 있습니다.'
+    : '❌ 틀렸습니다. 비볼록 함수에서는 국소 최솟값과 전역 최솟값이 다를 수 있고, 경사하강법은 국소 최솟값이나 안장점에 수렴할 수 있습니다.';
+}
+
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+function updateJensen() {
+  const x1  = parseFloat(document.getElementById('jen-x1').value);
+  const x2  = parseFloat(document.getElementById('jen-x2').value);
+  const lam = parseFloat(document.getElementById('jen-lam').value);
+
+  document.getElementById('jen-x1-v').value  = x1.toFixed(1);
+  document.getElementById('jen-x2-v').value  = x2.toFixed(1);
+  document.getElementById('jen-lam-v').value = lam.toFixed(2);
+
+  const midX  = lam * x1 + (1 - lam) * x2;
+  const leftVal  = midX * midX;
+  const rightVal = lam * x1 * x1 + (1 - lam) * x2 * x2;
+  const diff = rightVal - leftVal;
+
+  document.getElementById('jen-left').textContent  = leftVal.toFixed(4);
+  document.getElementById('jen-right').textContent = rightVal.toFixed(4);
+
+  const ineqEl = document.getElementById('jen-ineq');
+  ineqEl.textContent = `f(λx₁ + (1-λ)x₂) = ${leftVal.toFixed(4)}  ≤  λf(x₁) + (1-λ)f(x₂) = ${rightVal.toFixed(4)}  ✅ Jensen 부등식 성립`;
+  ineqEl.className = 'jineq ok';
+
+  document.getElementById('jen-res').innerHTML =
+    `중간점: <strong>x = ${midX.toFixed(3)}</strong><br/>` +
+    `f(중간점) = (${midX.toFixed(3)})² = <strong>${leftVal.toFixed(4)}</strong><br/>` +
+    `현의 중간점 = ${lam.toFixed(2)} × ${(x1*x1).toFixed(3)} + ${(1-lam).toFixed(2)} × ${(x2*x2).toFixed(3)} = <strong>${rightVal.toFixed(4)}</strong><br/>` +
+    `차이(우변 − 좌변) = <strong>${diff.toFixed(4)}</strong> ≥ 0 — 볼록 함수에서 항상 성립`;
+}
+updateJensen();
+</script>
+</body>
+</html>

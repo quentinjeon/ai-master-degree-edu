@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.27 — 집중 부등식 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.27 · 통계적 학습 이론 (Phase 3 — 1주차)</div>
+  <h1>집중 부등식 — 확률을 확정적으로 묶는다</h1>
+  <p>Markov, Chebyshev, Hoeffding, Bernstein. 논문의 "with high probability" 주장이 어디서 오는지 이해합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>동전을 100번 던질 때 앞면이 90번 나올 확률은 매우 낮다. <strong>집중 부등식은 '얼마나 낮은지'를 수학적으로 보장하는 도구다 — 논문에서 'with probability at least 1-δ'가 바로 이것이다.</strong></p>
+  <ul>
+    <li><strong>Markov</strong>: '평균이 μ인 양수 확률변수가 10μ를 넘을 확률은 최대 1/10' — 매우 느슨하지만 어떤 분포에도 항상 성립한다</li>
+    <li><strong>Chebyshev</strong>: '평균에서 k표준편차 이상 떨어질 확률 ≤ 1/k²' — 분포 가정 없이 분산만 있으면 성립한다</li>
+    <li><strong>AI에서</strong>: 훈련 오차가 일반화 오차와 얼마나 가까운지 수학적으로 증명하는 것이 통계적 학습 이론의 핵심 — 이 증명이 Hoeffding 같은 집중 부등식으로 이루어진다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: Markov 부등식 == -->
+<h2 class="st"><span class="ic">M</span>Markov 부등식</h2>
+<p>양수 확률변수에 대한 가장 단순한 경계입니다. 분포에 대한 가정 없이 <strong>평균(기대값)만으로</strong> 꼬리 확률을 제한합니다. 증명도 단 한 줄 — \(\mathbb{E}[X] \geq t \cdot P(X \geq t)\)에서 바로 나옵니다.</p>
+
+<div class="fb">
+  <div class="fl">MARKOV INEQUALITY</div>
+  \[ X \geq 0 \;\Rightarrow\; P(X \geq t) \leq \frac{\mathbb{E}[X]}{t}, \quad t > 0 \]
+  <div class="fn">
+    \(X \geq 0\): 양수(비음수) 확률변수여야 성립하는 조건<br/>
+    \(t\): 임계값 (초과 여부를 판단하는 기준)<br/>
+    \(\mathbb{E}[X]/t\): 확률의 상한 — \(t\)가 클수록 경계가 타이트해짐<br/>
+    증명 핵심: \(\mathbb{E}[X] = \int_0^\infty x\,dP \geq \int_t^\infty x\,dP \geq t \cdot P(X \geq t)\)<br/>
+    실전 활용: \(P(X \geq k\mu) \leq 1/k\) — 평균의 \(k\)배를 초과할 확률은 최대 \(1/k\)
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>Markov는 매우 느슨한 경계입니다:</strong> \(P(X \geq 2\mathbb{E}[X]) \leq 1/2\)라고 보장하지만, 실제로는 훨씬 작을 수 있습니다. 분산이나 유계성 등 추가 가정이 있으면 더 강한 부등식(Chebyshev, Hoeffding)을 쓸 수 있습니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: Chebyshev 부등식 == -->
+<h2 class="st"><span class="ic">σ</span>Chebyshev 부등식</h2>
+<p>분산(2차 모멘트)을 활용하면 Markov보다 훨씬 좋은 경계를 얻을 수 있습니다. 핵심 아이디어는 <strong>Markov를 \((X-\mu)^2\)에 적용</strong>하는 것입니다. 분포의 형태에 대한 가정 없이도 성립하기 때문에 약한 대수의 법칙(Weak LLN)의 증명에 직접 사용됩니다.</p>
+
+<div class="fb">
+  <div class="fl">CHEBYSHEV INEQUALITY</div>
+  \[ P(|X - \mu| \geq k\sigma) \leq \frac{1}{k^2} \qquad\text{동치:}\qquad P(|X - \mu| \geq t) \leq \frac{\mathrm{Var}[X]}{t^2} \]
+  <div class="fn">
+    \(\mu = \mathbb{E}[X]\): 확률변수의 평균<br/>
+    \(\sigma^2 = \mathrm{Var}[X]\): 분산 (분포의 퍼짐 정도)<br/>
+    \(k\): 표준편차 단위 이탈 거리 — \(k\)가 클수록 경계가 빠르게 작아짐 (\(1/k^2\))<br/>
+    증명: \((X-\mu)^2\)에 Markov 적용 → \(P((X-\mu)^2 \geq t^2) \leq \mathrm{Var}[X]/t^2\)<br/>
+    약한 LLN: \(\bar{X}_n\)에 적용 시 \(\mathrm{Var}[\bar{X}_n]=\sigma^2/n \to 0\) → \(P(|\bar{X}_n-\mu|\geq\varepsilon)\to 0\)
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>분포 가정 없이 성립:</strong> Chebyshev는 어떤 분포에도 적용됩니다. 정규분포에서 \(3\sigma\)를 넘을 확률이 실제로는 0.003이지만, Chebyshev는 \(\leq 1/9 \approx 0.111\)만 보장합니다. 느슨하지만 범용성이 강점입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: Hoeffding 부등식 == -->
+<h2 class="st"><span class="ic">H</span>Hoeffding 부등식</h2>
+<p>확률변수가 <strong>유계(bounded)</strong>이면 지수 감소 경계를 얻습니다. Chebyshev의 다항 감소(\(1/k^2\))와 달리 지수 감소(\(e^{-cn}\))이므로 표본이 늘어날수록 훨씬 빠르게 0에 수렴합니다. 통계적 학습 이론의 논문에서 가장 많이 인용되는 집중 부등식이며, "with high probability" 보장의 수학적 근거입니다.</p>
+
+<div class="fb">
+  <div class="fl">HOEFFDING INEQUALITY</div>
+  \[ X_1,\ldots,X_n \text{ 독립}, \; a_i \leq X_i \leq b_i \;\Rightarrow\; P\!\left(\bar{X} - \mathbb{E}[\bar{X}] \geq t\right) \leq \exp\!\left(-\frac{2n^2t^2}{\sum_{i=1}^n (b_i-a_i)^2}\right) \]
+  <div class="fn">
+    \(b_i - a_i\): \(i\)번째 확률변수의 구간 너비 (유계 범위)<br/>
+    \(n\): 표본 크기 — \(n\)이 클수록 지수가 커져 경계가 급격히 감소<br/>
+    \(t\): 이탈 크기 (평균에서 얼마나 멀리 벗어나는지)<br/>
+    동일 구간 \([0,1]\)인 경우: \(P(|\bar{X}-\mu|\geq t) \leq 2\exp(-2nt^2)\)<br/>
+    핵심 강점: 다항 감소가 아닌 <strong>지수 감소</strong> — \(n\)이 커질수록 매우 빠르게 0에 수렴
+  </div>
+</div>
+
+<h3 class="sub">ε-δ 프레임 — 표본 복잡도(Sample Complexity)</h3>
+<p>Hoeffding 부등식을 뒤집으면 "ε 정확도를 1-δ 신뢰도로 달성하기 위해 필요한 최소 표본 수"를 계산할 수 있습니다. 논문에서 "For \(n \geq \log(1/\delta)/\varepsilon^2\) samples, with probability \(1-\delta\)..." 형태로 자주 등장하는 표현이 바로 이것입니다.</p>
+
+<div class="fb">
+  <div class="fl">SAMPLE COMPLEXITY — ε,δ FRAME</div>
+  \[ P\!\left(|\hat{\mu}-\mu| \geq \varepsilon\right) \leq \delta \;\iff\; n \geq \frac{\ln(2/\delta)}{2\varepsilon^2} \]
+  <div class="fn">
+    \(\varepsilon\): 허용 오차(accuracy) — 추정값과 참값 사이 최대 허용 거리<br/>
+    \(\delta\): 실패 확률 (신뢰도 = \(1-\delta\)) — 논문에서 보통 0.05 또는 0.01 사용<br/>
+    "\(\varepsilon\)-accurate with probability \(1-\delta\)"를 위한 최소 표본 수 공식<br/>
+    해석: \(\delta\)가 작을수록(더 높은 신뢰도), \(\varepsilon\)이 작을수록(더 높은 정확도) 더 많은 표본 필요<br/>
+    논문 표현: "For \(n \geq \log(1/\delta)/\varepsilon^2\) samples, with probability \(1-\delta\), \(|\hat{\mu}-\mu| \leq \varepsilon\)"
+  </div>
+</div>
+
+
+<!-- == 섹션 4: Bernstein & McDiarmid == -->
+<h2 class="st"><span class="ic">B</span>Bernstein & McDiarmid — 더 강한 경계</h2>
+<p>Hoeffding보다 더 강한 경계가 필요할 때 사용하는 부등식들입니다. <strong>Bernstein</strong>은 분산 정보를 추가로 활용하고, <strong>McDiarmid</strong>는 확률변수의 합이 아닌 임의의 함수에 집중 부등식을 적용합니다. McDiarmid는 특히 딥러닝 일반화 이론에서 훈련 손실의 집중성 증명에 핵심적으로 쓰입니다.</p>
+
+<h3 class="sub">집중 부등식 비교표</h3>
+<table>
+  <tr><th>부등식</th><th>가정</th><th>경계 형태</th><th>강도</th></tr>
+  <tr><td>Markov</td><td>\(X \geq 0\)</td><td>\(\mathbb{E}[X]/t\)</td><td>가장 약함 (다항)</td></tr>
+  <tr><td>Chebyshev</td><td>\(\mathrm{Var}[X]\) 존재</td><td>\(\mathrm{Var}[X]/t^2\)</td><td>약함 (다항)</td></tr>
+  <tr><td>Hoeffding</td><td>\([a,b]\)에 유계</td><td>\(\exp(-2nt^2/(b-a)^2)\)</td><td>강함 (지수)</td></tr>
+  <tr><td>Bernstein</td><td>유계 + 분산 경계</td><td>\(\exp\!\left(-t^2/(2(\sigma^2+bt/3))\right)\)</td><td>더 강함 (지수)</td></tr>
+  <tr><td>McDiarmid</td><td>함수 민감도 \(c_i\)</td><td>\(\exp(-2t^2/\sum c_i^2)\)</td><td>함수에 적용 가능</td></tr>
+</table>
+
+<div class="fb">
+  <div class="fl">McDIARMID INEQUALITY</div>
+  \[ \sup_{x_i,x_i'} \left|f(x_1,\ldots,x_i,\ldots,x_n)-f(x_1,\ldots,x_i',\ldots,x_n)\right| \leq c_i \;\Rightarrow\; P\!\left(f(\mathbf{X})-\mathbb{E}[f(\mathbf{X})]\geq t\right) \leq \exp\!\left(-\frac{2t^2}{\sum_{i=1}^n c_i^2}\right) \]
+  <div class="fn">
+    \(c_i\): \(i\)번째 변수 \(x_i\)를 임의의 \(x_i'\)로 바꿀 때 \(f\)의 최대 변화량 (민감도, bounded difference condition)<br/>
+    \(f\): 임의의 함수 — 합이 아니어도 적용 가능 (Hoeffding의 일반화)<br/>
+    Hoeffding과의 관계: \(f = \bar{X} = \frac{1}{n}\sum X_i\)이면 \(c_i = (b_i-a_i)/n\) → Hoeffding과 동일<br/>
+    AI 적용: 훈련 손실 \(L(S)\)에서 샘플 하나를 바꿀 때 최대 \(2/n\)만큼 변한다 → \(\sum c_i^2 = 4/n\) → McDiarmid 적용<br/>
+    결과: "훈련 손실이 기대 손실(일반화 오차)에 집중된다"는 것을 수학적으로 증명
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p>논문에서 "with probability at least \(1-\delta\)" 또는 "with high probability (w.h.p.)" 문구는 집중 부등식 적용의 결과입니다. 특히 PAC 학습 이론, 일반화 경계(generalization bound), VC 차원 증명에서 Hoeffding 또는 McDiarmid가 핵심 도구로 사용됩니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 Hoeffding 부등식 — 표본 수 vs 신뢰도 트레이드오프</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    표본 수 \(n\)과 허용 오차 \(\varepsilon\)을 조절하여 Hoeffding 경계와 필요 표본 수를 확인하세요. (\(X \in [0,1]\) 유계 가정)
+  </p>
+
+  <div class="cr">
+    <span class="cl">표본 수 \(n\)</span>
+    <input type="range" id="hf-n" min="10" max="1000" step="10" value="100" oninput="updateHoeffding()"/>
+    <input type="number" id="hf-n-v" value="100" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">허용 오차 \(\varepsilon\)</span>
+    <input type="range" id="hf-eps" min="0.01" max="0.3" step="0.01" value="0.1" oninput="updateHoeffding()"/>
+    <input type="number" id="hf-eps-v" value="0.10" readonly/>
+  </div>
+
+  <div class="cres" id="hf-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">Hoeffding 부등식이 Chebyshev보다 강한 경계를 주는 핵심 이유는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; 분산이 작을 때만 적용되기 때문에, 특수한 경우에만 성립하는 더 강한 조건이다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; 확률변수의 유계성(bounded)을 추가로 가정하여 다항 감소가 아닌 지수 감소 경계를 준다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; 표본이 충분히 많을 때 자동으로 항상 적용되는 일반적인 법칙이다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; 기대값이 정확히 알려져 있어야만 적용할 수 있는 특수한 경우다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch26.html'">← Ch.26 행렬 미분</button>
+  <button class="btn btn-p" onclick="location.href='ch28.html'">Ch.28 PAC 학습 이론 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! Hoeffding은 확률변수가 유계([a,b]에 속함)라는 추가 가정 덕분에 지수 감소 경계를 줍니다. Chebyshev의 1/k² (다항 감소)와 달리 exp(-2nt²)로 n이 커질수록 훨씬 빠르게 0에 수렴합니다.'
+    : '❌ 틀렸습니다. Hoeffding의 핵심은 유계성(bounded) 가정을 통한 지수 감소 경계에 있습니다. 본문을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── Hoeffding 계산기 ──
+function updateHoeffding() {
+  const n = parseInt(document.getElementById('hf-n').value);
+  const eps = parseFloat(document.getElementById('hf-eps').value);
+  document.getElementById('hf-n-v').value = n;
+  document.getElementById('hf-eps-v').value = eps.toFixed(2);
+  const bound = 2 * Math.exp(-2 * n * eps * eps);
+  const confidence = (1 - bound) * 100;
+  const delta = 0.05;
+  const nRequired = Math.ceil(Math.log(2 / delta) / (2 * eps * eps));
+  document.getElementById('hf-res').innerHTML =
+    `표본 n=${n}, 허용 오차 ε=${eps.toFixed(2)} (X가 [0,1]에 유계)<br/>
+     P(|X̄-μ| ≥ ${eps.toFixed(2)}) ≤ <strong>${bound.toFixed(6)}</strong><br/>
+     신뢰도 = 1-δ ≥ <strong>${confidence.toFixed(2)}%</strong><br/>
+     ---<br/>
+     δ=0.05 (95% 신뢰도)로 ε=${eps.toFixed(2)} 달성에 필요한 n:<br/>
+     n ≥ log(2/0.05)/(2ε²) = <strong>${nRequired}</strong><br/>
+     <span style="font-size:.78rem;color:var(--muted)">n을 늘릴수록 경계가 지수적으로 감소 (Hoeffding의 강점)</span>`;
+}
+updateHoeffding();
+</script>
+</body>
+</html>

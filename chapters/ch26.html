@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.26 — 행렬 미분·역전파 수학 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:130px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ CARD ══ */
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.card h3{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:10px;}
+.card p{font-size:.88rem;margin-bottom:8px;}
+.card ul{padding-left:20px;margin:8px 0;}
+.card li{font-size:.88rem;margin-bottom:5px;line-height:1.6;}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.26 · 선형대수 심화 (레벨 2 — Phase 2-D · 12주차)</div>
+  <h1>행렬 미분 — 역전파의 수학</h1>
+  <p>\(\partial(\mathbf{Ax})/\partial\mathbf{x}\), \(\partial(\mathbf{x}^\top\mathbf{A}\mathbf{x})/\partial\mathbf{x}\)를 계산합니다. 딥러닝 역전파를 행렬로 표현하는 법.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p>미분은 숫자 하나를 숫자 하나로 바꾸지만, <strong>행렬 미분은 숫자·벡터·행렬을 각각 더 큰 구조로 바꾸는 "미분의 계층"</strong>입니다.</p>
+  <ul>
+    <li>스칼라를 벡터로 미분하면 → 그라디언트 벡터 \(\nabla_\mathbf{x} L\) (손실을 어느 방향으로 가장 많이 낮출 수 있나?)</li>
+    <li>벡터를 벡터로 미분하면 → 야코비안 행렬 (각 출력이 각 입력에 얼마나 반응하는가?)</li>
+    <li>AI: 역전파 = 체인룰을 행렬 미분으로 레이어별로 반복 — \(y = Wx + b\)에서 \(\partial L/\partial W\)를 구하는 것이 실제 PyTorch가 하는 일</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 미분 표기 규칙 == -->
+<h2 class="st"><span class="ic">∂</span>미분 표기 규칙</h2>
+<p>행렬 미분에서는 "무엇을 무엇으로 미분하느냐"에 따라 결과의 모양(차원)이 달라집니다. 이 규칙을 먼저 이해해야 역전파 공식을 정확하게 읽을 수 있습니다.</p>
+
+<h3 class="sub">분모 레이아웃 vs 분자 레이아웃</h3>
+<table>
+  <tr><th>미분 종류</th><th>입력 크기</th><th>출력 크기</th><th>이름</th><th>ML 예시</th></tr>
+  <tr><td>스칼라 → 벡터</td><td>\(f \in \mathbb{R}\)</td><td>\(\mathbf{x} \in \mathbb{R}^n\)</td><td>그라디언트 (\(n \times 1\))</td><td>\(\partial L / \partial \boldsymbol{\theta}\)</td></tr>
+  <tr><td>벡터 → 벡터</td><td>\(\mathbf{y} \in \mathbb{R}^m\)</td><td>\(\mathbf{x} \in \mathbb{R}^n\)</td><td>야코비안 (\(m \times n\))</td><td>소프트맥스 야코비안</td></tr>
+  <tr><td>스칼라 → 행렬</td><td>\(f \in \mathbb{R}\)</td><td>\(\mathbf{W} \in \mathbb{R}^{m \times n}\)</td><td>행렬 그라디언트 (\(m \times n\))</td><td>\(\partial L / \partial \mathbf{W}\)</td></tr>
+</table>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>레이아웃 주의:</strong> PyTorch는 <em>분모 레이아웃(denominator layout)</em>을 기본으로 쓰고, 일부 논문은 <em>분자 레이아웃(numerator layout)</em>을 씁니다. \(\partial \mathbf{y}/\partial \mathbf{x}\)의 \((i,j)\)번째 원소가 무엇인지 반드시 해당 Notation 섹션을 확인하세요.</p></div>
+</div>
+
+<div class="cc">
+  <div class="ct">🔑 분모 레이아웃 정의 (PyTorch 기본)</div>
+  <p>스칼라 \(L\)을 열벡터 \(\mathbf{x} \in \mathbb{R}^n\)으로 미분한 결과는 열벡터(column vector)입니다.</p>
+  \[
+    \frac{\partial L}{\partial \mathbf{x}} =
+    \begin{bmatrix} \partial L/\partial x_1 \\ \partial L/\partial x_2 \\ \vdots \\ \partial L/\partial x_n \end{bmatrix} \in \mathbb{R}^{n \times 1}
+  \]
+</div>
+
+
+<!-- == 섹션 2: 핵심 공식 == -->
+<h2 class="st"><span class="ic">=</span>핵심 공식</h2>
+<p>행렬 미분의 기초 공식 4가지를 외우면 대부분의 ML 역전파를 손으로 계산할 수 있습니다. 아래 공식들은 모두 분모 레이아웃 기준입니다.</p>
+
+<h3 class="sub">선형 형식 (Linear Forms)</h3>
+
+<div class="fb">
+  <div class="fl">선형 형식의 행렬 미분 (Linear Form Derivatives)</div>
+  \[
+    \frac{\partial (\mathbf{a}^\top \mathbf{x})}{\partial \mathbf{x}} = \mathbf{a},
+    \qquad
+    \frac{\partial (\mathbf{A}\mathbf{x})}{\partial \mathbf{x}} = \mathbf{A}^\top,
+    \qquad
+    \frac{\partial (\mathbf{x}^\top \mathbf{A})}{\partial \mathbf{x}} = \mathbf{A}
+  \]
+  <div class="fn">
+    \(\mathbf{a} \in \mathbb{R}^n\): 상수 벡터 — \(\mathbf{a}^\top\mathbf{x}\)는 내적(스칼라), 결과도 \(\mathbf{a}\) 그대로<br/>
+    \(\mathbf{A} \in \mathbb{R}^{m \times n}\): 상수 행렬 — \(\mathbf{Ax}\)는 벡터이므로 결과가 야코비안(\(m \times n\)), 분모 레이아웃에서 전치 \(\mathbf{A}^\top\)<br/>
+    \(\mathbf{x}^\top\mathbf{A}\): 행 벡터로 시작하므로 결과는 \(\mathbf{A}\) — 위 케이스와 전치 관계<br/>
+    실전 팁: 차원이 맞는지 항상 확인 — \(\partial \mathbf{y}/\partial \mathbf{x}\)의 크기는 \(\dim(\mathbf{y}) \times \dim(\mathbf{x})\)
+  </div>
+</div>
+
+<h3 class="sub">이차 형식 (Quadratic Forms)</h3>
+
+<div class="fb">
+  <div class="fl">이차 형식의 행렬 미분 (Quadratic Form Derivative)</div>
+  \[
+    \frac{\partial (\mathbf{x}^\top \mathbf{A} \mathbf{x})}{\partial \mathbf{x}} = (\mathbf{A} + \mathbf{A}^\top)\mathbf{x}
+    \xrightarrow{\mathbf{A} = \mathbf{A}^\top} 2\mathbf{A}\mathbf{x}
+  \]
+  <div class="fn">
+    \(\mathbf{x}^\top \mathbf{A} \mathbf{x}\): 스칼라 — 결과는 \(n\)-차원 열벡터 (그라디언트)<br/>
+    \(\mathbf{A} + \mathbf{A}^\top\): 비대칭 행렬 \(\mathbf{A}\)의 경우 대칭화된 형태가 등장<br/>
+    \(\mathbf{A} = \mathbf{A}^\top\) (대칭): 가장 흔한 경우 — PSD 행렬, 공분산 행렬 등 → \(2\mathbf{A}\mathbf{x}\)<br/>
+    기억법: 스칼라 \(ax^2\)의 미분이 \(2ax\)인 것과 완전히 같은 구조
+  </div>
+</div>
+
+<h3 class="sub">자주 쓰이는 공식 모음</h3>
+<table>
+  <tr><th>표현식 \(f(\mathbf{x})\)</th><th>그라디언트 \(\partial f/\partial \mathbf{x}\)</th><th>ML 용도</th></tr>
+  <tr><td>\(\mathbf{a}^\top \mathbf{x}\)</td><td>\(\mathbf{a}\)</td><td>내적, 선형 예측</td></tr>
+  <tr><td>\(\mathbf{x}^\top \mathbf{A} \mathbf{x}\)</td><td>\((\mathbf{A}+\mathbf{A}^\top)\mathbf{x}\)</td><td>이차 손실, 정규화</td></tr>
+  <tr><td>\(\|\mathbf{x}\|^2 = \mathbf{x}^\top\mathbf{x}\)</td><td>\(2\mathbf{x}\)</td><td>L2 정규화 그라디언트</td></tr>
+  <tr><td>\(\|\mathbf{A}\mathbf{x} - \mathbf{b}\|^2\)</td><td>\(2\mathbf{A}^\top(\mathbf{A}\mathbf{x}-\mathbf{b})\)</td><td>OLS 그라디언트</td></tr>
+  <tr><td>\(\log\det\mathbf{A}\)</td><td>\((\mathbf{A}^{-\top})\) w.r.t. \(\mathbf{A}\)</td><td>가우시안 log-likelihood</td></tr>
+  <tr><td>\(\text{tr}(\mathbf{A}^\top\mathbf{B})\)</td><td>\(\mathbf{A}\) w.r.t. \(\mathbf{B}\)</td><td>Frobenius 내적, 행렬 최적화</td></tr>
+</table>
+
+
+<!-- == 섹션 3: 체인룰과 역전파 == -->
+<h2 class="st"><span class="ic">∘</span>체인룰과 역전파</h2>
+<p>딥러닝의 역전파(backpropagation)는 행렬 체인룰의 반복 적용입니다. 각 레이어를 하나의 함수로 보면, 역전파는 야코비안 행렬의 연쇄 곱입니다.</p>
+
+<div class="fb">
+  <div class="fl">행렬 체인룰 (Matrix Chain Rule)</div>
+  \[
+    \frac{\partial z}{\partial \mathbf{x}} = \frac{\partial z}{\partial \mathbf{y}} \cdot \frac{\partial \mathbf{y}}{\partial \mathbf{x}}
+  \]
+  <div class="fn">
+    \(z \in \mathbb{R}\): 최종 스칼라 손실 \(L\)<br/>
+    \(\mathbf{y} \in \mathbb{R}^m\): 중간 레이어 출력<br/>
+    \(\mathbf{x} \in \mathbb{R}^n\): 현재 레이어 입력<br/>
+    \(\partial z/\partial \mathbf{y}\): 업스트림 그라디언트 (위 레이어에서 전달받음) — 크기 \(1 \times m\)<br/>
+    \(\partial \mathbf{y}/\partial \mathbf{x}\): 현재 레이어의 야코비안 — 크기 \(m \times n\)<br/>
+    곱의 크기: \((1 \times m) \cdot (m \times n) = (1 \times n)\) → 다음 레이어로 전달되는 그라디언트
+  </div>
+</div>
+
+<h3 class="sub">선형 레이어의 역전파 유도</h3>
+<p>포워드 패스: \(\mathbf{y} = \mathbf{W}\mathbf{x} + \mathbf{b}\) (\(\mathbf{W} \in \mathbb{R}^{m \times n}\)). 업스트림 그라디언트 \(\partial L/\partial \mathbf{y}\)가 주어졌을 때 각 파라미터의 그라디언트를 유도합니다.</p>
+
+<div class="fb">
+  <div class="fl">선형 레이어 역전파 공식 (Linear Layer Backprop)</div>
+  \[
+    \frac{\partial L}{\partial \mathbf{W}} = \frac{\partial L}{\partial \mathbf{y}} \cdot \mathbf{x}^\top,
+    \qquad
+    \frac{\partial L}{\partial \mathbf{x}} = \mathbf{W}^\top \cdot \frac{\partial L}{\partial \mathbf{y}},
+    \qquad
+    \frac{\partial L}{\partial \mathbf{b}} = \frac{\partial L}{\partial \mathbf{y}}
+  \]
+  <div class="fn">
+    \(\partial L/\partial \mathbf{y} \in \mathbb{R}^{m}\): 업스트림 그라디언트 (위에서 내려온 값)<br/>
+    \(\partial L/\partial \mathbf{W} \in \mathbb{R}^{m \times n}\): 가중치 그라디언트 — \(\mathbf{y} = \mathbf{Wx}\)에서 \(\mathbf{W}_{ij}\)의 기여<br/>
+    \(\partial L/\partial \mathbf{x} \in \mathbb{R}^{n}\): 입력 그라디언트 — 이 값이 이전 레이어로 전달됨<br/>
+    차원 확인: \(\mathbf{W}^\top \in \mathbb{R}^{n \times m}\), \(\partial L/\partial\mathbf{y} \in \mathbb{R}^{m}\) → 곱은 \(\mathbb{R}^n\) ✅<br/>
+    PyTorch <code>nn.Linear</code> 역전파가 이 공식을 그대로 구현
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="col-box">
+    <h5>포워드 패스</h5>
+    <ul>
+      <li>\(\mathbf{y} = \mathbf{W}\mathbf{x} + \mathbf{b}\)</li>
+      <li>크기: \((m\!\times\!n) \cdot (n\!\times\!1) = (m\!\times\!1)\)</li>
+      <li>입력 \(\mathbf{x}\)를 저장 (역전파에 필요)</li>
+    </ul>
+  </div>
+  <div class="col-box">
+    <h5>역방향 패스</h5>
+    <ul>
+      <li>\(\delta \leftarrow \partial L/\partial\mathbf{y}\) (업스트림)</li>
+      <li>\(\partial L/\partial\mathbf{W} = \delta\,\mathbf{x}^\top\)</li>
+      <li>\(\partial L/\partial\mathbf{x} = \mathbf{W}^\top\delta\) (다운스트림으로 전달)</li>
+    </ul>
+  </div>
+</div>
+
+
+<!-- == 섹션 4: 응용 — OLS와 Softmax == -->
+<h2 class="st"><span class="ic">✏</span>응용 — OLS와 Softmax</h2>
+<p>배운 공식을 실제 ML 문제에 적용합니다. 최소제곱법(OLS)의 정규방정식과 소프트맥스의 야코비안은 행렬 미분의 대표적인 응용입니다.</p>
+
+<h3 class="sub">최소제곱법 (OLS) — 정규방정식 유도</h3>
+
+<div class="fb">
+  <div class="fl">OLS 손실 함수와 최솟값 조건 (Ordinary Least Squares)</div>
+  \[
+    \frac{\partial \|\mathbf{X}\mathbf{w} - \mathbf{y}\|^2}{\partial \mathbf{w}}
+    = 2\mathbf{X}^\top(\mathbf{X}\mathbf{w} - \mathbf{y}) = \mathbf{0}
+    \quad \Longrightarrow \quad
+    \hat{\mathbf{w}} = (\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\mathbf{y}
+  \]
+  <div class="fn">
+    \(\mathbf{X} \in \mathbb{R}^{N \times d}\): 설계 행렬 (N 샘플, d 피처)<br/>
+    \(\mathbf{w} \in \mathbb{R}^d\): 가중치 벡터 (우리가 찾는 값)<br/>
+    \(\mathbf{y} \in \mathbb{R}^N\): 타겟 레이블<br/>
+    \(\|\mathbf{Xw}-\mathbf{y}\|^2 = (\mathbf{Xw}-\mathbf{y})^\top(\mathbf{Xw}-\mathbf{y})\): 이차 형식으로 전개 후 공식 적용<br/>
+    \((\mathbf{X}^\top\mathbf{X})^{-1}\mathbf{X}^\top\): 무어-펜로즈 유사역행렬(pseudo-inverse)의 특수 케이스
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>유도 과정:</strong> \(\|\mathbf{Xw}-\mathbf{y}\|^2 = \mathbf{w}^\top\mathbf{X}^\top\mathbf{X}\mathbf{w} - 2\mathbf{y}^\top\mathbf{X}\mathbf{w} + \mathbf{y}^\top\mathbf{y}\). 각 항을 \(\mathbf{w}\)로 미분하면 \(2\mathbf{X}^\top\mathbf{X}\mathbf{w} - 2\mathbf{X}^\top\mathbf{y}\). 이를 0으로 놓으면 정규방정식 \(\mathbf{X}^\top\mathbf{X}\hat{\mathbf{w}} = \mathbf{X}^\top\mathbf{y}\)가 나옵니다.</p></div>
+</div>
+
+<h3 class="sub">소프트맥스 야코비안</h3>
+
+<div class="fb">
+  <div class="fl">소프트맥스 야코비안 (Softmax Jacobian)</div>
+  \[
+    p_i = \frac{e^{z_i}}{\sum_k e^{z_k}},
+    \qquad
+    \frac{\partial p_i}{\partial z_j} = p_i(\delta_{ij} - p_j)
+  \]
+  <div class="fn">
+    \(p_i\): 소프트맥스 출력의 \(i\)번째 확률<br/>
+    \(z_j\): 소프트맥스 입력(로짓)의 \(j\)번째 원소<br/>
+    \(\delta_{ij}\): 크로네커 델타 — \(i = j\)이면 1, 아니면 0<br/>
+    \(i = j\)일 때: \(\partial p_i/\partial z_i = p_i(1 - p_i)\) — 시그모이드 미분과 유사한 구조<br/>
+    \(i \neq j\)일 때: \(\partial p_i/\partial z_j = -p_i p_j\)<br/>
+    실용 노트: Cross-Entropy + Softmax 합산 시 그라디언트 = \(\mathbf{p} - \mathbf{y}\) (원핫 \(\mathbf{y}\) 기준) — 매우 깔끔한 결과
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📌</div>
+  <div class="cb"><p><strong>CE + Softmax 합산 그라디언트:</strong> 크로스엔트로피 손실 \(L = -\sum_i y_i \log p_i\)와 소프트맥스를 합산하면 \(\partial L/\partial z_j = p_j - y_j\). 야코비안의 복잡한 구조가 합산 과정에서 완전히 상쇄됩니다. PyTorch의 <code>nn.CrossEntropyLoss</code>가 이를 내부적으로 처리합니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록 — 이차형식 그라디언트
+════════════════════════════════════════ -->
+<h2 class="st"><span class="ic">🎛</span>이차형식 그라디언트 시각화</h2>
+
+<div class="calc">
+  <h4>🔢 이차형식 그라디언트 계산기</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+    대각 행렬 \(\mathbf{A} = \text{diag}(a_{11}, a_{22})\)와 벡터 \(\mathbf{x} = (x_1, x_2)^\top\)로
+    \(f = \mathbf{x}^\top\mathbf{A}\mathbf{x}\)와 그 그라디언트 \(\nabla f = 2\mathbf{A}\mathbf{x}\)를 계산합니다.
+  </p>
+
+  <div class="cr">
+    <span class="cl">입력 \(x_1\)</span>
+    <input type="range" id="md-x1" min="-3" max="3" step="0.1" value="1.0" oninput="updateMatDiff()"/>
+    <input type="number" id="md-x1-v" value="1.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">입력 \(x_2\)</span>
+    <input type="range" id="md-x2" min="-3" max="3" step="0.1" value="1.0" oninput="updateMatDiff()"/>
+    <input type="number" id="md-x2-v" value="1.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">행렬 계수 \(a_{11}\)</span>
+    <input type="range" id="md-a11" min="-2" max="2" step="0.1" value="1.0" oninput="updateMatDiff()"/>
+    <input type="number" id="md-a11-v" value="1.0" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">행렬 계수 \(a_{22}\)</span>
+    <input type="range" id="md-a22" min="-2" max="2" step="0.1" value="1.0" oninput="updateMatDiff()"/>
+    <input type="number" id="md-a22-v" value="1.0" readonly/>
+  </div>
+
+  <div class="cres" id="md-res">계산 중...</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">선형 레이어 \(\mathbf{y} = \mathbf{W}\mathbf{x}\)에서 손실 \(L\)을 입력 \(\mathbf{x}\)로 미분한 값 \(\partial L/\partial \mathbf{x}\)는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(\mathbf{W} \cdot (\partial L/\partial \mathbf{y})\)</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; \(\mathbf{W}^\top \cdot (\partial L/\partial \mathbf{y})\)</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; \((\partial L/\partial \mathbf{y}) \cdot \mathbf{W}^\top\)</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; \(\partial L/\partial \mathbf{y}\) 그 자체</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  Phase 2 졸업 확인 블록
+════════════════════════════════════════ -->
+<div class="card" style="border-left: 3px solid var(--accent3); margin: 2rem 0;">
+  <h3>🎓 Phase 2 졸업 확인</h3>
+  <p>Ch.15~Ch.26을 완료했다면 다음을 할 수 있어야 합니다:</p>
+  <ul>
+    <li>Ch.15-17: ε-N 정의, Lipschitz, 테일러 급수, Big-O</li>
+    <li>Ch.18-20: 볼록 함수, KKT 조건, 수렴 속도 O(1/T)</li>
+    <li>Ch.21-23: σ-대수, a.s. 수렴, Lebesgue 적분, Fubini</li>
+    <li>Ch.24-26: 고유값, SVD·LoRA, 행렬 미분·역전파</li>
+  </ul>
+  <p><strong>졸업 기준</strong>: NeurIPS 논문의 Theorem 섹션을 혼자서 검증할 수 있다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch25.html'">← Ch.25 SVD 완전 유도·LoRA</button>
+  <button class="btn btn-p" onclick="location.href='ch27.html'">Ch.27 집중 부등식 (Phase 3) →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 체인룰에서 ∂y/∂x = Wᵀ이므로, ∂L/∂x = Wᵀ · (∂L/∂y)입니다. 행렬을 전치해야 차원이 맞습니다.'
+    : '❌ 틀렸습니다. y = Wx이므로 ∂y/∂x = Wᵀ (분모 레이아웃). 따라서 ∂L/∂x = Wᵀ·(∂L/∂y)입니다.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── 이차형식 그라디언트 계산기 ──
+function updateMatDiff() {
+  const x1 = parseFloat(document.getElementById('md-x1').value);
+  const x2 = parseFloat(document.getElementById('md-x2').value);
+  const a11 = parseFloat(document.getElementById('md-a11').value);
+  const a22 = parseFloat(document.getElementById('md-a22').value);
+
+  document.getElementById('md-x1-v').value = x1.toFixed(1);
+  document.getElementById('md-x2-v').value = x2.toFixed(1);
+  document.getElementById('md-a11-v').value = a11.toFixed(1);
+  document.getElementById('md-a22-v').value = a22.toFixed(1);
+
+  // f = xᵀAx = a11·x1² + a22·x2²
+  const f = a11 * x1 * x1 + a22 * x2 * x2;
+
+  // 그라디언트 = (2·a11·x1, 2·a22·x2)
+  const g1 = 2 * a11 * x1;
+  const g2 = 2 * a22 * x2;
+  const gradNorm = Math.sqrt(g1 * g1 + g2 * g2);
+
+  document.getElementById('md-res').innerHTML =
+    `<strong>A</strong> = diag(${a11.toFixed(1)}, ${a22.toFixed(1)}),&nbsp;&nbsp;
+     <strong>x</strong> = (${x1.toFixed(1)}, ${x2.toFixed(1)})ᵀ<br/>
+     <br/>
+     <strong>f</strong> = <strong>x</strong>ᵀ<strong>A</strong><strong>x</strong>
+       = ${a11.toFixed(1)}·(${x1.toFixed(1)})² + ${a22.toFixed(1)}·(${x2.toFixed(1)})²
+       = <strong>${f.toFixed(4)}</strong><br/>
+     <br/>
+     <strong>∇f</strong> = 2<strong>A</strong><strong>x</strong>
+       = (2·${a11.toFixed(1)}·${x1.toFixed(1)},&nbsp; 2·${a22.toFixed(1)}·${x2.toFixed(1)})ᵀ
+       = (<strong>${g1.toFixed(4)}</strong>, <strong>${g2.toFixed(4)}</strong>)ᵀ<br/>
+     ‖∇f‖ = ${gradNorm.toFixed(4)}
+     <span style="font-size:.78rem;color:var(--muted);margin-left:12px;">
+       — 그라디언트 방향으로 스텝하면 f가 가장 빠르게 증가
+     </span>`;
+}
+updateMatDiff();
+</script>
+</body>
+</html>

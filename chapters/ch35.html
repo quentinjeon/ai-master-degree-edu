@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.35 — 논문 비판 독해 방법론 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.35 · 연구 방법론 (Phase 3 — 9주차)</div>
+  <h1>논문 비판 독해 방법론</h1>
+  <p>"읽는 사람"에서 "검증하는 사람"으로. Contribution 분해, 수식 검증, 실험 비판, 연구 질문 생성까지 — Stanford AI 석사의 논문 독해 프로토콜.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>"명탐정은 사건을 들을 때 '이야기를 믿는 사람'이 아니라 '증거를 검증하는 사람'이다."</strong> 논문도 마찬가지 — Stanford 수준은 저자의 주장을 그대로 받아들이는 것이 아니라, 수식을 직접 유도하고, 실험을 재설계하고, '이 주장이 틀릴 수 있는 조건'을 찾아내는 것이다.</p>
+  <ul>
+    <li><strong>논문 읽기 (초급):</strong> Abstract를 이해하고 결론을 기억한다</li>
+    <li><strong>논문 읽기 (중급):</strong> 핵심 수식을 이해하고 실험 결과를 확인한다</li>
+    <li><strong>AI에서 (Stanford 수준):</strong> Contribution을 기존 문헌에 위치시키고, 수식을 독립적으로 유도하고, "이 결과가 과장됐을 가능성"을 정량적으로 분석한다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: 논문 구조 분석 == -->
+<h2 class="st"><span class="ic">📄</span>논문 구조 분석</h2>
+<p>효율적인 논문 독해는 구조를 이해하는 것에서 시작합니다. 각 섹션마다 찾아야 할 정보와 Stanford 수준의 비판적 질문이 다릅니다.</p>
+
+<h3 class="sub">논문 섹션별 핵심 추출 방법</h3>
+<table>
+  <tr><th>섹션</th><th>찾아야 할 것</th><th>Stanford 수준 질문</th></tr>
+  <tr><td><strong>Abstract</strong></td><td>Contribution 1~3개</td><td>"이것이 정말 새로운가?"</td></tr>
+  <tr><td><strong>Introduction</strong></td><td>문제 정의, 기존 연구의 한계</td><td>"기존 방법의 한계가 공정하게 서술됐는가?"</td></tr>
+  <tr><td><strong>Related Work</strong></td><td>비교 대상 논문들</td><td>"인용이 누락된 중요 논문이 있는가?"</td></tr>
+  <tr><td><strong>Method</strong></td><td>핵심 수식, 알고리즘</td><td>"이 수식이 실제로 작동하는가? 직접 유도 가능한가?"</td></tr>
+  <tr><td><strong>Experiments</strong></td><td>Baseline, 데이터셋, 평가지표</td><td>"Baseline이 충분히 강한가? 데이터셋 선택에 편향이 있는가?"</td></tr>
+  <tr><td><strong>Results</strong></td><td>성능 숫자</td><td>"차이가 통계적으로 유의한가? 분산은?"</td></tr>
+  <tr><td><strong>Ablation</strong></td><td>각 요소의 기여도</td><td>"충분한 Ablation인가? 빠진 실험이 있는가?"</td></tr>
+</table>
+
+<div class="cc">
+  <div class="ct">🔑 Contribution 분해 프레임 — Stanford 3-Layer</div>
+  <ul style="padding-left:18px;margin-top:8px;">
+    <li style="margin-bottom:6px;font-size:.9rem;"><strong>Layer 1 — 기술적 Contribution:</strong> 새로운 알고리즘/아키텍처/이론이 무엇인가</li>
+    <li style="margin-bottom:6px;font-size:.9rem;"><strong>Layer 2 — 경험적 Contribution:</strong> 어떤 벤치마크에서 얼마나 개선됐는가</li>
+    <li style="margin-bottom:6px;font-size:.9rem;"><strong>Layer 3 — 개념적 Contribution:</strong> 기존 이해를 어떻게 바꾸는가 (insights)</li>
+    <li style="font-size:.9rem;color:var(--muted);">대부분의 논문은 Layer 1+2. Layer 3까지 있는 논문이 최상위 venue에 실림</li>
+  </ul>
+</div>
+
+
+<!-- == 섹션 2: 수식 검증 프로토콜 == -->
+<h2 class="st"><span class="ic">∇</span>수식 검증 프로토콜</h2>
+<p>Stanford 수준의 논문 독해는 핵심 수식을 독립적으로 유도할 수 있어야 합니다. 논문의 수식을 그대로 믿는 것이 아니라, 4단계 프로토콜을 통해 직접 검증합니다.</p>
+
+<div class="fb">
+  <div class="fl">FORMULA VERIFICATION PROTOCOL</div>
+  \[ \text{Step 1: 기호 목록} \quad \theta\in\mathbb{R}^d,\ f:\mathbb{R}^d\to\mathbb{R},\ \ldots \]
+  \[ \text{Step 2: 가정 목록} \quad \text{Assumption A1 (L-smooth), A2 (convex), ...} \]
+  \[ \text{Step 3: 독립 유도} \quad \text{논문 없이 수식 전개} \]
+  \[ \text{Step 4: 반례 탐색} \quad \text{가정이 위반되면 수식이 틀리는가?} \]
+  <div class="fn">
+    Step 1: 논문의 Notation 섹션을 모두 정리 — 기호 혼용이나 재정의 여부 확인<br/>
+    Step 2: 각 Theorem의 가정을 명시적으로 나열 — 암묵적 가정이 숨겨진 경우가 많음<br/>
+    Step 3: 직접 유도 → 논문과 다른 결과가 나오면 오류 발견 가능 (NeurIPS 논문에서도 발생)<br/>
+    Step 4: 반례 = 논문 주장의 한계를 이해 — 가정이 위반되는 실전 시나리오를 탐색
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>논문의 오류 발견 빈도:</strong> 저명한 논문에도 수식 오류가 있습니다. NeurIPS 2024에서도 accepted paper에서 Theorem 증명 오류가 다수 발견됐습니다. 직접 검증하는 습관이 연구 역량의 핵심입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: 실험 설계 비판 체크리스트 == -->
+<h2 class="st"><span class="ic">🔬</span>실험 설계 비판 체크리스트</h2>
+<p>논문의 실험 설계를 체계적으로 비판합니다. 아래 여섯 가지 포인트에서 "빨간 깃발(red flag)"이 보이면 논문의 주장을 신중하게 검토해야 합니다.</p>
+
+<h3 class="sub">실험 비판 체크리스트</h3>
+<table>
+  <tr><th>비판 포인트</th><th>Stanford 수준 질문</th><th>빨간 깃발</th></tr>
+  <tr><td><strong>Baseline 강도</strong></td><td>"최신 SOTA와 비교했는가? 튜닝은 공평한가?"</td><td>Baseline이 2년 이상 지난 것</td></tr>
+  <tr><td><strong>하이퍼파라미터</strong></td><td>"제안 방법만 튜닝하지 않았는가?"</td><td>Baseline의 lr, 배치크기가 최적화 안 됨</td></tr>
+  <tr><td><strong>데이터셋 선택</strong></td><td>"왜 이 벤치마크인가? 의도적 선택인가?"</td><td>자기 방법이 잘 되는 데이터셋만 선택</td></tr>
+  <tr><td><strong>분산/오차</strong></td><td>"표준편차, 신뢰구간을 보고했는가?"</td><td>표준편차 없는 단일 수치</td></tr>
+  <tr><td><strong>스케일</strong></td><td>"다른 크기의 모델/데이터에서도 성립하는가?"</td><td>단 하나의 setting에서만 실험</td></tr>
+  <tr><td><strong>재현성</strong></td><td>"코드, 데이터, 랜덤 시드가 공개됐는가?"</td><td>"코드 공개 예정" 문구</td></tr>
+</table>
+
+<div class="fb">
+  <div class="fl">STATISTICAL SIGNIFICANCE TEST</div>
+  \[ p\text{-value} = P(\text{관측된 결과 이상 극단적인 결과}\mid H_0) \quad\Rightarrow\quad \text{유의}\iff p<\alpha\text{ (일반적으로 }\alpha=0.05\text{)} \]
+  <div class="fn">
+    \(H_0\): "두 방법의 성능에 차이 없다" (귀무가설) — 기각 가능할 때 비로소 차이를 주장할 수 있음<br/>
+    \(p<0.05\): 5% 이하 확률로만 이런 결과가 나옴 → 차이가 실제일 가능성이 높음<br/>
+    ML 논문에서 p-value 없는 성능 비교는 통계적으로 신뢰하기 어려움<br/>
+    주의: p-value가 작아도 effect size가 작으면 실용적 의의 없음 (통계적 유의성 ≠ 실용적 중요성)
+  </div>
+</div>
+
+
+<!-- == 섹션 4: 연구 질문 생성 == -->
+<h2 class="st"><span class="ic">?</span>연구 질문 생성</h2>
+<p>논문을 읽는 최종 목표는 새로운 연구 질문을 생성하는 것입니다. 아래 여섯 가지 유형의 질문을 체계적으로 도출하면 논문 하나에서 여러 개의 후속 연구 아이디어를 만들 수 있습니다.</p>
+
+<h3 class="sub">연구 질문 생성 프레임워크</h3>
+<table>
+  <tr><th>유형</th><th>질문 형태</th><th>예시</th></tr>
+  <tr><td><strong>일반화</strong></td><td>"다른 도메인/데이터에서도 성립하는가?"</td><td>"영어 NLP 결과가 다국어에서도 유효한가?"</td></tr>
+  <tr><td><strong>한계 탐색</strong></td><td>"이 방법이 실패하는 조건은?"</td><td>"분포 변화에서 성능은?"</td></tr>
+  <tr><td><strong>단순화</strong></td><td>"복잡도를 줄여도 비슷한 성능인가?"</td><td>"full attention 없이 sparse attention으로 같은 결과?"</td></tr>
+  <tr><td><strong>이론-실전 Gap</strong></td><td>"이론 증명의 가정이 실전에서 성립하는가?"</td><td>"L-smooth 가정이 실제 loss landscape에서 맞는가?"</td></tr>
+  <tr><td><strong>교차 영역</strong></td><td>"다른 분야 방법을 이곳에 적용하면?"</td><td>"컴퓨터 비전의 augmentation이 NLP에서?"</td></tr>
+  <tr><td><strong>확장</strong></td><td>"더 큰/작은 스케일에서 어떻게 되는가?"</td><td>"100억 파라미터에서도 같은 scaling law?"</td></tr>
+</table>
+
+<div class="fb">
+  <div class="fl">LOGICAL REBUTTAL FRAMEWORK</div>
+  \[ \text{주장: 방법 A가 B보다 성능 우수 }(f_A>f_B) \]
+  \[ \text{반박 조건 탐색:} \begin{cases} \text{분포 변화} & P_{test}\neq P_{train} \\ \text{데이터 크기} & n\to\infty\text{ or }n\to 0 \\ \text{도메인 이동} & \text{다른 태스크/언어/모달리티} \\ \text{계산 예산} & \text{동일 FLOPs 대비 비교} \end{cases} \]
+  <div class="fn">
+    논문이 주장하는 조건(설정)에서 벗어났을 때 결론이 뒤집히면 주장이 약함<br/>
+    "fair comparison"의 핵심: 동일 계산 예산(FLOPs)에서 비교해야 함<br/>
+    "동일 파라미터 수"가 아닌 "동일 추론 비용"이 더 공정한 경우가 많음<br/>
+    \(P_{test}\neq P_{train}\): 분포 이동(distribution shift) — 실제 배포 환경에서 가장 흔한 실패 시나리오
+  </div>
+</div>
+
+<div class="callout info">
+  <div class="ci">📄</div>
+  <div class="cb"><p>논문 리뷰어(reviewer)는 위 프레임워크를 바탕으로 "Accept / Reject / Major Revision"을 결정합니다. 80점 이상의 비판 독해 역량을 갖추면 NeurIPS·ICML 논문의 실제 리뷰어 수준의 분석이 가능합니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 논문 비판 점수 계산기 — Stanford 프로토콜</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">아래 체크리스트를 완료한 항목에 체크하세요. 총점이 80점 이상이면 NeurIPS/ICML 논문 리뷰어 수준의 비판 독해가 가능한 상태입니다.</p>
+
+  <div id="checklist-container"></div>
+
+  <div class="cres" id="score-res">체크박스를 선택하면 점수가 계산됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">Stanford 수준 논문 독해에서 Baseline 비교의 "빨간 깃발(red flag)"은?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; Baseline이 논문의 방법보다 느리다</div>
+  <div class="qo" onclick="ans(this, true)">(b) &nbsp; Baseline만 하이퍼파라미터 최적화를 하지 않아 불공정한 비교가 이루어졌다</div>
+  <div class="qo" onclick="ans(this, false)">(c) &nbsp; Baseline이 최신 논문에서 나왔다</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; Baseline보다 성능이 0.1% 높다</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch34.html'">← Ch.34 고급 최적화 이론</button>
+  <button class="btn btn-p" onclick="location.href='ch36.html'">Ch.36 연구 설계·실험 방법론 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통, 변경 금지) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! Baseline을 튜닝하지 않으면 제안 방법에 유리한 불공정한 비교가 됩니다. 이것이 논문 실험 설계에서 가장 흔한 빨간 깃발입니다.'
+    : '❌ 틀렸습니다. 빨간 깃발은 비교의 공정성 문제입니다. Baseline의 하이퍼파라미터를 충분히 튜닝하지 않으면 제안 방법이 유리하게 보일 수 있습니다.';
+}
+
+// ── 체크박스 저장 (공통, 변경 금지) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+
+// ── 논문 비판 체크리스트 계산기 ──
+const criteria = [
+  { id: 'c1', text: '수식 3개 이상 독립 유도 완료', weight: 15 },
+  { id: 'c2', text: 'Contribution을 1~3개로 압축', weight: 10 },
+  { id: 'c3', text: 'Baseline의 공정성 평가 완료', weight: 15 },
+  { id: 'c4', text: '통계적 유의성 확인 (분산/오차 확인)', weight: 10 },
+  { id: 'c5', text: '데이터셋 선택 편향 분석', weight: 10 },
+  { id: 'c6', text: '한계 조건 3개 이상 도출', weight: 15 },
+  { id: 'c7', text: '새로운 연구 질문 2개 이상 생성', weight: 15 },
+  { id: 'c8', text: '확장 실험 설계 1개 이상', weight: 10 },
+];
+
+function buildChecklist() {
+  const container = document.getElementById('checklist-container');
+  criteria.forEach(c => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;margin:6px 0;';
+    div.innerHTML = `<input type="checkbox" id="${c.id}" onchange="calcScore();saveCheck(this)">
+                     <label for="${c.id}" style="font-size:.88rem;cursor:pointer;">${c.text} <span style="color:var(--muted);font-size:.8rem">(${c.weight}점)</span></label>`;
+    container.appendChild(div);
+  });
+}
+
+function calcScore() {
+  let score = 0;
+  criteria.forEach(c => { if (document.getElementById(c.id)?.checked) score += c.weight; });
+  const level = score < 30 ? '📖 입문 (논문 읽기 수준)' :
+                score < 60 ? '📊 중급 (이해·분석 수준)' :
+                score < 80 ? '🔬 고급 (비판적 독해 수준)' :
+                             '🎓 Stanford 수준 (설계·확장 가능)';
+  document.getElementById('score-res').innerHTML =
+    `총점: <strong>${score}점</strong> / 100점<br/>${level}<br/>
+     <span style="font-size:.78rem;color:var(--muted)">80점 이상: NeurIPS/ICML 논문 리뷰어 수준의 비판 독해 가능</span>`;
+}
+
+buildChecklist();
+loadChecks();
+calcScore();
+</script>
+</body>
+</html>

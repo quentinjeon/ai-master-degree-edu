@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ch.20 — 수렴 속도 분석 | 확률·수학·AI 교재</title>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath:[['\\(','\\)']], displayMath:[['\\[','\\]']], tags:'ams' },
+  options:{ skipHtmlTags:['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+<style>
+/* ══ CSS 변수 (절대 변경 금지) ══ */
+:root {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#22263a; --surface3:#2a2f47;
+  --accent:#6c8aff; --accent2:#a78bfa; --accent3:#34d399; --accent4:#f59e0b; --accent5:#f87171;
+  --text:#e2e8f0; --muted:#94a3b8; --border:#2d3148; --code:#141824;
+  --hl:rgba(108,138,255,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.75;
+  padding:44px 56px;max-width:900px;margin:0 auto;
+}
+p{margin-bottom:13px;color:var(--text);font-size:.95rem;}
+
+/* ══ HERO ══ */
+.hero{background:linear-gradient(135deg,#1a1d2e,#22263a);border:1px solid var(--border);
+  border-radius:16px;padding:44px 48px;margin-bottom:44px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;
+  background:radial-gradient(circle,rgba(108,138,255,.14),transparent 70%);}
+.hero .badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(108,138,255,.14);border:1px solid rgba(108,138,255,.3);
+  color:var(--accent);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;margin-bottom:14px;}
+.hero h1{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:10px;
+  background:linear-gradient(135deg,var(--text),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{color:var(--muted);font-size:.95rem;max-width:580px;}
+
+/* ══ EASY BOX ══ */
+.easy{background:linear-gradient(135deg,rgba(167,139,250,.08),rgba(52,211,153,.06));
+  border:1px solid rgba(167,139,250,.25);border-radius:12px;padding:18px 22px;margin:14px 0;}
+.easy .et{font-size:.78rem;font-weight:700;color:var(--accent2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px;}
+.easy p{font-size:.93rem;margin-bottom:6px;}
+.easy ul{padding-left:18px;margin:6px 0;}
+.easy li{font-size:.9rem;margin-bottom:4px;line-height:1.6;}
+
+/* ══ SECTION TITLES ══ */
+h2.st{font-size:1.4rem;font-weight:700;color:var(--text);margin:38px 0 14px;
+  padding-bottom:10px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:10px;}
+h2.st .ic{width:30px;height:30px;background:var(--hl);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:15px;}
+h3.sub{font-size:1.05rem;font-weight:600;color:var(--accent2);margin:24px 0 9px;}
+
+/* ══ FORMULA BOX ══ */
+.fb{background:var(--code);border:1px solid var(--border);border-left:4px solid var(--accent);
+  border-radius:8px;padding:18px 22px;margin:18px 0;overflow-x:auto;}
+.fb .fl{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px;font-weight:600;}
+.fb .fn{font-size:.82rem;color:var(--muted);margin-top:9px;line-height:1.7;}
+
+/* ══ CONCEPT CARD ══ */
+.cc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:18px 0;}
+.cc .ct{font-size:.8rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+
+/* ══ CALLOUT ══ */
+.callout{border-radius:10px;padding:14px 18px;margin:18px 0;display:flex;gap:11px;}
+.callout.info{background:rgba(108,138,255,.08);border:1px solid rgba(108,138,255,.2);}
+.callout.tip {background:rgba(52,211,153,.08); border:1px solid rgba(52,211,153,.2);}
+.callout.warn{background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2);}
+.callout .ci{font-size:17px;flex-shrink:0;}
+.callout .cb p{margin-bottom:0;font-size:.88rem;}
+
+/* ══ TABLE ══ */
+table{width:100%;border-collapse:collapse;margin:14px 0 22px;font-size:.88rem;}
+th{background:var(--surface2);color:var(--accent);padding:9px 13px;text-align:left;border-bottom:2px solid var(--border);}
+td{padding:8px 13px;border-bottom:1px solid var(--border);}
+tr:hover td{background:var(--hl);}
+
+/* ══ 2COL ══ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.col-box{background:var(--surface3);border-radius:8px;padding:13px 15px;}
+.col-box h5{font-size:.75rem;color:var(--accent4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.col-box p,.col-box li{font-size:.85rem;margin-bottom:4px;line-height:1.55;}
+.col-box ul{padding-left:16px;}
+
+/* ══ QUIZ ══ */
+.qb{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:26px 0;}
+.qb h4{color:var(--accent4);margin-bottom:13px;font-size:.97rem;}
+.qo{display:flex;align-items:center;gap:9px;padding:9px 13px;border-radius:7px;
+  border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .18s;font-size:.88rem;}
+.qo:hover{background:var(--hl);border-color:var(--accent);}
+.qo.correct{background:rgba(52,211,153,.14);border-color:var(--accent3);color:var(--accent3);}
+.qo.wrong{background:rgba(239,68,68,.10);border-color:#ef4444;color:#f87171;}
+.qfb{margin-top:10px;font-size:.85rem;display:none;}
+.qfb.show{display:block;}
+
+/* ══ INTERACTIVE ══ */
+.calc{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px;margin:22px 0;}
+.calc h4{color:var(--accent4);margin-bottom:14px;}
+.cr{display:flex;align-items:center;gap:11px;margin-bottom:10px;flex-wrap:wrap;}
+.cl{font-size:12px;color:var(--muted);min-width:115px;}
+input[type=range]{flex:1;min-width:90px;accent-color:var(--accent);}
+input[type=number]{width:72px;background:var(--code);border:1px solid var(--border);
+  border-radius:6px;color:var(--text);padding:4px 7px;font-size:12px;}
+.cres{margin-top:14px;padding:13px 17px;background:var(--code);
+  border-radius:8px;font-size:.9rem;color:var(--accent3);font-weight:600;line-height:1.6;}
+.conv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.conv-item{background:var(--surface3);border-radius:8px;padding:11px 14px;font-size:.84rem;line-height:1.6;}
+.conv-item .conv-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.conv-item .conv-val{font-size:1.05rem;font-weight:700;}
+
+/* ══ NAV ══ */
+.nb{display:flex;justify-content:space-between;margin-top:52px;padding-top:22px;border-top:1px solid var(--border);}
+.btn{padding:9px 22px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.btn-p{background:var(--accent);color:#fff;}
+.btn-p:hover{background:#5a78f0;transform:translateY(-1px);}
+.btn-s{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-s:hover{background:var(--hl);}
+.btn:disabled{opacity:.3;cursor:default;transform:none!important;}
+
+/* ══ TAG ══ */
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;margin-right:5px;}
+.tb{background:rgba(108,138,255,.14);color:var(--accent);}
+.tg{background:rgba(52,211,153,.14);color:var(--accent3);}
+.tp{background:rgba(167,139,250,.14);color:var(--accent2);}
+.ty{background:rgba(245,158,11,.14);color:var(--accent4);}
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+  [1] HERO 블록
+════════════════════════════════════════ -->
+<div class="hero">
+  <div class="badge">Ch.20 · 볼록 최적화 (레벨 2 — Phase 2-B · 6주차)</div>
+  <h1>수렴 속도 분석</h1>
+  <p>GD가 얼마나 빠르게 최적해에 도달하는가. 논문의 Theorem "f(θₜ) − f* ≤ C/T"를 이해합니다.</p>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [2] EASY BOX 블록
+════════════════════════════════════════ -->
+<div class="easy">
+  <div class="et">🧒 초등학생 한 줄 설명</div>
+  <p><strong>산에서 내려오는 속도가 얼마나 빠른가</strong>를 수학으로 재는 것이 이 챕터의 전부입니다 — 볼록한 산은 O(1/T)로 천천히, V자 계곡은 O(ρᵀ)로 지수적으로 빠르게 바닥에 닿습니다.</p>
+  <ul>
+    <li>볼록 함수(완만한 산): 100번 발걸음을 내디디면 오차가 1/100로 줄어든다 → <strong>O(1/T)</strong></li>
+    <li>강볼록 함수(V자 계곡): 발걸음마다 오차가 일정 비율 ρ로 줄어든다 → <strong>O(ρᵀ)</strong>, 지수 감소</li>
+    <li>AI 논문 연결: "Algorithm 1 converges at rate O(1/√T)"처럼 적힌 Theorem 문장이 바로 이 수렴 속도를 기술한 것이다</li>
+  </ul>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [3] MAIN CONTENT 블록
+════════════════════════════════════════ -->
+
+<!-- == 섹션 1: GD 수렴의 3가지 가정 == -->
+<h2 class="st"><span class="ic">⛰</span>GD 수렴의 3가지 가정</h2>
+<p>경사하강법(GD)의 수렴을 수학적으로 보장하려면 목적함수 \(f\)에 대한 가정이 필요합니다. 가정이 강할수록 더 빠른 수렴 속도가 보장됩니다.</p>
+
+<h3 class="sub">핵심 가정과 수식</h3>
+<table>
+  <tr>
+    <th>가정</th>
+    <th>수식</th>
+    <th>의미</th>
+    <th>보장되는 속도</th>
+  </tr>
+  <tr>
+    <td><strong>L-smooth</strong></td>
+    <td>\(\|\nabla f(x) - \nabla f(y)\| \leq L\|x - y\|\)</td>
+    <td>그라디언트가 급격히 변하지 않음. 이차 근사의 오차가 유계</td>
+    <td>수렴 조건의 기반</td>
+  </tr>
+  <tr>
+    <td><strong>볼록 (Convex)</strong></td>
+    <td>\(f(y) \geq f(x) + \nabla f(x)^\top(y-x)\)</td>
+    <td>접선이 항상 함수 아래에 있음. 지역 최소 = 전역 최소</td>
+    <td>O(1/T)</td>
+  </tr>
+  <tr>
+    <td><strong>μ-강볼록 (Strongly Convex)</strong></td>
+    <td>\(f(y) \geq f(x) + \nabla f(x)^\top(y-x) + \frac{\mu}{2}\|y-x\|^2\)</td>
+    <td>이차 함수보다 더 굽어 있음. 유일한 최솟값 존재</td>
+    <td>O(ρᵀ)</td>
+  </tr>
+</table>
+
+<div class="callout info">
+  <div class="ci">💡</div>
+  <div class="cb"><p><strong>가정이 강할수록 수렴이 빠릅니다.</strong> 딥러닝의 목적함수는 비볼록(non-convex)이지만, 실제로는 SGD가 잘 작동합니다. 이는 딥러닝 손실 지형에 "충분히 볼록한" 구간이 많거나, 지역 최솟값들의 성능이 서로 비슷하기 때문입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 2: 볼록 GD O(1/T) == -->
+<h2 class="st"><span class="ic">📉</span>볼록 GD 수렴 — O(1/T)</h2>
+<p>함수가 볼록이고 L-smooth일 때, 학습률 \(\alpha = 1/L\)로 GD를 T번 실행하면 평균 반복값 \(\bar\theta_T\)의 최적 갭이 \(C/T\)로 줄어듭니다.</p>
+
+<div class="fb">
+  <div class="fl">볼록 GD 수렴 정리 (Theorem)</div>
+  \[
+    f(\bar\theta_T) - f^* \;\leq\; \frac{L\,\|\theta_0 - \theta^*\|^2}{2T}
+  \]
+  <div class="fn">
+    \(\bar\theta_T = \frac{1}{T}\sum_{t=1}^{T}\theta_t\): T번 반복의 평균값 (Cesàro 평균)<br/>
+    \(f^* = \min_\theta f(\theta)\): 전역 최솟값<br/>
+    \(L\): Lipschitz 상수 (함수의 "굴곡" 정도)<br/>
+    \(\|\theta_0 - \theta^*\|\): 초기점과 최적점 사이의 거리<br/>
+    우변이 \(C/T\) 형태이므로 ε 오차를 달성하려면 \(T = O(1/\varepsilon)\)번 반복이 필요
+  </div>
+</div>
+
+<div class="callout tip">
+  <div class="ci">📌</div>
+  <div class="cb"><p><strong>Cesàro 평균을 쓰는 이유:</strong> 마지막 반복값 \(\theta_T\) 대신 평균 \(\bar\theta_T\)를 쓰면 더 강한 수렴 보장을 얻을 수 있습니다. 논문에서 "we output \(\bar\theta_T\)"라고 쓰면 이 전략을 사용하는 것입니다.</p></div>
+</div>
+
+
+<!-- == 섹션 3: 강볼록 GD O(ρᵀ) == -->
+<h2 class="st"><span class="ic">🚀</span>강볼록 GD 수렴 — O(ρᵀ) 지수 감소</h2>
+<p>함수가 μ-강볼록이고 L-smooth일 때, GD는 훨씬 빠른 <strong>지수적(선형) 수렴</strong>을 달성합니다. 매 반복마다 오차가 고정 비율 ρ로 줄어드는 것이 특징입니다.</p>
+
+<div class="fb">
+  <div class="fl">강볼록 GD 수렴 정리 (Theorem)</div>
+  \[
+    \|\theta_T - \theta^*\|^2 \;\leq\; \Bigl(1 - \frac{\mu}{L}\Bigr)^T \|\theta_0 - \theta^*\|^2
+  \]
+  <div class="fn">
+    \(\mu\): 강볼록 상수 (함수가 얼마나 "V자"인가)<br/>
+    \(L\): L-smooth 상수<br/>
+    \(\kappa = L/\mu\): 조건수(condition number). \(\kappa\)가 클수록 수렴이 느리다<br/>
+    \(\rho = 1 - 1/\kappa = 1 - \mu/L\): 수렴 비율. \(\rho &lt; 1\)이면 지수 감소 보장<br/>
+    ε 오차 달성에 \(T = O(\kappa \log(1/\varepsilon))\)번 반복 필요
+  </div>
+</div>
+
+<h3 class="sub">알고리즘별 수렴 속도 비교</h3>
+<table>
+  <tr>
+    <th>알고리즘</th>
+    <th>가정</th>
+    <th>수렴 속도</th>
+    <th>ε 달성 반복 횟수</th>
+  </tr>
+  <tr>
+    <td><strong>볼록 GD</strong></td>
+    <td>볼록 + L-smooth</td>
+    <td>\(O(1/T)\)</td>
+    <td>\(O(1/\varepsilon)\)</td>
+  </tr>
+  <tr>
+    <td><strong>Nesterov (볼록)</strong></td>
+    <td>볼록 + L-smooth</td>
+    <td>\(O(1/T^2)\)</td>
+    <td>\(O(1/\sqrt{\varepsilon})\)</td>
+  </tr>
+  <tr>
+    <td><strong>강볼록 GD</strong></td>
+    <td>μ-강볼록 + L-smooth</td>
+    <td>\(O(\rho^T)\), \(\rho = 1-1/\kappa\)</td>
+    <td>\(O(\kappa\log(1/\varepsilon))\)</td>
+  </tr>
+  <tr>
+    <td><strong>강볼록 Nesterov</strong></td>
+    <td>μ-강볼록 + L-smooth</td>
+    <td>\(O(\tilde\rho^T)\), \(\tilde\rho = 1-1/\sqrt\kappa\)</td>
+    <td>\(O(\sqrt\kappa\log(1/\varepsilon))\)</td>
+  </tr>
+</table>
+
+<div class="cc">
+  <div class="ct">🔑 조건수 κ = L/μ — 수렴의 핵심 지표</div>
+  <p>조건수가 클수록 (함수가 좁고 길쭉할수록) GD는 느리게 수렴합니다. 예를 들어 κ = 1000이면 강볼록 GD는 약 1000번 반복마다 오차가 1/e로 줄어듭니다. Nesterov 가속은 κ를 √κ로 줄여 수렴 속도를 크게 개선합니다.</p>
+  \[ \kappa = \frac{L}{\mu} \geq 1 \]
+</div>
+
+
+<!-- == 섹션 4: SGD == -->
+<h2 class="st"><span class="ic">🎲</span>확률적 경사하강법(SGD)의 수렴</h2>
+<p>SGD는 매 반복마다 전체 그라디언트 대신 무작위로 뽑은 미니배치의 그라디언트를 씁니다. 노이즈가 있어서 정확한 GD보다 수렴이 느리지만, 데이터가 클 때는 반복당 비용이 훨씬 낮습니다.</p>
+
+<div class="fb">
+  <div class="fl">SGD 업데이트 규칙</div>
+  \[
+    \theta_{t+1} = \theta_t - \alpha_t\,\tilde\nabla f(\theta_t),
+    \qquad
+    \mathbb{E}[\tilde\nabla f(\theta_t)] = \nabla f(\theta_t)
+  \]
+  <div class="fn">
+    \(\tilde\nabla f(\theta_t)\): 무작위 미니배치의 그라디언트 추정량<br/>
+    \(\mathbb{E}[\tilde\nabla f] = \nabla f\): 불편 추정 — 기댓값이 진짜 그라디언트와 같다<br/>
+    \(\alpha_t\): 감소하는 학습률 스케줄 (e.g. \(\alpha_t = \alpha/\sqrt{t}\))
+  </div>
+</div>
+
+<div class="fb">
+  <div class="fl">볼록 SGD 수렴 정리 (기댓값)</div>
+  \[
+    \mathbb{E}\bigl[f(\bar\theta_T)\bigr] - f^* \;\leq\; \frac{G^2}{\mu\sqrt{T}}
+  \]
+  <div class="fn">
+    \(\mathbb{E}[\cdot]\): 미니배치 무작위성에 대한 기댓값<br/>
+    \(G\): 그라디언트 노이즈 상한 \(\bigl(\mathbb{E}[\|\tilde\nabla f\|^2] \leq G^2\bigr)\)<br/>
+    \(\mu\): 강볼록 상수<br/>
+    수렴 속도가 \(O(1/\sqrt{T})\)로 결정적 GD의 \(O(1/T)\)보다 느리다<br/>
+    더 많은 반복이 필요하지만 반복당 비용이 훨씬 작아 총 비용은 경쟁력 있다
+  </div>
+</div>
+
+<div class="callout warn">
+  <div class="ci">⚠️</div>
+  <div class="cb"><p><strong>흔한 오해 — "SGD는 GD보다 항상 느리다":</strong> 수렴 속도 이론값(반복 횟수 기준)은 SGD가 느리지만, 대규모 데이터에서는 SGD가 한 번 반복할 때의 비용이 GD보다 훨씬 작기 때문에 <em>시간 기준</em>으로는 SGD가 훨씬 효율적일 수 있습니다.</p></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [5] INTERACTIVE 블록
+════════════════════════════════════════ -->
+<div class="calc">
+  <h4>🔢 GD vs SGD 수렴 비교 시뮬레이터</h4>
+  <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">반복 횟수 T와 조건수 κ를 조절하면 4가지 알고리즘의 수렴 오차(C = 1 기준 상대값)가 실시간으로 계산됩니다.</p>
+
+  <div class="cr">
+    <span class="cl">반복 횟수 \(T\)</span>
+    <input type="range" id="cv-T" min="1" max="500" step="1" value="100" oninput="updateConv()"/>
+    <input type="number" id="cv-T-v" value="100" readonly/>
+  </div>
+  <div class="cr">
+    <span class="cl">조건수 \(\kappa\)</span>
+    <input type="range" id="cv-kappa" min="1" max="50" step="1" value="10" oninput="updateConv()"/>
+    <input type="number" id="cv-kappa-v" value="10" readonly/>
+  </div>
+
+  <div class="conv-grid">
+    <div class="conv-item">
+      <div class="conv-label" style="color:var(--accent);">볼록 GD</div>
+      <div class="conv-val" id="res-gd" style="color:var(--accent);">—</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:3px;">C/T</div>
+    </div>
+    <div class="conv-item">
+      <div class="conv-label" style="color:var(--accent2);">Nesterov (볼록)</div>
+      <div class="conv-val" id="res-nest" style="color:var(--accent2);">—</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:3px;">C/T²</div>
+    </div>
+    <div class="conv-item">
+      <div class="conv-label" style="color:var(--accent3);">강볼록 GD</div>
+      <div class="conv-val" id="res-sgd-sc" style="color:var(--accent3);">—</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:3px;">ρᵀ · C, ρ = 1 − 1/κ</div>
+    </div>
+    <div class="conv-item">
+      <div class="conv-label" style="color:var(--accent4);">SGD (볼록)</div>
+      <div class="conv-val" id="res-sgd" style="color:var(--accent4);">—</div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:3px;">C/√T</div>
+    </div>
+  </div>
+
+  <div class="cres" id="conv-summary">결과가 여기에 표시됩니다.</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [6] QUIZ 블록
+════════════════════════════════════════ -->
+<div class="qb">
+  <h4>🧠 확인 문제</h4>
+  <p style="margin-bottom:12px;">μ-강볼록이고 L-smooth인 함수에서 경사하강법(GD)의 수렴 속도는?</p>
+  <div class="qo" onclick="ans(this, false)">(a) &nbsp; \(O(1/T)\) — 볼록 함수와 동일하게 선형 감소</div>
+  <div class="qo" onclick="ans(this, false)">(b) &nbsp; \(O(1/T^2)\) — Nesterov 가속과 동일</div>
+  <div class="qo" onclick="ans(this, true)">(c) &nbsp; \(O(\rho^T)\), \(\rho = 1-\mu/L < 1\) — 지수 감소 (선형 수렴)</div>
+  <div class="qo" onclick="ans(this, false)">(d) &nbsp; \(O(\sqrt{T})\) — 발산하는 속도</div>
+  <div class="qfb"></div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  [7] NAV BUTTONS 블록
+════════════════════════════════════════ -->
+<div class="nb">
+  <button class="btn btn-s" onclick="location.href='ch19.html'">← Ch.19 경사하강법과 볼록 최적화</button>
+  <button class="btn btn-p" onclick="location.href='ch21.html'">Ch.21 미니배치와 분산 감소 →</button>
+</div>
+
+
+<!-- ════════════════════════════════════════
+  JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+// ── 퀴즈 (공통) ──
+function ans(el, correct) {
+  const siblings = el.parentElement.querySelectorAll('.qo');
+  siblings.forEach(s => { s.classList.remove('correct','wrong'); s.onclick = null; });
+  el.classList.add(correct ? 'correct' : 'wrong');
+  const fb = el.parentElement.querySelector('.qfb');
+  fb.classList.add('show');
+  fb.style.color = correct ? 'var(--accent3)' : 'var(--accent5)';
+  fb.textContent = correct
+    ? '✅ 정답! 강볼록 함수에서 GD는 ρ = 1 − μ/L < 1이므로 매 반복마다 오차가 고정 비율로 줄어드는 지수 감소(선형 수렴)를 보입니다.'
+    : '❌ 틀렸습니다. 강볼록 함수에서 GD는 O(ρᵀ) 지수 감소를 달성합니다. 본문 섹션 3을 다시 확인해보세요.';
+}
+
+// ── 체크박스 저장 (공통) ──
+function saveCheck(el) {
+  localStorage.setItem('chk_' + el.id, el.checked ? '1' : '0');
+}
+function loadChecks() {
+  document.querySelectorAll('input[type=checkbox]').forEach(el => {
+    const v = localStorage.getItem('chk_' + el.id);
+    if (v !== null) el.checked = v === '1';
+  });
+}
+loadChecks();
+
+// ── 수렴 속도 계산기 ──
+function updateConv() {
+  const T = parseInt(document.getElementById('cv-T').value);
+  const kappa = parseInt(document.getElementById('cv-kappa').value);
+
+  document.getElementById('cv-T-v').value = T;
+  document.getElementById('cv-kappa-v').value = kappa;
+
+  const C = 1.0;
+
+  // 볼록 GD: C/T
+  const gdConv = C / T;
+
+  // Nesterov (볼록): C/T²
+  const nestConv = C / (T * T);
+
+  // 강볼록 GD: ρᵀ · C, ρ = 1 - 1/κ
+  const rho = 1 - 1 / kappa;
+  const scgdConv = Math.pow(rho, T) * C;
+
+  // SGD (볼록): C/√T
+  const sgdConv = C / Math.sqrt(T);
+
+  function fmt(v) {
+    if (v < 1e-10) return '≈ 0 (수렴 완료)';
+    if (v >= 1) return v.toFixed(4);
+    return v.toExponential(3);
+  }
+
+  document.getElementById('res-gd').textContent = fmt(gdConv);
+  document.getElementById('res-nest').textContent = fmt(nestConv);
+  document.getElementById('res-sgd-sc').textContent = fmt(scgdConv);
+  document.getElementById('res-sgd').textContent = fmt(sgdConv);
+
+  // 가장 빠른 알고리즘 찾기
+  const vals = [
+    { name: '강볼록 GD', v: scgdConv },
+    { name: 'Nesterov', v: nestConv },
+    { name: '볼록 GD', v: gdConv },
+    { name: 'SGD', v: sgdConv }
+  ];
+  vals.sort((a, b) => a.v - b.v);
+  const best = vals[0];
+  const worst = vals[vals.length - 1];
+
+  document.getElementById('conv-summary').innerHTML =
+    `T = <strong>${T}</strong>번 반복, κ = <strong>${kappa}</strong>, ρ = <strong>${rho.toFixed(4)}</strong><br/>` +
+    `가장 빠른 수렴: <strong>${best.name}</strong> (오차 ≈ ${fmt(best.v)})<br/>` +
+    `가장 느린 수렴: <strong>${worst.name}</strong> (오차 ≈ ${fmt(worst.v)})<br/>` +
+    `<span style="font-size:.78rem;color:var(--muted)">κ가 클수록 강볼록 GD의 ρ가 1에 가까워져 수렴이 느려집니다 (κ=${kappa} → ρ=${rho.toFixed(4)})</span>`;
+}
+updateConv();
+</script>
+</body>
+</html>
